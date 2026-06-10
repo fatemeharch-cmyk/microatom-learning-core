@@ -7,12 +7,14 @@ import {
   GraduationCap,
   TrendingUp,
   Timer,
+  Sparkles,
   User,
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
 
 const items: NavItem[] = [
   { titleKey: "nav_dashboard", url: "/student", icon: LayoutDashboard },
+  { titleKey: "nav_planner", url: "/student/planner", icon: Sparkles },
   { titleKey: "nav_daily", url: "/student/daily", icon: CalendarDays },
   { titleKey: "nav_weekly", url: "/student/weekly", icon: CalendarRange },
   { titleKey: "nav_homework", url: "/student/homework", icon: NotebookPen },
