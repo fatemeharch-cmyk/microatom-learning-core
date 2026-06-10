@@ -19,6 +19,13 @@
  */
 
 @theme inline {
+  --font-vazir: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --color-xp: var(--xp);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  --gradient-xp: linear-gradient(90deg, oklch(0.78 0.17 80), oklch(0.7 0.2 35));
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
