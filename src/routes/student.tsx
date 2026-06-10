@@ -6,6 +6,7 @@ import {
   NotebookPen,
   GraduationCap,
   TrendingUp,
+  Timer,
   User,
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
@@ -16,6 +17,7 @@ const items: NavItem[] = [
   { titleKey: "nav_weekly", url: "/student/weekly", icon: CalendarRange },
   { titleKey: "nav_homework", url: "/student/homework", icon: NotebookPen },
   { titleKey: "nav_exams", url: "/student/exams", icon: GraduationCap },
+  { titleKey: "nav_tracking", url: "/student/tracking", icon: Timer },
   { titleKey: "nav_progress", url: "/student/progress", icon: TrendingUp },
   { titleKey: "nav_profile", url: "/student/profile", icon: User },
 ];

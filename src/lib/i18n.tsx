@@ -31,6 +31,7 @@ export const translations = {
   nav_exams: { fa: "مرکز آزمون", en: "Exams" },
   nav_progress: { fa: "پیشرفت من", en: "Progress" },
   nav_profile: { fa: "پروفایل", en: "Profile" },
+  nav_tracking: { fa: "ردیابی مطالعه", en: "Study Tracking" },
 
   // Dashboard
   hello_user: { fa: "سلام {name} عزیز 👋", en: "Hi {name} 👋" },
