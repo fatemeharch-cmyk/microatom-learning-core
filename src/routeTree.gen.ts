@@ -9,38 +9,420 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TeacherRouteImport } from './routes/teacher'
+import { Route as SupervisorRouteImport } from './routes/supervisor'
+import { Route as StudentRouteImport } from './routes/student'
+import { Route as ParentRouteImport } from './routes/parent'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
+import { Route as SupervisorIndexRouteImport } from './routes/supervisor.index'
+import { Route as StudentIndexRouteImport } from './routes/student.index'
+import { Route as ParentIndexRouteImport } from './routes/parent.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
+import { Route as TeacherContentRouteImport } from './routes/teacher.content'
+import { Route as TeacherClassroomsRouteImport } from './routes/teacher.classrooms'
+import { Route as TeacherAnalyticsRouteImport } from './routes/teacher.analytics'
+import { Route as SupervisorTeachersRouteImport } from './routes/supervisor.teachers'
+import { Route as SupervisorGradeRouteImport } from './routes/supervisor.grade'
+import { Route as SupervisorAnalyticsRouteImport } from './routes/supervisor.analytics'
+import { Route as SupervisorAlertsRouteImport } from './routes/supervisor.alerts'
+import { Route as StudentProgressRouteImport } from './routes/student.progress'
+import { Route as StudentProfileRouteImport } from './routes/student.profile'
+import { Route as StudentLessonsRouteImport } from './routes/student.lessons'
+import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
+import { Route as ParentReportsRouteImport } from './routes/parent.reports'
+import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
+import { Route as ParentChildrenRouteImport } from './routes/parent.children'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSystemRouteImport } from './routes/admin.system'
+import { Route as AdminRolesRouteImport } from './routes/admin.roles'
+import { Route as AdminContentRouteImport } from './routes/admin.content'
 
+const TeacherRoute = TeacherRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupervisorRoute = SupervisorRouteImport.update({
+  id: '/supervisor',
+  path: '/supervisor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentRoute = StudentRouteImport.update({
+  id: '/student',
+  path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentRoute = ParentRouteImport.update({
+  id: '/parent',
+  path: '/parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeacherIndexRoute = TeacherIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const SupervisorIndexRoute = SupervisorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SupervisorRoute,
+} as any)
+const StudentIndexRoute = StudentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentRoute,
+} as any)
+const ParentIndexRoute = ParentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ParentRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const TeacherStudentsRoute = TeacherStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherContentRoute = TeacherContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherClassroomsRoute = TeacherClassroomsRouteImport.update({
+  id: '/classrooms',
+  path: '/classrooms',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherAnalyticsRoute = TeacherAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const SupervisorTeachersRoute = SupervisorTeachersRouteImport.update({
+  id: '/teachers',
+  path: '/teachers',
+  getParentRoute: () => SupervisorRoute,
+} as any)
+const SupervisorGradeRoute = SupervisorGradeRouteImport.update({
+  id: '/grade',
+  path: '/grade',
+  getParentRoute: () => SupervisorRoute,
+} as any)
+const SupervisorAnalyticsRoute = SupervisorAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => SupervisorRoute,
+} as any)
+const SupervisorAlertsRoute = SupervisorAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => SupervisorRoute,
+} as any)
+const StudentProgressRoute = StudentProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentProfileRoute = StudentProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentLessonsRoute = StudentLessonsRouteImport.update({
+  id: '/lessons',
+  path: '/lessons',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentAchievementsRoute = StudentAchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => StudentRoute,
+} as any)
+const ParentReportsRoute = ParentReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentMessagesRoute = ParentMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentChildrenRoute = ParentChildrenRouteImport.update({
+  id: '/children',
+  path: '/children',
+  getParentRoute: () => ParentRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSystemRoute = AdminSystemRouteImport.update({
+  id: '/system',
+  path: '/system',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminContentRoute = AdminContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/parent': typeof ParentRouteWithChildren
+  '/student': typeof StudentRouteWithChildren
+  '/supervisor': typeof SupervisorRouteWithChildren
+  '/teacher': typeof TeacherRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/system': typeof AdminSystemRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/parent/children': typeof ParentChildrenRoute
+  '/parent/messages': typeof ParentMessagesRoute
+  '/parent/reports': typeof ParentReportsRoute
+  '/student/achievements': typeof StudentAchievementsRoute
+  '/student/lessons': typeof StudentLessonsRoute
+  '/student/profile': typeof StudentProfileRoute
+  '/student/progress': typeof StudentProgressRoute
+  '/supervisor/alerts': typeof SupervisorAlertsRoute
+  '/supervisor/analytics': typeof SupervisorAnalyticsRoute
+  '/supervisor/grade': typeof SupervisorGradeRoute
+  '/supervisor/teachers': typeof SupervisorTeachersRoute
+  '/teacher/analytics': typeof TeacherAnalyticsRoute
+  '/teacher/classrooms': typeof TeacherClassroomsRoute
+  '/teacher/content': typeof TeacherContentRoute
+  '/teacher/students': typeof TeacherStudentsRoute
+  '/admin/': typeof AdminIndexRoute
+  '/parent/': typeof ParentIndexRoute
+  '/student/': typeof StudentIndexRoute
+  '/supervisor/': typeof SupervisorIndexRoute
+  '/teacher/': typeof TeacherIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/system': typeof AdminSystemRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/parent/children': typeof ParentChildrenRoute
+  '/parent/messages': typeof ParentMessagesRoute
+  '/parent/reports': typeof ParentReportsRoute
+  '/student/achievements': typeof StudentAchievementsRoute
+  '/student/lessons': typeof StudentLessonsRoute
+  '/student/profile': typeof StudentProfileRoute
+  '/student/progress': typeof StudentProgressRoute
+  '/supervisor/alerts': typeof SupervisorAlertsRoute
+  '/supervisor/analytics': typeof SupervisorAnalyticsRoute
+  '/supervisor/grade': typeof SupervisorGradeRoute
+  '/supervisor/teachers': typeof SupervisorTeachersRoute
+  '/teacher/analytics': typeof TeacherAnalyticsRoute
+  '/teacher/classrooms': typeof TeacherClassroomsRoute
+  '/teacher/content': typeof TeacherContentRoute
+  '/teacher/students': typeof TeacherStudentsRoute
+  '/admin': typeof AdminIndexRoute
+  '/parent': typeof ParentIndexRoute
+  '/student': typeof StudentIndexRoute
+  '/supervisor': typeof SupervisorIndexRoute
+  '/teacher': typeof TeacherIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/parent': typeof ParentRouteWithChildren
+  '/student': typeof StudentRouteWithChildren
+  '/supervisor': typeof SupervisorRouteWithChildren
+  '/teacher': typeof TeacherRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/system': typeof AdminSystemRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/parent/children': typeof ParentChildrenRoute
+  '/parent/messages': typeof ParentMessagesRoute
+  '/parent/reports': typeof ParentReportsRoute
+  '/student/achievements': typeof StudentAchievementsRoute
+  '/student/lessons': typeof StudentLessonsRoute
+  '/student/profile': typeof StudentProfileRoute
+  '/student/progress': typeof StudentProgressRoute
+  '/supervisor/alerts': typeof SupervisorAlertsRoute
+  '/supervisor/analytics': typeof SupervisorAnalyticsRoute
+  '/supervisor/grade': typeof SupervisorGradeRoute
+  '/supervisor/teachers': typeof SupervisorTeachersRoute
+  '/teacher/analytics': typeof TeacherAnalyticsRoute
+  '/teacher/classrooms': typeof TeacherClassroomsRoute
+  '/teacher/content': typeof TeacherContentRoute
+  '/teacher/students': typeof TeacherStudentsRoute
+  '/admin/': typeof AdminIndexRoute
+  '/parent/': typeof ParentIndexRoute
+  '/student/': typeof StudentIndexRoute
+  '/supervisor/': typeof SupervisorIndexRoute
+  '/teacher/': typeof TeacherIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/parent'
+    | '/student'
+    | '/supervisor'
+    | '/teacher'
+    | '/admin/content'
+    | '/admin/roles'
+    | '/admin/system'
+    | '/admin/users'
+    | '/parent/children'
+    | '/parent/messages'
+    | '/parent/reports'
+    | '/student/achievements'
+    | '/student/lessons'
+    | '/student/profile'
+    | '/student/progress'
+    | '/supervisor/alerts'
+    | '/supervisor/analytics'
+    | '/supervisor/grade'
+    | '/supervisor/teachers'
+    | '/teacher/analytics'
+    | '/teacher/classrooms'
+    | '/teacher/content'
+    | '/teacher/students'
+    | '/admin/'
+    | '/parent/'
+    | '/student/'
+    | '/supervisor/'
+    | '/teacher/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin/content'
+    | '/admin/roles'
+    | '/admin/system'
+    | '/admin/users'
+    | '/parent/children'
+    | '/parent/messages'
+    | '/parent/reports'
+    | '/student/achievements'
+    | '/student/lessons'
+    | '/student/profile'
+    | '/student/progress'
+    | '/supervisor/alerts'
+    | '/supervisor/analytics'
+    | '/supervisor/grade'
+    | '/supervisor/teachers'
+    | '/teacher/analytics'
+    | '/teacher/classrooms'
+    | '/teacher/content'
+    | '/teacher/students'
+    | '/admin'
+    | '/parent'
+    | '/student'
+    | '/supervisor'
+    | '/teacher'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/parent'
+    | '/student'
+    | '/supervisor'
+    | '/teacher'
+    | '/admin/content'
+    | '/admin/roles'
+    | '/admin/system'
+    | '/admin/users'
+    | '/parent/children'
+    | '/parent/messages'
+    | '/parent/reports'
+    | '/student/achievements'
+    | '/student/lessons'
+    | '/student/profile'
+    | '/student/progress'
+    | '/supervisor/alerts'
+    | '/supervisor/analytics'
+    | '/supervisor/grade'
+    | '/supervisor/teachers'
+    | '/teacher/analytics'
+    | '/teacher/classrooms'
+    | '/teacher/content'
+    | '/teacher/students'
+    | '/admin/'
+    | '/parent/'
+    | '/student/'
+    | '/supervisor/'
+    | '/teacher/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  ParentRoute: typeof ParentRouteWithChildren
+  StudentRoute: typeof StudentRouteWithChildren
+  SupervisorRoute: typeof SupervisorRouteWithChildren
+  TeacherRoute: typeof TeacherRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/teacher': {
+      id: '/teacher'
+      path: '/teacher'
+      fullPath: '/teacher'
+      preLoaderRoute: typeof TeacherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supervisor': {
+      id: '/supervisor'
+      path: '/supervisor'
+      fullPath: '/supervisor'
+      preLoaderRoute: typeof SupervisorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student': {
+      id: '/student'
+      path: '/student'
+      fullPath: '/student'
+      preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent': {
+      id: '/parent'
+      path: '/parent'
+      fullPath: '/parent'
+      preLoaderRoute: typeof ParentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +430,278 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teacher/': {
+      id: '/teacher/'
+      path: '/'
+      fullPath: '/teacher/'
+      preLoaderRoute: typeof TeacherIndexRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/supervisor/': {
+      id: '/supervisor/'
+      path: '/'
+      fullPath: '/supervisor/'
+      preLoaderRoute: typeof SupervisorIndexRouteImport
+      parentRoute: typeof SupervisorRoute
+    }
+    '/student/': {
+      id: '/student/'
+      path: '/'
+      fullPath: '/student/'
+      preLoaderRoute: typeof StudentIndexRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/parent/': {
+      id: '/parent/'
+      path: '/'
+      fullPath: '/parent/'
+      preLoaderRoute: typeof ParentIndexRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/teacher/students': {
+      id: '/teacher/students'
+      path: '/students'
+      fullPath: '/teacher/students'
+      preLoaderRoute: typeof TeacherStudentsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/content': {
+      id: '/teacher/content'
+      path: '/content'
+      fullPath: '/teacher/content'
+      preLoaderRoute: typeof TeacherContentRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/classrooms': {
+      id: '/teacher/classrooms'
+      path: '/classrooms'
+      fullPath: '/teacher/classrooms'
+      preLoaderRoute: typeof TeacherClassroomsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/analytics': {
+      id: '/teacher/analytics'
+      path: '/analytics'
+      fullPath: '/teacher/analytics'
+      preLoaderRoute: typeof TeacherAnalyticsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/supervisor/teachers': {
+      id: '/supervisor/teachers'
+      path: '/teachers'
+      fullPath: '/supervisor/teachers'
+      preLoaderRoute: typeof SupervisorTeachersRouteImport
+      parentRoute: typeof SupervisorRoute
+    }
+    '/supervisor/grade': {
+      id: '/supervisor/grade'
+      path: '/grade'
+      fullPath: '/supervisor/grade'
+      preLoaderRoute: typeof SupervisorGradeRouteImport
+      parentRoute: typeof SupervisorRoute
+    }
+    '/supervisor/analytics': {
+      id: '/supervisor/analytics'
+      path: '/analytics'
+      fullPath: '/supervisor/analytics'
+      preLoaderRoute: typeof SupervisorAnalyticsRouteImport
+      parentRoute: typeof SupervisorRoute
+    }
+    '/supervisor/alerts': {
+      id: '/supervisor/alerts'
+      path: '/alerts'
+      fullPath: '/supervisor/alerts'
+      preLoaderRoute: typeof SupervisorAlertsRouteImport
+      parentRoute: typeof SupervisorRoute
+    }
+    '/student/progress': {
+      id: '/student/progress'
+      path: '/progress'
+      fullPath: '/student/progress'
+      preLoaderRoute: typeof StudentProgressRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/profile': {
+      id: '/student/profile'
+      path: '/profile'
+      fullPath: '/student/profile'
+      preLoaderRoute: typeof StudentProfileRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/lessons': {
+      id: '/student/lessons'
+      path: '/lessons'
+      fullPath: '/student/lessons'
+      preLoaderRoute: typeof StudentLessonsRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/achievements': {
+      id: '/student/achievements'
+      path: '/achievements'
+      fullPath: '/student/achievements'
+      preLoaderRoute: typeof StudentAchievementsRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/parent/reports': {
+      id: '/parent/reports'
+      path: '/reports'
+      fullPath: '/parent/reports'
+      preLoaderRoute: typeof ParentReportsRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/messages': {
+      id: '/parent/messages'
+      path: '/messages'
+      fullPath: '/parent/messages'
+      preLoaderRoute: typeof ParentMessagesRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/children': {
+      id: '/parent/children'
+      path: '/children'
+      fullPath: '/parent/children'
+      preLoaderRoute: typeof ParentChildrenRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/system': {
+      id: '/admin/system'
+      path: '/system'
+      fullPath: '/admin/system'
+      preLoaderRoute: typeof AdminSystemRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/content': {
+      id: '/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AdminContentRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminContentRoute: typeof AdminContentRoute
+  AdminRolesRoute: typeof AdminRolesRoute
+  AdminSystemRoute: typeof AdminSystemRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminContentRoute: AdminContentRoute,
+  AdminRolesRoute: AdminRolesRoute,
+  AdminSystemRoute: AdminSystemRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface ParentRouteChildren {
+  ParentChildrenRoute: typeof ParentChildrenRoute
+  ParentMessagesRoute: typeof ParentMessagesRoute
+  ParentReportsRoute: typeof ParentReportsRoute
+  ParentIndexRoute: typeof ParentIndexRoute
+}
+
+const ParentRouteChildren: ParentRouteChildren = {
+  ParentChildrenRoute: ParentChildrenRoute,
+  ParentMessagesRoute: ParentMessagesRoute,
+  ParentReportsRoute: ParentReportsRoute,
+  ParentIndexRoute: ParentIndexRoute,
+}
+
+const ParentRouteWithChildren =
+  ParentRoute._addFileChildren(ParentRouteChildren)
+
+interface StudentRouteChildren {
+  StudentAchievementsRoute: typeof StudentAchievementsRoute
+  StudentLessonsRoute: typeof StudentLessonsRoute
+  StudentProfileRoute: typeof StudentProfileRoute
+  StudentProgressRoute: typeof StudentProgressRoute
+  StudentIndexRoute: typeof StudentIndexRoute
+}
+
+const StudentRouteChildren: StudentRouteChildren = {
+  StudentAchievementsRoute: StudentAchievementsRoute,
+  StudentLessonsRoute: StudentLessonsRoute,
+  StudentProfileRoute: StudentProfileRoute,
+  StudentProgressRoute: StudentProgressRoute,
+  StudentIndexRoute: StudentIndexRoute,
+}
+
+const StudentRouteWithChildren =
+  StudentRoute._addFileChildren(StudentRouteChildren)
+
+interface SupervisorRouteChildren {
+  SupervisorAlertsRoute: typeof SupervisorAlertsRoute
+  SupervisorAnalyticsRoute: typeof SupervisorAnalyticsRoute
+  SupervisorGradeRoute: typeof SupervisorGradeRoute
+  SupervisorTeachersRoute: typeof SupervisorTeachersRoute
+  SupervisorIndexRoute: typeof SupervisorIndexRoute
+}
+
+const SupervisorRouteChildren: SupervisorRouteChildren = {
+  SupervisorAlertsRoute: SupervisorAlertsRoute,
+  SupervisorAnalyticsRoute: SupervisorAnalyticsRoute,
+  SupervisorGradeRoute: SupervisorGradeRoute,
+  SupervisorTeachersRoute: SupervisorTeachersRoute,
+  SupervisorIndexRoute: SupervisorIndexRoute,
+}
+
+const SupervisorRouteWithChildren = SupervisorRoute._addFileChildren(
+  SupervisorRouteChildren,
+)
+
+interface TeacherRouteChildren {
+  TeacherAnalyticsRoute: typeof TeacherAnalyticsRoute
+  TeacherClassroomsRoute: typeof TeacherClassroomsRoute
+  TeacherContentRoute: typeof TeacherContentRoute
+  TeacherStudentsRoute: typeof TeacherStudentsRoute
+  TeacherIndexRoute: typeof TeacherIndexRoute
+}
+
+const TeacherRouteChildren: TeacherRouteChildren = {
+  TeacherAnalyticsRoute: TeacherAnalyticsRoute,
+  TeacherClassroomsRoute: TeacherClassroomsRoute,
+  TeacherContentRoute: TeacherContentRoute,
+  TeacherStudentsRoute: TeacherStudentsRoute,
+  TeacherIndexRoute: TeacherIndexRoute,
+}
+
+const TeacherRouteWithChildren =
+  TeacherRoute._addFileChildren(TeacherRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  ParentRoute: ParentRouteWithChildren,
+  StudentRoute: StudentRouteWithChildren,
+  SupervisorRoute: SupervisorRouteWithChildren,
+  TeacherRoute: TeacherRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
