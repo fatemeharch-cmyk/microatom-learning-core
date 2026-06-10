@@ -21,8 +21,8 @@ import { Route as StudentIndexRouteImport } from './routes/student.index'
 import { Route as ParentIndexRouteImport } from './routes/parent.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
-import { Route as TeacherContentRouteImport } from './routes/teacher.content'
-import { Route as TeacherClassroomsRouteImport } from './routes/teacher.classrooms'
+import { Route as TeacherHomeworkRouteImport } from './routes/teacher.homework'
+import { Route as TeacherExamsRouteImport } from './routes/teacher.exams'
 import { Route as TeacherAnalyticsRouteImport } from './routes/teacher.analytics'
 import { Route as SupervisorTeachersRouteImport } from './routes/supervisor.teachers'
 import { Route as SupervisorGradeRouteImport } from './routes/supervisor.grade'
@@ -105,14 +105,14 @@ const TeacherStudentsRoute = TeacherStudentsRouteImport.update({
   path: '/students',
   getParentRoute: () => TeacherRoute,
 } as any)
-const TeacherContentRoute = TeacherContentRouteImport.update({
-  id: '/content',
-  path: '/content',
+const TeacherHomeworkRoute = TeacherHomeworkRouteImport.update({
+  id: '/homework',
+  path: '/homework',
   getParentRoute: () => TeacherRoute,
 } as any)
-const TeacherClassroomsRoute = TeacherClassroomsRouteImport.update({
-  id: '/classrooms',
-  path: '/classrooms',
+const TeacherExamsRoute = TeacherExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherAnalyticsRoute = TeacherAnalyticsRouteImport.update({
@@ -249,8 +249,8 @@ export interface FileRoutesByFullPath {
   '/supervisor/grade': typeof SupervisorGradeRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
-  '/teacher/classrooms': typeof TeacherClassroomsRoute
-  '/teacher/content': typeof TeacherContentRoute
+  '/teacher/exams': typeof TeacherExamsRoute
+  '/teacher/homework': typeof TeacherHomeworkRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin/': typeof AdminIndexRoute
   '/parent/': typeof ParentIndexRoute
@@ -281,8 +281,8 @@ export interface FileRoutesByTo {
   '/supervisor/grade': typeof SupervisorGradeRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
-  '/teacher/classrooms': typeof TeacherClassroomsRoute
-  '/teacher/content': typeof TeacherContentRoute
+  '/teacher/exams': typeof TeacherExamsRoute
+  '/teacher/homework': typeof TeacherHomeworkRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin': typeof AdminIndexRoute
   '/parent': typeof ParentIndexRoute
@@ -319,8 +319,8 @@ export interface FileRoutesById {
   '/supervisor/grade': typeof SupervisorGradeRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
-  '/teacher/classrooms': typeof TeacherClassroomsRoute
-  '/teacher/content': typeof TeacherContentRoute
+  '/teacher/exams': typeof TeacherExamsRoute
+  '/teacher/homework': typeof TeacherHomeworkRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin/': typeof AdminIndexRoute
   '/parent/': typeof ParentIndexRoute
@@ -358,8 +358,8 @@ export interface FileRouteTypes {
     | '/supervisor/grade'
     | '/supervisor/teachers'
     | '/teacher/analytics'
-    | '/teacher/classrooms'
-    | '/teacher/content'
+    | '/teacher/exams'
+    | '/teacher/homework'
     | '/teacher/students'
     | '/admin/'
     | '/parent/'
@@ -390,8 +390,8 @@ export interface FileRouteTypes {
     | '/supervisor/grade'
     | '/supervisor/teachers'
     | '/teacher/analytics'
-    | '/teacher/classrooms'
-    | '/teacher/content'
+    | '/teacher/exams'
+    | '/teacher/homework'
     | '/teacher/students'
     | '/admin'
     | '/parent'
@@ -427,8 +427,8 @@ export interface FileRouteTypes {
     | '/supervisor/grade'
     | '/supervisor/teachers'
     | '/teacher/analytics'
-    | '/teacher/classrooms'
-    | '/teacher/content'
+    | '/teacher/exams'
+    | '/teacher/homework'
     | '/teacher/students'
     | '/admin/'
     | '/parent/'
@@ -532,18 +532,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherStudentsRouteImport
       parentRoute: typeof TeacherRoute
     }
-    '/teacher/content': {
-      id: '/teacher/content'
-      path: '/content'
-      fullPath: '/teacher/content'
-      preLoaderRoute: typeof TeacherContentRouteImport
+    '/teacher/homework': {
+      id: '/teacher/homework'
+      path: '/homework'
+      fullPath: '/teacher/homework'
+      preLoaderRoute: typeof TeacherHomeworkRouteImport
       parentRoute: typeof TeacherRoute
     }
-    '/teacher/classrooms': {
-      id: '/teacher/classrooms'
-      path: '/classrooms'
-      fullPath: '/teacher/classrooms'
-      preLoaderRoute: typeof TeacherClassroomsRouteImport
+    '/teacher/exams': {
+      id: '/teacher/exams'
+      path: '/exams'
+      fullPath: '/teacher/exams'
+      preLoaderRoute: typeof TeacherExamsRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/analytics': {
@@ -782,16 +782,16 @@ const SupervisorRouteWithChildren = SupervisorRoute._addFileChildren(
 
 interface TeacherRouteChildren {
   TeacherAnalyticsRoute: typeof TeacherAnalyticsRoute
-  TeacherClassroomsRoute: typeof TeacherClassroomsRoute
-  TeacherContentRoute: typeof TeacherContentRoute
+  TeacherExamsRoute: typeof TeacherExamsRoute
+  TeacherHomeworkRoute: typeof TeacherHomeworkRoute
   TeacherStudentsRoute: typeof TeacherStudentsRoute
   TeacherIndexRoute: typeof TeacherIndexRoute
 }
 
 const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherAnalyticsRoute: TeacherAnalyticsRoute,
-  TeacherClassroomsRoute: TeacherClassroomsRoute,
-  TeacherContentRoute: TeacherContentRoute,
+  TeacherExamsRoute: TeacherExamsRoute,
+  TeacherHomeworkRoute: TeacherHomeworkRoute,
   TeacherStudentsRoute: TeacherStudentsRoute,
   TeacherIndexRoute: TeacherIndexRoute,
 }

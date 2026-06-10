@@ -1,15 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { LayoutDashboard, School, FileEdit, Users, BarChart3 } from "lucide-react";
-import { DashboardShell, type NavItem } from "@/components/dashboard-shell";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { LayoutDashboard, NotebookPen, FileCheck2, BarChart3, Users } from "lucide-react";
+import { TeacherShell, type NavItem } from "@/components/teacher/teacher-shell";
 
 const items: NavItem[] = [
-  { title: "Overview", url: "/teacher", icon: LayoutDashboard },
-  { title: "Classrooms", url: "/teacher/classrooms", icon: School },
-  { title: "Content", url: "/teacher/content", icon: FileEdit },
-  { title: "Students", url: "/teacher/students", icon: Users },
-  { title: "Analytics", url: "/teacher/analytics", icon: BarChart3 },
+  { titleKey: "t_nav_overview", url: "/teacher", icon: LayoutDashboard },
+  { titleKey: "t_nav_homework", url: "/teacher/homework", icon: NotebookPen },
+  { titleKey: "t_nav_exams", url: "/teacher/exams", icon: FileCheck2 },
+  { titleKey: "t_nav_class", url: "/teacher/analytics", icon: BarChart3 },
+  { titleKey: "t_nav_students", url: "/teacher/students", icon: Users },
 ];
 
 export const Route = createFileRoute("/teacher")({
-  component: () => <DashboardShell role="teacher" roleLabel="Teacher" items={items} />,
+  component: () => (
+    <TeacherShell items={items}>
+      <Outlet />
+    </TeacherShell>
+  ),
 });
