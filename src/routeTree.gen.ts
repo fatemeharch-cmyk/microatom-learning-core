@@ -28,9 +28,11 @@ import { Route as SupervisorTeachersRouteImport } from './routes/supervisor.teac
 import { Route as SupervisorGradeRouteImport } from './routes/supervisor.grade'
 import { Route as SupervisorAnalyticsRouteImport } from './routes/supervisor.analytics'
 import { Route as SupervisorAlertsRouteImport } from './routes/supervisor.alerts'
+import { Route as StudentWeeklyRouteImport } from './routes/student.weekly'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLessonsRouteImport } from './routes/student.lessons'
+import { Route as StudentDailyRouteImport } from './routes/student.daily'
 import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
 import { Route as ParentReportsRouteImport } from './routes/parent.reports'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
@@ -135,6 +137,11 @@ const SupervisorAlertsRoute = SupervisorAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => SupervisorRoute,
 } as any)
+const StudentWeeklyRoute = StudentWeeklyRouteImport.update({
+  id: '/weekly',
+  path: '/weekly',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentProgressRoute = StudentProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
@@ -148,6 +155,11 @@ const StudentProfileRoute = StudentProfileRouteImport.update({
 const StudentLessonsRoute = StudentLessonsRouteImport.update({
   id: '/lessons',
   path: '/lessons',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentDailyRoute = StudentDailyRouteImport.update({
+  id: '/daily',
+  path: '/daily',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentAchievementsRoute = StudentAchievementsRouteImport.update({
@@ -206,9 +218,11 @@ export interface FileRoutesByFullPath {
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/reports': typeof ParentReportsRoute
   '/student/achievements': typeof StudentAchievementsRoute
+  '/student/daily': typeof StudentDailyRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
+  '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
   '/supervisor/analytics': typeof SupervisorAnalyticsRoute
   '/supervisor/grade': typeof SupervisorGradeRoute
@@ -233,9 +247,11 @@ export interface FileRoutesByTo {
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/reports': typeof ParentReportsRoute
   '/student/achievements': typeof StudentAchievementsRoute
+  '/student/daily': typeof StudentDailyRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
+  '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
   '/supervisor/analytics': typeof SupervisorAnalyticsRoute
   '/supervisor/grade': typeof SupervisorGradeRoute
@@ -266,9 +282,11 @@ export interface FileRoutesById {
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/reports': typeof ParentReportsRoute
   '/student/achievements': typeof StudentAchievementsRoute
+  '/student/daily': typeof StudentDailyRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
+  '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
   '/supervisor/analytics': typeof SupervisorAnalyticsRoute
   '/supervisor/grade': typeof SupervisorGradeRoute
@@ -300,9 +318,11 @@ export interface FileRouteTypes {
     | '/parent/messages'
     | '/parent/reports'
     | '/student/achievements'
+    | '/student/daily'
     | '/student/lessons'
     | '/student/profile'
     | '/student/progress'
+    | '/student/weekly'
     | '/supervisor/alerts'
     | '/supervisor/analytics'
     | '/supervisor/grade'
@@ -327,9 +347,11 @@ export interface FileRouteTypes {
     | '/parent/messages'
     | '/parent/reports'
     | '/student/achievements'
+    | '/student/daily'
     | '/student/lessons'
     | '/student/profile'
     | '/student/progress'
+    | '/student/weekly'
     | '/supervisor/alerts'
     | '/supervisor/analytics'
     | '/supervisor/grade'
@@ -359,9 +381,11 @@ export interface FileRouteTypes {
     | '/parent/messages'
     | '/parent/reports'
     | '/student/achievements'
+    | '/student/daily'
     | '/student/lessons'
     | '/student/profile'
     | '/student/progress'
+    | '/student/weekly'
     | '/supervisor/alerts'
     | '/supervisor/analytics'
     | '/supervisor/grade'
@@ -521,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupervisorAlertsRouteImport
       parentRoute: typeof SupervisorRoute
     }
+    '/student/weekly': {
+      id: '/student/weekly'
+      path: '/weekly'
+      fullPath: '/student/weekly'
+      preLoaderRoute: typeof StudentWeeklyRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/progress': {
       id: '/student/progress'
       path: '/progress'
@@ -540,6 +571,13 @@ declare module '@tanstack/react-router' {
       path: '/lessons'
       fullPath: '/student/lessons'
       preLoaderRoute: typeof StudentLessonsRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/daily': {
+      id: '/student/daily'
+      path: '/daily'
+      fullPath: '/student/daily'
+      preLoaderRoute: typeof StudentDailyRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/achievements': {
@@ -638,17 +676,21 @@ const ParentRouteWithChildren =
 
 interface StudentRouteChildren {
   StudentAchievementsRoute: typeof StudentAchievementsRoute
+  StudentDailyRoute: typeof StudentDailyRoute
   StudentLessonsRoute: typeof StudentLessonsRoute
   StudentProfileRoute: typeof StudentProfileRoute
   StudentProgressRoute: typeof StudentProgressRoute
+  StudentWeeklyRoute: typeof StudentWeeklyRoute
   StudentIndexRoute: typeof StudentIndexRoute
 }
 
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAchievementsRoute: StudentAchievementsRoute,
+  StudentDailyRoute: StudentDailyRoute,
   StudentLessonsRoute: StudentLessonsRoute,
   StudentProfileRoute: StudentProfileRoute,
   StudentProgressRoute: StudentProgressRoute,
+  StudentWeeklyRoute: StudentWeeklyRoute,
   StudentIndexRoute: StudentIndexRoute,
 }
 
@@ -705,3 +747,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
