@@ -24,6 +24,7 @@ import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
 import { Route as TeacherPdfExamsRouteImport } from './routes/teacher.pdf-exams'
 import { Route as TeacherHomeworkRouteImport } from './routes/teacher.homework'
 import { Route as TeacherExamsRouteImport } from './routes/teacher.exams'
+import { Route as TeacherAnalyzerRouteImport } from './routes/teacher.analyzer'
 import { Route as TeacherAnalyticsRouteImport } from './routes/teacher.analytics'
 import { Route as SupervisorTeachersRouteImport } from './routes/supervisor.teachers'
 import { Route as SupervisorGradeRouteImport } from './routes/supervisor.grade'
@@ -120,6 +121,11 @@ const TeacherHomeworkRoute = TeacherHomeworkRouteImport.update({
 const TeacherExamsRoute = TeacherExamsRouteImport.update({
   id: '/exams',
   path: '/exams',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherAnalyzerRoute = TeacherAnalyzerRouteImport.update({
+  id: '/analyzer',
+  path: '/analyzer',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherAnalyticsRoute = TeacherAnalyticsRouteImport.update({
@@ -262,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/supervisor/grade': typeof SupervisorGradeRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
+  '/teacher/analyzer': typeof TeacherAnalyzerRoute
   '/teacher/exams': typeof TeacherExamsRoute
   '/teacher/homework': typeof TeacherHomeworkRoute
   '/teacher/pdf-exams': typeof TeacherPdfExamsRoute
@@ -296,6 +303,7 @@ export interface FileRoutesByTo {
   '/supervisor/grade': typeof SupervisorGradeRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
+  '/teacher/analyzer': typeof TeacherAnalyzerRoute
   '/teacher/exams': typeof TeacherExamsRoute
   '/teacher/homework': typeof TeacherHomeworkRoute
   '/teacher/pdf-exams': typeof TeacherPdfExamsRoute
@@ -336,6 +344,7 @@ export interface FileRoutesById {
   '/supervisor/grade': typeof SupervisorGradeRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
+  '/teacher/analyzer': typeof TeacherAnalyzerRoute
   '/teacher/exams': typeof TeacherExamsRoute
   '/teacher/homework': typeof TeacherHomeworkRoute
   '/teacher/pdf-exams': typeof TeacherPdfExamsRoute
@@ -377,6 +386,7 @@ export interface FileRouteTypes {
     | '/supervisor/grade'
     | '/supervisor/teachers'
     | '/teacher/analytics'
+    | '/teacher/analyzer'
     | '/teacher/exams'
     | '/teacher/homework'
     | '/teacher/pdf-exams'
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/supervisor/grade'
     | '/supervisor/teachers'
     | '/teacher/analytics'
+    | '/teacher/analyzer'
     | '/teacher/exams'
     | '/teacher/homework'
     | '/teacher/pdf-exams'
@@ -450,6 +461,7 @@ export interface FileRouteTypes {
     | '/supervisor/grade'
     | '/supervisor/teachers'
     | '/teacher/analytics'
+    | '/teacher/analyzer'
     | '/teacher/exams'
     | '/teacher/homework'
     | '/teacher/pdf-exams'
@@ -575,6 +587,13 @@ declare module '@tanstack/react-router' {
       path: '/exams'
       fullPath: '/teacher/exams'
       preLoaderRoute: typeof TeacherExamsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/analyzer': {
+      id: '/teacher/analyzer'
+      path: '/analyzer'
+      fullPath: '/teacher/analyzer'
+      preLoaderRoute: typeof TeacherAnalyzerRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/analytics': {
@@ -822,6 +841,7 @@ const SupervisorRouteWithChildren = SupervisorRoute._addFileChildren(
 
 interface TeacherRouteChildren {
   TeacherAnalyticsRoute: typeof TeacherAnalyticsRoute
+  TeacherAnalyzerRoute: typeof TeacherAnalyzerRoute
   TeacherExamsRoute: typeof TeacherExamsRoute
   TeacherHomeworkRoute: typeof TeacherHomeworkRoute
   TeacherPdfExamsRoute: typeof TeacherPdfExamsRoute
@@ -831,6 +851,7 @@ interface TeacherRouteChildren {
 
 const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherAnalyticsRoute: TeacherAnalyticsRoute,
+  TeacherAnalyzerRoute: TeacherAnalyzerRoute,
   TeacherExamsRoute: TeacherExamsRoute,
   TeacherHomeworkRoute: TeacherHomeworkRoute,
   TeacherPdfExamsRoute: TeacherPdfExamsRoute,
