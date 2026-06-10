@@ -11,13 +11,13 @@ import {
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
 
 const items: NavItem[] = [
-  { title: "داشبورد", url: "/student", icon: LayoutDashboard },
-  { title: "برنامه روزانه", url: "/student/daily", icon: CalendarDays },
-  { title: "برنامه هفتگی", url: "/student/weekly", icon: CalendarRange },
-  { title: "مرکز تکالیف", url: "/student/homework", icon: NotebookPen },
-  { title: "مرکز آزمون", url: "/student/exams", icon: GraduationCap },
-  { title: "پیشرفت من", url: "/student/progress", icon: TrendingUp },
-  { title: "پروفایل", url: "/student/profile", icon: User },
+  { titleKey: "nav_dashboard", url: "/student", icon: LayoutDashboard },
+  { titleKey: "nav_daily", url: "/student/daily", icon: CalendarDays },
+  { titleKey: "nav_weekly", url: "/student/weekly", icon: CalendarRange },
+  { titleKey: "nav_homework", url: "/student/homework", icon: NotebookPen },
+  { titleKey: "nav_exams", url: "/student/exams", icon: GraduationCap },
+  { titleKey: "nav_progress", url: "/student/progress", icon: TrendingUp },
+  { titleKey: "nav_profile", url: "/student/profile", icon: User },
 ];
 
 export const Route = createFileRoute("/student")({
