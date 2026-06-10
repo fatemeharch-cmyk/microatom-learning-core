@@ -21,6 +21,7 @@ import { Route as StudentIndexRouteImport } from './routes/student.index'
 import { Route as ParentIndexRouteImport } from './routes/parent.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
+import { Route as TeacherPdfExamsRouteImport } from './routes/teacher.pdf-exams'
 import { Route as TeacherHomeworkRouteImport } from './routes/teacher.homework'
 import { Route as TeacherExamsRouteImport } from './routes/teacher.exams'
 import { Route as TeacherAnalyticsRouteImport } from './routes/teacher.analytics'
@@ -103,6 +104,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const TeacherStudentsRoute = TeacherStudentsRouteImport.update({
   id: '/students',
   path: '/students',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherPdfExamsRoute = TeacherPdfExamsRouteImport.update({
+  id: '/pdf-exams',
+  path: '/pdf-exams',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherHomeworkRoute = TeacherHomeworkRouteImport.update({
@@ -251,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/teacher/analytics': typeof TeacherAnalyticsRoute
   '/teacher/exams': typeof TeacherExamsRoute
   '/teacher/homework': typeof TeacherHomeworkRoute
+  '/teacher/pdf-exams': typeof TeacherPdfExamsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin/': typeof AdminIndexRoute
   '/parent/': typeof ParentIndexRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/teacher/analytics': typeof TeacherAnalyticsRoute
   '/teacher/exams': typeof TeacherExamsRoute
   '/teacher/homework': typeof TeacherHomeworkRoute
+  '/teacher/pdf-exams': typeof TeacherPdfExamsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin': typeof AdminIndexRoute
   '/parent': typeof ParentIndexRoute
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/teacher/analytics': typeof TeacherAnalyticsRoute
   '/teacher/exams': typeof TeacherExamsRoute
   '/teacher/homework': typeof TeacherHomeworkRoute
+  '/teacher/pdf-exams': typeof TeacherPdfExamsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin/': typeof AdminIndexRoute
   '/parent/': typeof ParentIndexRoute
@@ -360,6 +369,7 @@ export interface FileRouteTypes {
     | '/teacher/analytics'
     | '/teacher/exams'
     | '/teacher/homework'
+    | '/teacher/pdf-exams'
     | '/teacher/students'
     | '/admin/'
     | '/parent/'
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/teacher/analytics'
     | '/teacher/exams'
     | '/teacher/homework'
+    | '/teacher/pdf-exams'
     | '/teacher/students'
     | '/admin'
     | '/parent'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/teacher/analytics'
     | '/teacher/exams'
     | '/teacher/homework'
+    | '/teacher/pdf-exams'
     | '/teacher/students'
     | '/admin/'
     | '/parent/'
@@ -530,6 +542,13 @@ declare module '@tanstack/react-router' {
       path: '/students'
       fullPath: '/teacher/students'
       preLoaderRoute: typeof TeacherStudentsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/pdf-exams': {
+      id: '/teacher/pdf-exams'
+      path: '/pdf-exams'
+      fullPath: '/teacher/pdf-exams'
+      preLoaderRoute: typeof TeacherPdfExamsRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/homework': {
@@ -784,6 +803,7 @@ interface TeacherRouteChildren {
   TeacherAnalyticsRoute: typeof TeacherAnalyticsRoute
   TeacherExamsRoute: typeof TeacherExamsRoute
   TeacherHomeworkRoute: typeof TeacherHomeworkRoute
+  TeacherPdfExamsRoute: typeof TeacherPdfExamsRoute
   TeacherStudentsRoute: typeof TeacherStudentsRoute
   TeacherIndexRoute: typeof TeacherIndexRoute
 }
@@ -792,6 +812,7 @@ const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherAnalyticsRoute: TeacherAnalyticsRoute,
   TeacherExamsRoute: TeacherExamsRoute,
   TeacherHomeworkRoute: TeacherHomeworkRoute,
+  TeacherPdfExamsRoute: TeacherPdfExamsRoute,
   TeacherStudentsRoute: TeacherStudentsRoute,
   TeacherIndexRoute: TeacherIndexRoute,
 }

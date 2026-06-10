@@ -37,6 +37,7 @@ export const translations = {
   t_nav_overview: { fa: "نمای کلی", en: "Overview" },
   t_nav_homework: { fa: "ساخت تکلیف", en: "Homework" },
   t_nav_exams: { fa: "ساخت آزمون", en: "Exams" },
+  t_nav_pdf: { fa: "آپلود PDF", en: "PDF Exams" },
   t_nav_class: { fa: "تحلیل کلاس", en: "Class Analytics" },
   t_nav_students: { fa: "تحلیل دانش‌آموز", en: "Student Analytics" },
 
