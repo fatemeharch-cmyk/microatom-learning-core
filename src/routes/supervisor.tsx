@@ -1,15 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { LayoutDashboard, Layers, Users, BarChart3, AlertTriangle } from "lucide-react";
-import { DashboardShell, type NavItem } from "@/components/dashboard-shell";
+import { SupervisorShell, type NavItem } from "@/components/supervisor/supervisor-shell";
 
 const items: NavItem[] = [
-  { title: "Overview", url: "/supervisor", icon: LayoutDashboard },
-  { title: "Grade overview", url: "/supervisor/grade", icon: Layers },
-  { title: "Teachers", url: "/supervisor/teachers", icon: Users },
-  { title: "Analytics", url: "/supervisor/analytics", icon: BarChart3 },
-  { title: "Alerts", url: "/supervisor/alerts", icon: AlertTriangle },
+  { titleKey: "s_nav_overview", url: "/supervisor", icon: LayoutDashboard },
+  { titleKey: "s_nav_grade", url: "/supervisor/grade", icon: Layers },
+  { titleKey: "s_nav_teachers", url: "/supervisor/teachers", icon: Users },
+  { titleKey: "s_nav_analytics", url: "/supervisor/analytics", icon: BarChart3 },
+  { titleKey: "s_nav_alerts", url: "/supervisor/alerts", icon: AlertTriangle },
 ];
 
 export const Route = createFileRoute("/supervisor")({
-  component: () => <DashboardShell role="supervisor" roleLabel="Grade Supervisor" items={items} />,
+  component: () => (
+    <SupervisorShell items={items}>
+      <Outlet />
+    </SupervisorShell>
+  ),
 });
