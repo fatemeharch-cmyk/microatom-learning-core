@@ -1,14 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { LayoutDashboard, Baby, FileBarChart, MessageSquare } from "lucide-react";
-import { DashboardShell, type NavItem } from "@/components/dashboard-shell";
+import { ParentShell, type NavItem } from "@/components/parent/parent-shell";
 
 const items: NavItem[] = [
-  { title: "Overview", url: "/parent", icon: LayoutDashboard },
-  { title: "Children", url: "/parent/children", icon: Baby },
-  { title: "Reports", url: "/parent/reports", icon: FileBarChart },
-  { title: "Messages", url: "/parent/messages", icon: MessageSquare },
+  { titleKey: "p_nav_overview", url: "/parent", icon: LayoutDashboard },
+  { titleKey: "p_nav_children", url: "/parent/children", icon: Baby },
+  { titleKey: "p_nav_reports", url: "/parent/reports", icon: FileBarChart },
+  { titleKey: "p_nav_messages", url: "/parent/messages", icon: MessageSquare },
 ];
 
 export const Route = createFileRoute("/parent")({
-  component: () => <DashboardShell role="parent" roleLabel="Parent" items={items} />,
+  component: () => (
+    <ParentShell items={items}>
+      <Outlet />
+    </ParentShell>
+  ),
 });

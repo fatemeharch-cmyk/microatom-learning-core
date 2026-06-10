@@ -41,6 +41,12 @@ export const translations = {
   t_nav_class: { fa: "تحلیل کلاس", en: "Class Analytics" },
   t_nav_students: { fa: "تحلیل دانش‌آموز", en: "Student Analytics" },
 
+  // Nav (parent)
+  p_nav_overview: { fa: "نمای کلی", en: "Overview" },
+  p_nav_children: { fa: "فرزندان", en: "Children" },
+  p_nav_reports: { fa: "گزارش‌ها", en: "Reports" },
+  p_nav_messages: { fa: "پیام‌ها", en: "Messages" },
+
   // Dashboard
   hello_user: { fa: "سلام {name} عزیز 👋", en: "Hi {name} 👋" },
   hero_title: { fa: "آماده‌ای امروز رو بترکونی؟", en: "Ready to crush today?" },
