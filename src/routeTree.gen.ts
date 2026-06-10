@@ -33,6 +33,7 @@ import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLessonsRouteImport } from './routes/student.lessons'
 import { Route as StudentHomeworkRouteImport } from './routes/student.homework'
+import { Route as StudentExamsRouteImport } from './routes/student.exams'
 import { Route as StudentDailyRouteImport } from './routes/student.daily'
 import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
 import { Route as ParentReportsRouteImport } from './routes/parent.reports'
@@ -163,6 +164,11 @@ const StudentHomeworkRoute = StudentHomeworkRouteImport.update({
   path: '/homework',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentExamsRoute = StudentExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentDailyRoute = StudentDailyRouteImport.update({
   id: '/daily',
   path: '/daily',
@@ -225,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/parent/reports': typeof ParentReportsRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/daily': typeof StudentDailyRoute
+  '/student/exams': typeof StudentExamsRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/profile': typeof StudentProfileRoute
@@ -255,6 +262,7 @@ export interface FileRoutesByTo {
   '/parent/reports': typeof ParentReportsRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/daily': typeof StudentDailyRoute
+  '/student/exams': typeof StudentExamsRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/profile': typeof StudentProfileRoute
@@ -291,6 +299,7 @@ export interface FileRoutesById {
   '/parent/reports': typeof ParentReportsRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/daily': typeof StudentDailyRoute
+  '/student/exams': typeof StudentExamsRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
   '/student/profile': typeof StudentProfileRoute
@@ -328,6 +337,7 @@ export interface FileRouteTypes {
     | '/parent/reports'
     | '/student/achievements'
     | '/student/daily'
+    | '/student/exams'
     | '/student/homework'
     | '/student/lessons'
     | '/student/profile'
@@ -358,6 +368,7 @@ export interface FileRouteTypes {
     | '/parent/reports'
     | '/student/achievements'
     | '/student/daily'
+    | '/student/exams'
     | '/student/homework'
     | '/student/lessons'
     | '/student/profile'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/parent/reports'
     | '/student/achievements'
     | '/student/daily'
+    | '/student/exams'
     | '/student/homework'
     | '/student/lessons'
     | '/student/profile'
@@ -592,6 +604,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentHomeworkRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/exams': {
+      id: '/student/exams'
+      path: '/exams'
+      fullPath: '/student/exams'
+      preLoaderRoute: typeof StudentExamsRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/daily': {
       id: '/student/daily'
       path: '/daily'
@@ -696,6 +715,7 @@ const ParentRouteWithChildren =
 interface StudentRouteChildren {
   StudentAchievementsRoute: typeof StudentAchievementsRoute
   StudentDailyRoute: typeof StudentDailyRoute
+  StudentExamsRoute: typeof StudentExamsRoute
   StudentHomeworkRoute: typeof StudentHomeworkRoute
   StudentLessonsRoute: typeof StudentLessonsRoute
   StudentProfileRoute: typeof StudentProfileRoute
@@ -707,6 +727,7 @@ interface StudentRouteChildren {
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAchievementsRoute: StudentAchievementsRoute,
   StudentDailyRoute: StudentDailyRoute,
+  StudentExamsRoute: StudentExamsRoute,
   StudentHomeworkRoute: StudentHomeworkRoute,
   StudentLessonsRoute: StudentLessonsRoute,
   StudentProfileRoute: StudentProfileRoute,
