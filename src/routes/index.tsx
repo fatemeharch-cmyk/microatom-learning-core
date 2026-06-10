@@ -1,29 +1,47 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { GraduationCap, BookOpen, Users, ShieldCheck, Settings } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "Smart MicroAtom — Select Role" },
+      { name: "description", content: "AI-powered MicroAtom learning platform." },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+const roles = [
+  { to: "/student", label: "Student", desc: "Learn through MicroAtoms", icon: GraduationCap },
+  { to: "/teacher", label: "Teacher", desc: "Create content & track classes", icon: BookOpen },
+  { to: "/parent", label: "Parent", desc: "Follow your child's progress", icon: Users },
+  { to: "/supervisor", label: "Grade Supervisor", desc: "Oversee grade-wide performance", icon: ShieldCheck },
+  { to: "/admin", label: "Admin", desc: "Manage platform & users", icon: Settings },
+] as const;
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+      <div className="max-w-3xl w-full">
+        <div className="text-center mb-10">
+          <p className="text-sm text-muted-foreground">Smart MicroAtom</p>
+          <h1 className="text-4xl font-bold tracking-tight mt-2">Choose your dashboard</h1>
+          <p className="text-muted-foreground mt-2">Skeleton preview — select a role to explore navigation.</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {roles.map((r) => (
+            <Link
+              key={r.to}
+              to={r.to}
+              className="group rounded-lg border bg-card p-5 transition hover:border-primary hover:shadow-sm"
+            >
+              <r.icon className="h-6 w-6 text-primary" />
+              <h2 className="mt-3 font-semibold">{r.label}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{r.desc}</p>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
