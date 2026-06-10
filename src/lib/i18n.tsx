@@ -33,6 +33,13 @@ export const translations = {
   nav_profile: { fa: "پروفایل", en: "Profile" },
   nav_tracking: { fa: "ردیابی مطالعه", en: "Study Tracking" },
 
+  // Nav (teacher)
+  t_nav_overview: { fa: "نمای کلی", en: "Overview" },
+  t_nav_homework: { fa: "ساخت تکلیف", en: "Homework" },
+  t_nav_exams: { fa: "ساخت آزمون", en: "Exams" },
+  t_nav_class: { fa: "تحلیل کلاس", en: "Class Analytics" },
+  t_nav_students: { fa: "تحلیل دانش‌آموز", en: "Student Analytics" },
+
   // Dashboard
   hello_user: { fa: "سلام {name} عزیز 👋", en: "Hi {name} 👋" },
   hero_title: { fa: "آماده‌ای امروز رو بترکونی؟", en: "Ready to crush today?" },
