@@ -19,6 +19,13 @@
  */
 
 @theme inline {
+  --font-vazir: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --color-xp: var(--xp);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  --gradient-xp: linear-gradient(90deg, oklch(0.78 0.17 80), oklch(0.7 0.2 35));
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -69,8 +76,13 @@
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.55 0.22 280);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-glow: oklch(0.7 0.2 310);
+  --xp: oklch(0.78 0.17 80);
+  --success: oklch(0.7 0.17 155);
+  --warning: oklch(0.78 0.17 70);
+  --info: oklch(0.65 0.16 230);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
@@ -140,5 +152,9 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+
+  [dir="rtl"] {
+    font-family: var(--font-vazir);
   }
 }
