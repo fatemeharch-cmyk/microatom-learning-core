@@ -47,6 +47,13 @@ export const translations = {
   p_nav_reports: { fa: "گزارش‌ها", en: "Reports" },
   p_nav_messages: { fa: "پیام‌ها", en: "Messages" },
 
+  // Nav (supervisor)
+  s_nav_overview: { fa: "نمای کلی", en: "Overview" },
+  s_nav_grade: { fa: "پایه", en: "Grade" },
+  s_nav_teachers: { fa: "معلم‌ها", en: "Teachers" },
+  s_nav_analytics: { fa: "تحلیل‌ها", en: "Analytics" },
+  s_nav_alerts: { fa: "هشدارها", en: "Alerts" },
+
   // Dashboard
   hello_user: { fa: "سلام {name} عزیز 👋", en: "Hi {name} 👋" },
   hero_title: { fa: "آماده‌ای امروز رو بترکونی؟", en: "Ready to crush today?" },
