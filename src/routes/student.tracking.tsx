@@ -130,15 +130,16 @@ function StudyTracking() {
       const gap = v.p - v.a;
       if (!worst || gap > worst.gap) worst = { name, gap };
     });
+    const w = worst as { name: string; gap: number } | null;
     if (totals.adherence >= 90) {
       return fa
         ? `عالیه! پایبندی ${totals.adherence}٪. برنامه‌ی AI شدت رو کمی بالا می‌بره.`
         : `Great! ${totals.adherence}% adherence. AI will slightly increase intensity.`;
     }
-    if (worst && worst.gap > 15) {
+    if (w && w.gap > 15) {
       return fa
-        ? `در درس «${worst.name}» حدود ${worst.gap} دقیقه عقبی. AI ۱ بلاک اضافه برای فردا اضافه می‌کنه.`
-        : `You're ~${worst.gap} min behind on "${worst.name}". AI will add 1 extra block tomorrow.`;
+        ? `در درس «${w.name}» حدود ${w.gap} دقیقه عقبی. AI ۱ بلاک اضافه برای فردا اضافه می‌کنه.`
+        : `You're ~${w.gap} min behind on "${w.name}". AI will add 1 extra block tomorrow.`;
     }
     return fa
       ? `پایبندی ${totals.adherence}٪. AI زمان جلسات رو کمی کوتاه‌تر می‌کنه تا تمرکزت بهتر بشه.`
