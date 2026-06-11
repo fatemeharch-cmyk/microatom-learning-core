@@ -457,10 +457,13 @@ function RecordDialog({
       else payload[f.key] = v;
     }
 
-    const q = record
-      ? supabase.from(entity.key).update(payload).eq("id", record.id)
-      : supabase.from(entity.key).insert(payload);
-    const { error } = await q;
+    const tbl = supabase.from(entity.key) as unknown as {
+      update: (p: Record<string, unknown>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> };
+      insert: (p: Record<string, unknown>) => Promise<{ error: { message: string } | null }>;
+    };
+    const { error } = record
+      ? await tbl.update(payload).eq("id", record.id)
+      : await tbl.insert(payload);
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success(record ? "Updated" : "Created");
