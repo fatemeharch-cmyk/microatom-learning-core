@@ -14,7 +14,444 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      atoms: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          order_index: number
+          section_id: string
+          title_en: string | null
+          title_fa: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          section_id: string
+          title_en?: string | null
+          title_fa: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          section_id?: string
+          title_en?: string | null
+          title_fa?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atoms_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapters: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          order_index: number
+          subject_id: string
+          title_en: string | null
+          title_fa: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          subject_id: string
+          title_en?: string | null
+          title_fa: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          subject_id?: string
+          title_en?: string | null
+          title_fa?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapters_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_levels: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name_en: string | null
+          name_fa: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string | null
+          name_fa: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string | null
+          name_fa?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      grades: {
+        Row: {
+          code: string
+          created_at: string
+          education_level_id: string
+          id: string
+          is_active: boolean
+          name_en: string | null
+          name_fa: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          education_level_id: string
+          id?: string
+          is_active?: boolean
+          name_en?: string | null
+          name_fa: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          education_level_id?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string | null
+          name_fa?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grades_education_level_id_fkey"
+            columns: ["education_level_id"]
+            isOneToOne: false
+            referencedRelation: "education_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      majors: {
+        Row: {
+          code: string
+          created_at: string
+          grade_id: string
+          id: string
+          is_active: boolean
+          name_en: string | null
+          name_fa: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          grade_id: string
+          id?: string
+          is_active?: boolean
+          name_en?: string | null
+          name_fa: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          grade_id?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string | null
+          name_fa?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "majors_grade_id_fkey"
+            columns: ["grade_id"]
+            isOneToOne: false
+            referencedRelation: "grades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      micro_atoms: {
+        Row: {
+          chapter_id: string | null
+          code: string
+          created_at: string
+          description: string | null
+          difficulty_level: number
+          estimated_study_time: number
+          grade_id: string | null
+          id: string
+          learning_order: number
+          major_id: string | null
+          parent_atom_id: string
+          prerequisites: string[]
+          section_id: string | null
+          subject_id: string | null
+          title_en: string | null
+          title_fa: string
+          updated_at: string
+        }
+        Insert: {
+          chapter_id?: string | null
+          code: string
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number
+          estimated_study_time?: number
+          grade_id?: string | null
+          id?: string
+          learning_order?: number
+          major_id?: string | null
+          parent_atom_id: string
+          prerequisites?: string[]
+          section_id?: string | null
+          subject_id?: string | null
+          title_en?: string | null
+          title_fa: string
+          updated_at?: string
+        }
+        Update: {
+          chapter_id?: string | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number
+          estimated_study_time?: number
+          grade_id?: string | null
+          id?: string
+          learning_order?: number
+          major_id?: string | null
+          parent_atom_id?: string
+          prerequisites?: string[]
+          section_id?: string | null
+          subject_id?: string | null
+          title_en?: string | null
+          title_fa?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "micro_atoms_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "micro_atoms_grade_id_fkey"
+            columns: ["grade_id"]
+            isOneToOne: false
+            referencedRelation: "grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "micro_atoms_major_id_fkey"
+            columns: ["major_id"]
+            isOneToOne: false
+            referencedRelation: "majors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "micro_atoms_parent_atom_id_fkey"
+            columns: ["parent_atom_id"]
+            isOneToOne: false
+            referencedRelation: "atoms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "micro_atoms_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "micro_atoms_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          answer: string | null
+          code: string
+          created_at: string
+          difficulty_level: number
+          estimated_time: number
+          explanation: string | null
+          id: string
+          micro_atom_id: string
+          options: Json | null
+          prompt: string
+          updated_at: string
+        }
+        Insert: {
+          answer?: string | null
+          code: string
+          created_at?: string
+          difficulty_level?: number
+          estimated_time?: number
+          explanation?: string | null
+          id?: string
+          micro_atom_id: string
+          options?: Json | null
+          prompt: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string | null
+          code?: string
+          created_at?: string
+          difficulty_level?: number
+          estimated_time?: number
+          explanation?: string | null
+          id?: string
+          micro_atom_id?: string
+          options?: Json | null
+          prompt?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_micro_atom_id_fkey"
+            columns: ["micro_atom_id"]
+            isOneToOne: false
+            referencedRelation: "micro_atoms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sections: {
+        Row: {
+          chapter_id: string
+          code: string
+          created_at: string
+          id: string
+          order_index: number
+          title_en: string | null
+          title_fa: string
+          updated_at: string
+        }
+        Insert: {
+          chapter_id: string
+          code: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          title_en?: string | null
+          title_fa: string
+          updated_at?: string
+        }
+        Update: {
+          chapter_id?: string
+          code?: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          title_en?: string | null
+          title_fa?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sections_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subjects: {
+        Row: {
+          code: string
+          color: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          major_id: string
+          name_en: string | null
+          name_fa: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          major_id: string
+          name_en?: string | null
+          name_fa: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          major_id?: string
+          name_en?: string | null
+          name_fa?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_major_id_fkey"
+            columns: ["major_id"]
+            isOneToOne: false
+            referencedRelation: "majors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
