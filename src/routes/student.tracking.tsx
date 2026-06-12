@@ -112,7 +112,7 @@ function StudyTracking() {
         ? "اولین جلسه‌ات رو ثبت کن تا توربو برنامه‌ت رو شخصی‌سازی کنه."
         : "Log your first session so Turbo can personalize your plan.";
     }
-    // find subject with biggest planned-actual gap last 7d
+    // find the clearest consistency opportunity in the last 7 days
     const week = new Date();
     week.setDate(week.getDate() - 6);
     const weekIso = week.toISOString().slice(0, 10);
@@ -138,8 +138,8 @@ function StudyTracking() {
     }
     if (w && w.gap > 15) {
       return fa
-        ? `در درس «${w.name}» حدود ${w.gap} دقیقه عقبی. توربو ۱ بلاک اضافه برای فردا اضافه می‌کنه.`
-        : `You're ~${w.gap} min behind on "${w.name}". Turbo will add 1 extra block tomorrow.`;
+        ? `«${w.name}» فرصت خوبی برای تداوم بیشتر است. توربو یک بازه کوتاه و قابل‌انجام برای فردا اضافه می‌کند.`
+        : `"${w.name}" is a good opportunity to build consistency. Turbo will add one manageable block tomorrow.`;
     }
     return fa
       ? `پایبندی ${totals.adherence}٪. توربو زمان جلسات رو کمی کوتاه‌تر می‌کنه تا تمرکزت بهتر بشه.`
@@ -219,7 +219,7 @@ function StudyTracking() {
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold">
-              {fa ? "پیشنهاد توربو" : "Turbo Insight"}
+               {fa ? "پیشنهاد توربو" : "Turbo Recommendation"}
             </p>
             <p className="text-sm text-muted-foreground mt-1">{recommendation}</p>
           </div>
@@ -318,7 +318,7 @@ function StudyTracking() {
                     ? { label: fa ? "تکمیل" : "Complete", cls: "bg-success/15 text-success" }
                     : pct >= 60
                       ? { label: fa ? "نسبی" : "Partial", cls: "bg-warning/15 text-warning" }
-                      : { label: fa ? "کم" : "Low", cls: "bg-destructive/15 text-destructive" };
+                      : { label: fa ? "شروع خوب" : "Good start", cls: "bg-primary/15 text-primary" };
                 return (
                   <div
                     key={s.id}

@@ -32,12 +32,12 @@ const childrenEN = [
   { id: "c2", name: "Nazanin Rezaei", grade: "Grade 8", initial: "N" },
 ];
 
-const weakFA = [
+const growthFA = [
   { name: "حل معادله درجه دوم", subject: "ریاضی", mastery: 38 },
   { name: "قانون دوم نیوتن", subject: "فیزیک", mastery: 44 },
   { name: "موازنه واکنش", subject: "شیمی", mastery: 52 },
 ];
-const weakEN = [
+const growthEN = [
   { name: "Solving quadratic equations", subject: "Math", mastery: 38 },
   { name: "Newton's second law", subject: "Physics", mastery: 44 },
   { name: "Balancing reactions", subject: "Chemistry", mastery: 52 },
@@ -79,7 +79,7 @@ function ParentOverview() {
   const fa = lang === "fa";
 
   const children = fa ? childrenFA : childrenEN;
-  const weak = fa ? weakFA : weakEN;
+  const growth = fa ? growthFA : growthEN;
   const strong = fa ? strongFA : strongEN;
   const reports = fa ? reportsFA : reportsEN;
   const weekDays = fa ? weekDaysFA : weekDaysEN;
@@ -110,8 +110,8 @@ function ParentOverview() {
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "نگاهی سریع به عملکرد هفتگی، تکالیف و نقاط قوت و ضعف."
-                : "A quick look at weekly performance, homework, and strengths & gaps."}
+                ? "نگاهی دلگرم‌کننده به رشد هفتگی، تداوم یادگیری و فرصت‌های بعدی."
+                : "An encouraging look at weekly growth, learning consistency, and next opportunities."}
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -163,7 +163,7 @@ function ParentOverview() {
         />
         <StatCard
           icon={<Activity className="h-4 w-4" />}
-          label={fa ? "روزهای پیاپی" : "Active streak"}
+          label={fa ? "تداوم یادگیری" : "Learning Streak"}
           value={`${num(12)} ${fa ? "روز" : "d"}`}
           sub={fa ? `رکورد: ${num(18)}` : "Record: 18"}
           tone="warning"
@@ -252,17 +252,17 @@ function ParentOverview() {
         </Card>
       </div>
 
-      {/* Weak + Strong MicroAtoms */}
+      {/* AtomBit growth + momentum */}
       <div className="grid lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-destructive" />
-              {fa ? "میکرواتم‌های ضعیف" : "Weak MicroAtoms"}
+               {fa ? "فرصت‌های رشد اتم‌بیت" : "AtomBit Growth Opportunities"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {weak.map((w, i) => (
+            {growth.map((w, i) => (
               <div key={i} className="p-3 rounded-xl border">
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="min-w-0">
@@ -286,7 +286,7 @@ function ParentOverview() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-success" />
-              {fa ? "میکرواتم‌های قوی" : "Strong MicroAtoms"}
+               {fa ? "اتم‌بیت‌های درخشان" : "Thriving AtomBits"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -317,7 +317,7 @@ function ParentOverview() {
           <CardTitle className="text-base flex items-center justify-between">
             <span className="flex items-center gap-2">
               <FileBarChart className="h-4 w-4 text-primary" />
-              {fa ? "گزارش‌های هفتگی" : "Weekly reports"}
+               {fa ? "گزارش‌های توربو" : "Turbo Reports"}
             </span>
             <Button size="sm" variant="outline" className="rounded-full">
               <Download className="h-3.5 w-3.5 mx-1" />

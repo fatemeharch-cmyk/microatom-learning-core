@@ -53,7 +53,7 @@ function TeacherHome() {
       title: fa ? "ساخت تکلیف" : "Create homework",
       desc: fa
         ? "تکلیف جدید با میکرواتم‌ها، مهلت و کلاس‌های هدف بساز."
-        : "Build a new assignment from MicroAtoms with deadline & target classes.",
+        : "Build a new assignment from AtomBits with deadline and target classes.",
     },
     {
       icon: FileCheck2,
@@ -68,8 +68,8 @@ function TeacherHome() {
       to: "/teacher/analytics",
       title: fa ? "تحلیل کلاس" : "Class analytics",
       desc: fa
-        ? "میانگین تسلط، نقاط ضعف و مشارکت هر کلاس."
-        : "Mastery, weak spots and engagement per class.",
+        ? "میانگین تسلط، فرصت‌های رشد و مشارکت هر کلاس."
+        : "Mastery, growth opportunities, and engagement per class.",
     },
     {
       icon: Users,
