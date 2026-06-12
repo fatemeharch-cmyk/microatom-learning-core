@@ -158,6 +158,18 @@ export const translations = {
   weekly_xp: { fa: "XP این هفته", en: "Weekly XP" },
   recent_achievements: { fa: "دستاوردهای اخیر", en: "Recent achievements" },
 
+  // Analytics
+  analytics_badge: { fa: "تحلیل شخصی", en: "Personal Analytics" },
+  analytics_title: { fa: "گزارش تحلیلی شما", en: "Your Analytics Report" },
+  analytics_subtitle: { fa: "روند روزانه و هفتگی بر اساس آزمون، تکلیف، زمان مطالعه و تسلط", en: "Daily and weekly trends based on exams, homework, study time, and mastery" },
+  stat_exam_avg: { fa: "میانگین آزمون", en: "Exam Average" },
+  stat_hw_rate: { fa: "نرخ تکلیف", en: "Homework Rate" },
+  stat_study_time: { fa: "زمان مطالعه", en: "Study Time" },
+  stat_mastery: { fa: "تسلط میکرواتم", en: "MicroAtom Mastery" },
+  tab_daily: { fa: "روزانه", en: "Daily" },
+  tab_weekly: { fa: "هفتگی", en: "Weekly" },
+  ai_recommendations: { fa: "توصیه‌های هوش مصنوعی", en: "AI Recommendations" },
+
   // Profile
   edit: { fa: "ویرایش", en: "Edit" },
   account_info: { fa: "اطلاعات حساب", en: "Account info" },
