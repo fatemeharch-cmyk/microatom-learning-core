@@ -1,14 +1,13 @@
 /**
  * Content Taxonomy
  *
- * Canonical 8-level hierarchy used across the entire platform:
+ * Canonical 9-level hierarchy used across the entire platform:
  *
- *   EducationLevel → Grade → Major → Subject → Chapter → Topic → Atom → MicroAtom
+ *   EducationLevel → Grade → Major → Subject → Chapter → Section → Atom → MicroAtom → Question
  *
- * v1 release ships ONLY with Grade 11 — Experimental (Science) content active.
- * All other levels/grades/majors are pre-modeled but flagged inactive so that
- * future expansion (Grade 10, Math, Humanities, university, etc.) requires
- * data additions only, never schema or UI redesign.
+ * v1 release ships ONLY with Grade 11 — Experimental Sciences content active.
+ * Future levels, grades, and majors are intentionally not seeded. They can be
+ * added as data later without changing this model or the surrounding UI.
  *
  * Stable string IDs (slugs) are used everywhere so DB rows, AI prompts,
  * analytics events, and URLs remain portable.
@@ -57,7 +56,7 @@ export interface Chapter {
   order: number;
 }
 
-export interface Topic {
+export interface Section {
   id: ID;
   chapterId: ID;
   nameFa: string;
@@ -67,7 +66,7 @@ export interface Topic {
 
 export interface Atom {
   id: ID;
-  topicId: ID;
+  sectionId: ID;
   nameFa: string;
   nameEn: string;
   order: number;
@@ -84,32 +83,28 @@ export interface MicroAtom {
   difficulty?: number;
 }
 
+export interface Question {
+  id: ID;
+  microAtomId: ID;
+  prompt: string;
+  difficulty?: number;
+}
+
 // ---------------------------------------------------------------------------
-// v1 catalog — Grade 11 Experimental only is `active: true`.
-// Other entries are intentionally pre-listed (inactive) to prove the schema
-// scales without changes when we light up Grade 10, Math major, etc.
+// v1 catalog — only Grade 11 Experimental Sciences is seeded and visible.
+// Future scopes are added as records, not hard-coded placeholders.
 // ---------------------------------------------------------------------------
 
 export const educationLevels: EducationLevel[] = [
-  { id: "primary",   nameFa: "ابتدایی",      nameEn: "Primary",        active: false },
-  { id: "middle",    nameFa: "متوسطه اول",  nameEn: "Middle School",  active: false },
   { id: "secondary", nameFa: "متوسطه دوم",  nameEn: "High School",    active: true  },
-  { id: "tertiary",  nameFa: "دانشگاه",      nameEn: "University",     active: false },
 ];
 
 export const grades: Grade[] = [
-  { id: "g10", levelId: "secondary", nameFa: "پایه دهم",   nameEn: "Grade 10", order: 10, active: false },
   { id: "g11", levelId: "secondary", nameFa: "پایه یازدهم", nameEn: "Grade 11", order: 11, active: true  },
-  { id: "g12", levelId: "secondary", nameFa: "پایه دوازدهم", nameEn: "Grade 12", order: 12, active: false },
 ];
 
 export const majors: Major[] = [
-  { id: "experimental", gradeId: "g11", nameFa: "علوم تجربی",  nameEn: "Experimental (Science)", active: true  },
-  { id: "math",         gradeId: "g11", nameFa: "ریاضی فیزیک", nameEn: "Math & Physics",         active: false },
-  { id: "humanities",   gradeId: "g11", nameFa: "علوم انسانی", nameEn: "Humanities",             active: false },
-  // Mirrored placeholders for other grades — proves the model is portable.
-  { id: "experimental-g10", gradeId: "g10", nameFa: "علوم تجربی",  nameEn: "Experimental (Science)", active: false },
-  { id: "experimental-g12", gradeId: "g12", nameFa: "علوم تجربی",  nameEn: "Experimental (Science)", active: false },
+  { id: "experimental", gradeId: "g11", nameFa: "علوم تجربی", nameEn: "Experimental Sciences", active: true },
 ];
 
 // Subjects for Grade 11 — Experimental (the v1 active set).
@@ -122,7 +117,7 @@ export const subjects: Subject[] = [
   { id: "english-11",       majorId: "experimental", nameFa: "زبان انگلیسی", nameEn: "English",     color: "#06b6d4", active: true },
 ];
 
-// A representative chapter/topic/atom/microatom tree for Biology 2 to make
+// A representative chapter/section/atom/microatom tree for Biology 2 to make
 // the architecture concrete. Other subjects use the same schema — content
 // is added incrementally without code changes.
 export const chapters: Chapter[] = [
@@ -133,17 +128,17 @@ export const chapters: Chapter[] = [
   { id: "phy11-ch1",  subjectId: "physics-11-exp",   nameFa: "الکتریسیته ساکن", nameEn: "Electrostatics", order: 1 },
 ];
 
-export const topics: Topic[] = [
+export const sections: Section[] = [
   { id: "bio11-ch1-t1", chapterId: "bio11-ch1", nameFa: "یاخته عصبی",        nameEn: "The Neuron",         order: 1 },
   { id: "bio11-ch1-t2", chapterId: "bio11-ch1", nameFa: "پیام عصبی",         nameEn: "Nerve Impulse",      order: 2 },
   { id: "bio11-ch1-t3", chapterId: "bio11-ch1", nameFa: "سیناپس",            nameEn: "Synapse",            order: 3 },
 ];
 
 export const atoms: Atom[] = [
-  { id: "bio11-ch1-t1-a1", topicId: "bio11-ch1-t1", nameFa: "ساختار نورون",       nameEn: "Neuron Structure",  order: 1 },
-  { id: "bio11-ch1-t1-a2", topicId: "bio11-ch1-t1", nameFa: "انواع نورون",        nameEn: "Types of Neurons",  order: 2 },
-  { id: "bio11-ch1-t2-a1", topicId: "bio11-ch1-t2", nameFa: "پتانسیل آرامش",      nameEn: "Resting Potential", order: 1 },
-  { id: "bio11-ch1-t2-a2", topicId: "bio11-ch1-t2", nameFa: "پتانسیل عمل",        nameEn: "Action Potential",  order: 2 },
+  { id: "bio11-ch1-t1-a1", sectionId: "bio11-ch1-t1", nameFa: "ساختار نورون",       nameEn: "Neuron Structure",  order: 1 },
+  { id: "bio11-ch1-t1-a2", sectionId: "bio11-ch1-t1", nameFa: "انواع نورون",        nameEn: "Types of Neurons",  order: 2 },
+  { id: "bio11-ch1-t2-a1", sectionId: "bio11-ch1-t2", nameFa: "پتانسیل آرامش",      nameEn: "Resting Potential", order: 1 },
+  { id: "bio11-ch1-t2-a2", sectionId: "bio11-ch1-t2", nameFa: "پتانسیل عمل",        nameEn: "Action Potential",  order: 2 },
 ];
 
 export const microAtoms: MicroAtom[] = [
@@ -186,11 +181,11 @@ export function subjectsForScope(scope: ActiveScope = DEFAULT_ACTIVE_SCOPE) {
 export function chaptersForSubject(subjectId: ID) {
   return chapters.filter((c) => c.subjectId === subjectId).sort((a, b) => a.order - b.order);
 }
-export function topicsForChapter(chapterId: ID) {
-  return topics.filter((t) => t.chapterId === chapterId).sort((a, b) => a.order - b.order);
+export function sectionsForChapter(chapterId: ID) {
+  return sections.filter((section) => section.chapterId === chapterId).sort((a, b) => a.order - b.order);
 }
-export function atomsForTopic(topicId: ID) {
-  return atoms.filter((a) => a.topicId === topicId).sort((x, y) => x.order - y.order);
+export function atomsForSection(sectionId: ID) {
+  return atoms.filter((atom) => atom.sectionId === sectionId).sort((x, y) => x.order - y.order);
 }
 export function microAtomsForAtom(atomId: ID) {
   return microAtoms.filter((m) => m.atomId === atomId);
@@ -202,9 +197,10 @@ export const HIERARCHY_LEVELS = [
   "Major",
   "Subject",
   "Chapter",
-  "Topic",
+  "Section",
   "Atom",
   "MicroAtom",
+  "Question",
 ] as const;
 
 export const HIERARCHY_LEVELS_FA = [
@@ -213,7 +209,8 @@ export const HIERARCHY_LEVELS_FA = [
   "رشته",
   "درس",
   "فصل",
-  "مبحث",
+  "گفتار",
   "اتم",
   "میکرواتم",
+  "سؤال",
 ] as const;
