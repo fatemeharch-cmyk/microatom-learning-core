@@ -214,8 +214,8 @@ function PersonalAnalyticsPage() {
             <p className="text-sm font-semibold">{t("ai_recommendations")}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {fa
-                ? "AI توصیه‌ها بر اساس داده‌های تحلیلی شما به‌زودی در اینجا نمایش داده می‌شود."
-                : "AI recommendations based on your analytics data will appear here soon."}
+                ? "توصیه‌های توربو بر اساس داده‌های تحلیلی شما به‌زودی در اینجا نمایش داده می‌شود."
+                : "Turbo Recommendations based on your analytics data will appear here soon."}
             </p>
           </div>
         </CardContent>
