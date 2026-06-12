@@ -8,7 +8,7 @@ type Dict = Record<string, { fa: string; en: string }>;
 // Central translation dictionary. Add keys here; both languages required.
 export const translations = {
   // Brand & roles
-  brand: { fa: "میکرواتم هوشمند", en: "Smart MicroAtom" },
+  brand: { fa: "اتومیا", en: "Atomia" },
   role_student: { fa: "پنل دانش‌آموز", en: "Student" },
   role_teacher: { fa: "پنل معلم", en: "Teacher" },
   role_parent: { fa: "پنل والدین", en: "Parent" },
@@ -32,7 +32,7 @@ export const translations = {
   nav_progress: { fa: "پیشرفت من", en: "Progress" },
   nav_profile: { fa: "پروفایل", en: "Profile" },
   nav_tracking: { fa: "ردیابی مطالعه", en: "Study Tracking" },
-  nav_planner: { fa: "برنامه‌ساز هوشمند", en: "AI Planner" },
+  nav_planner: { fa: "برنامه‌ریز توربو", en: "Turbo Planner" },
   nav_analytics: { fa: "تحلیل شخصی", en: "Personal Analytics" },
 
   // Nav (teacher)
@@ -60,7 +60,7 @@ export const translations = {
   // Dashboard
   hello_user: { fa: "سلام {name} عزیز 👋", en: "Hi {name} 👋" },
   hero_title: { fa: "آماده‌ای امروز رو بترکونی؟", en: "Ready to crush today?" },
-  hero_sub: { fa: "۵ میکرواتم جدید توی برنامه‌ی هوش مصنوعی امروزت منتظرته.", en: "5 fresh MicroAtoms are waiting in your AI plan." },
+  hero_sub: { fa: "۵ میکرواتم جدید توی برنامه‌ی توربوی امروزت منتظرته.", en: "5 fresh MicroAtoms are waiting in your Turbo plan." },
   start_learning: { fa: "شروع یادگیری", en: "Start learning" },
   total_xp: { fa: "امتیاز کل", en: "Total XP" },
   today_delta: { fa: "+{n} امروز", en: "+{n} today" },
@@ -73,7 +73,7 @@ export const translations = {
 
   // Feature cards
   feat_daily_title: { fa: "برنامه روزانه هوشمند", en: "Smart Daily Plan" },
-  feat_daily_desc: { fa: "برنامه‌ای که AI براساس نقاط ضعف و قوتت برای امروزت ساخته.", en: "An AI plan built around your strengths and gaps for today." },
+  feat_daily_desc: { fa: "برنامه‌ای که توربو براساس نقاط ضعف و قوتت برای امروزت ساخته.", en: "A Turbo plan built around your strengths and gaps for today." },
   feat_daily_meta: { fa: "۵ میکرواتم • ۶۰ دقیقه", en: "5 MicroAtoms • 60 min" },
   feat_weekly_title: { fa: "برنامه هفتگی", en: "Weekly Plan" },
   feat_weekly_desc: { fa: "نقشه راه ۷ روزه با اهداف و آزمون‌های جمع‌بندی.", en: "A 7-day roadmap with goals and review exams." },
@@ -90,7 +90,7 @@ export const translations = {
   badge_new: { fa: "جدید", en: "New" },
 
   // AI suggestion
-  ai_suggest_title: { fa: "پیشنهاد هوش مصنوعی", en: "AI Suggestion" },
+  ai_suggest_title: { fa: "پیشنهاد توربو", en: "Turbo Insight" },
   ai_suggest_body: { fa: "توی مبحث «معادله درجه دوم» نیاز به تمرین بیشتری داری. ۱۰ دقیقه وقت بذاریم؟", en: "You need more practice on “Quadratic equations”. Spend 10 minutes?" },
   quick_practice: { fa: "شروع تمرین سریع", en: "Start quick practice" },
 
@@ -103,7 +103,7 @@ export const translations = {
   start: { fa: "شروع", en: "Start" },
 
   // Daily page
-  badge_ai: { fa: "ساخته شده با هوش مصنوعی", en: "Built with AI" },
+  badge_ai: { fa: "قدرت‌گرفته از توربو", en: "Powered by Turbo" },
   daily_title: { fa: "برنامه روزانه شما", en: "Your daily plan" },
   daily_sub: { fa: "یکشنبه، ۲۰ خرداد • {n} میکرواتم • حدود ۶۰ دقیقه", en: "Sunday, Jun 10 • {n} MicroAtoms • ~60 min" },
   rebuild_plan: { fa: "بازسازی برنامه", en: "Rebuild plan" },
@@ -159,8 +159,8 @@ export const translations = {
   recent_achievements: { fa: "دستاوردهای اخیر", en: "Recent achievements" },
 
   // Analytics
-  analytics_badge: { fa: "تحلیل شخصی", en: "Personal Analytics" },
-  analytics_title: { fa: "گزارش تحلیلی شما", en: "Your Analytics Report" },
+  analytics_badge: { fa: "تحلیل توربو", en: "Turbo Analytics" },
+  analytics_title: { fa: "گزارش توربوی شما", en: "Your Turbo Report" },
   analytics_subtitle: { fa: "روند روزانه و هفتگی بر اساس آزمون، تکلیف، زمان مطالعه و تسلط", en: "Daily and weekly trends based on exams, homework, study time, and mastery" },
   stat_exam_avg: { fa: "میانگین آزمون", en: "Exam Average" },
   stat_hw_rate: { fa: "نرخ تکلیف", en: "Homework Rate" },
@@ -168,7 +168,7 @@ export const translations = {
   stat_mastery: { fa: "تسلط میکرواتم", en: "MicroAtom Mastery" },
   tab_daily: { fa: "روزانه", en: "Daily" },
   tab_weekly: { fa: "هفتگی", en: "Weekly" },
-  ai_recommendations: { fa: "توصیه‌های هوش مصنوعی", en: "AI Recommendations" },
+  ai_recommendations: { fa: "توصیه‌های توربو", en: "Turbo Recommendations" },
 
   // Profile
   edit: { fa: "ویرایش", en: "Edit" },

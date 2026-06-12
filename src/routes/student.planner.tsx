@@ -286,15 +286,15 @@ function PlannerPage() {
           </div>
           <div className="flex-1">
             <Badge variant="secondary" className="bg-white/15 text-primary-foreground border-0 mb-2">
-              {fa ? "ساخته شده با هوش مصنوعی" : "Powered by AI"}
+              {fa ? "قدرت‌گرفته از توربو" : "Powered by Turbo"}
             </Badge>
             <h1 className="text-xl sm:text-2xl font-bold">
-              {fa ? "برنامه‌ساز هوشمند مطالعه" : "AI Study Planner"}
+              {fa ? "برنامه‌ریز توربو" : "Turbo Planner"}
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "آزمون‌ها، تکالیف، زمان مطالعه و سطح تسلطت رو وارد کن — هوش مصنوعی برنامه‌ی روزانه و هفتگی می‌سازه."
-                : "Enter your exams, homework, study time, and mastery — AI builds a tailored daily & weekly plan."}
+                ? "آزمون‌ها، تکالیف، زمان مطالعه و سطح تسلطت رو وارد کن — موتور هوشمند اختصاصی توربوی اتومیا برنامه‌ی روزانه و هفتگی می‌سازه."
+                : "Enter your exams, homework, study time, and mastery — Atomia's proprietary Turbo engine builds a tailored daily and weekly plan."}
             </p>
           </div>
           <Button
