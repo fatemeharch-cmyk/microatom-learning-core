@@ -311,7 +311,7 @@ function ParentOverview() {
         </Card>
       </div>
 
-      {/* Weekly reports */}
+      {/* Turbo Reports */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center justify-between">

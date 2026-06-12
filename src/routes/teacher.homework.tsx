@@ -158,7 +158,7 @@ function HomeworkBuilder() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>{fa ? "میکرواتم‌های مرتبط" : "Linked MicroAtoms"}</Label>
+                  <Label>{fa ? "اتم‌بیت‌های مرتبط" : "Linked AtomBits"}</Label>
                   <div className="relative">
                     <Search className="h-4 w-4 absolute top-2.5 start-3 text-muted-foreground" />
                     <Input
@@ -211,7 +211,7 @@ function HomeworkBuilder() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">
-                    {fa ? "میکرواتم‌ها" : "MicroAtoms"} ({selectedAtoms.length})
+                    {fa ? "اتم‌بیت‌ها" : "AtomBits"} ({selectedAtoms.length})
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {selectedAtoms.length === 0 ? (

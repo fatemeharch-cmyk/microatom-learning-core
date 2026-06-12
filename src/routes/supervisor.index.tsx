@@ -147,7 +147,7 @@ function SupervisorOverview() {
         <StatCard icon={<AlertTriangle className="h-4 w-4" />} label={fa ? "فرصت همراهی" : "Support opportunities"} value={num(24)} sub={fa ? `${num(6)}% کل` : "6% of total"} tone="warning" />
       </div>
 
-      {/* Weak subjects + weak microatoms */}
+      {/* Subject and AtomBit growth opportunities */}
       <div className="grid lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>

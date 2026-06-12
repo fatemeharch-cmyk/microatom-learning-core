@@ -89,7 +89,7 @@ export const translations = {
   feat_progress_meta: { fa: "میانگین تسلط ۷۲٪", en: "Avg. mastery 72%" },
   badge_new: { fa: "جدید", en: "New" },
 
-  // AI suggestion
+  // Turbo insight
   ai_suggest_title: { fa: "بینش توربو", en: "Turbo Insight" },
   ai_suggest_body: { fa: "«معادله درجه دوم» فرصت خوبی برای یک گام رشد تازه است. ۱۰ دقیقه با هم تمرین کنیم؟", en: "Quadratic equations are a great opportunity for your next growth step. Practice for 10 minutes?" },
   quick_practice: { fa: "شروع تمرین سریع", en: "Start quick practice" },

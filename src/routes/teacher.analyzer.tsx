@@ -180,8 +180,8 @@ function ExamAnalyzerPage() {
       recs.push({
         tone: "warn",
         text: fa
-          ? `میکرواتم «${hardestMA.name}» نیازمند بازآموزی است (دشواری ${hardestMA.difficulty}، تسلط ${hardestMA.avgCorrect}٪).`
-          : `MicroAtom "${hardestMA.name}" needs re-teaching (difficulty ${hardestMA.difficulty}, mastery ${hardestMA.avgCorrect}%).`,
+          ? `اتم‌بیت «${hardestMA.name}» یک فرصت خوب برای مرور هدفمند است (دشواری ${hardestMA.difficulty}، تسلط ${hardestMA.avgCorrect}٪).`
+          : `AtomBit "${hardestMA.name}" is a good opportunity for focused review (difficulty ${hardestMA.difficulty}, mastery ${hardestMA.avgCorrect}%).`,
       });
     }
     const overTime = qs.filter((q) => q.avgTimeSec > q.expectedTimeSec * 1.4);
@@ -283,8 +283,8 @@ function ExamAnalyzerPage() {
             <p className="text-xs text-muted-foreground mt-1 truncate">
               {analyzed_data.microAtoms[0]
                 ? fa
-                  ? `سخت‌ترین: ${analyzed_data.microAtoms[0].name}`
-                  : `Hardest: ${analyzed_data.microAtoms[0].name}`
+                  ? `چالش‌برانگیزترین: ${analyzed_data.microAtoms[0].name}`
+                  : `Most challenging: ${analyzed_data.microAtoms[0].name}`
                 : ""}
             </p>
           </CardContent>
@@ -299,11 +299,11 @@ function ExamAnalyzerPage() {
           </TabsTrigger>
           <TabsTrigger value="microatoms">
             <Atom className="h-4 w-4 mx-1" />
-            {fa ? "میکرواتم‌ها" : "MicroAtoms"}
+            {fa ? "اتم‌بیت‌ها" : "AtomBits"}
           </TabsTrigger>
           <TabsTrigger value="recs">
             <Lightbulb className="h-4 w-4 mx-1" />
-            {fa ? "توصیه‌ها" : "Recommendations"}
+            {fa ? "پیشنهادهای توربو" : "Turbo Recommendations"}
           </TabsTrigger>
           <TabsTrigger value="add">
             <Plus className="h-4 w-4 mx-1" />
@@ -422,7 +422,7 @@ function ExamAnalyzerPage() {
                 <Input value={text} onChange={(e) => setText(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label>{fa ? "میکرواتم" : "MicroAtom"}</Label>
+                <Label>{fa ? "اتم‌بیت" : "AtomBit"}</Label>
                 <Input value={ma} onChange={(e) => setMa(e.target.value)} />
               </div>
               <div className="space-y-1.5">
