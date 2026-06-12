@@ -29,9 +29,9 @@ function DailyPlan() {
           <Badge variant="secondary" className="mb-2">
             <Sparkles className="h-3 w-3 ml-1" /> قدرت‌گرفته از توربو
           </Badge>
-          <h1 className="text-2xl font-bold tracking-tight">برنامه روزانه شما</h1>
+          <h1 className="text-2xl font-bold tracking-tight">مأموریت توربوی امروز</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            یکشنبه، ۲۰ خرداد • {total} میکرواتم • حدود ۶۰ دقیقه
+            یکشنبه، ۲۰ خرداد • {total} اتم‌بیت • حدود ۶۰ دقیقه
           </p>
         </div>
         <Button variant="outline" className="rounded-full">
@@ -58,7 +58,7 @@ function DailyPlan() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">میکرواتم‌های امروز</CardTitle>
+          <CardTitle className="text-base">اتم‌بیت‌های امروز</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {blocks.map((b, i) => (

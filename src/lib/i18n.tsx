@@ -47,7 +47,7 @@ export const translations = {
   // Nav (parent)
   p_nav_overview: { fa: "نمای کلی", en: "Overview" },
   p_nav_children: { fa: "فرزندان", en: "Children" },
-  p_nav_reports: { fa: "گزارش‌ها", en: "Reports" },
+  p_nav_reports: { fa: "گزارش‌های توربو", en: "Turbo Reports" },
   p_nav_messages: { fa: "پیام‌ها", en: "Messages" },
 
   // Nav (supervisor)
@@ -60,24 +60,24 @@ export const translations = {
   // Dashboard
   hello_user: { fa: "سلام {name} عزیز 👋", en: "Hi {name} 👋" },
   hero_title: { fa: "آماده‌ای امروز رو بترکونی؟", en: "Ready to crush today?" },
-  hero_sub: { fa: "۵ میکرواتم جدید توی برنامه‌ی توربوی امروزت منتظرته.", en: "5 fresh MicroAtoms are waiting in your Turbo plan." },
+  hero_sub: { fa: "۵ اتم‌بیت تازه در مأموریت توربوی امروزت منتظرته.", en: "5 fresh AtomBits are waiting in today's Turbo Mission." },
   start_learning: { fa: "شروع یادگیری", en: "Start learning" },
   total_xp: { fa: "امتیاز کل", en: "Total XP" },
   today_delta: { fa: "+{n} امروز", en: "+{n} today" },
-  streak: { fa: "روزهای پیاپی", en: "Day streak" },
+  streak: { fa: "تداوم یادگیری", en: "Learning Streak" },
   record_n: { fa: "رکورد: {n}", en: "Record: {n}" },
-  mastered_microatoms: { fa: "میکرواتم تسلط‌یافته", en: "Mastered MicroAtoms" },
+  mastered_microatoms: { fa: "اتم‌بیت‌های کامل‌شده", en: "AtomBits Completed" },
   out_of: { fa: "از {n}", en: "of {n}" },
   study_time_today: { fa: "زمان مطالعه امروز", en: "Study time today" },
   goal_min: { fa: "هدف: {n}′", en: "Goal: {n}m" },
 
   // Feature cards
-  feat_daily_title: { fa: "برنامه روزانه هوشمند", en: "Smart Daily Plan" },
-  feat_daily_desc: { fa: "برنامه‌ای که توربو براساس نقاط ضعف و قوتت برای امروزت ساخته.", en: "A Turbo plan built around your strengths and gaps for today." },
-  feat_daily_meta: { fa: "۵ میکرواتم • ۶۰ دقیقه", en: "5 MicroAtoms • 60 min" },
-  feat_weekly_title: { fa: "برنامه هفتگی", en: "Weekly Plan" },
+  feat_daily_title: { fa: "مأموریت روزانه توربو", en: "Daily Turbo Mission" },
+  feat_daily_desc: { fa: "توربو این مسیر را با توجه به پیشرفت و فرصت‌های رشد امروزت ساخته است.", en: "Turbo built this path around your progress and growth opportunities today." },
+  feat_daily_meta: { fa: "۵ اتم‌بیت • ۶۰ دقیقه", en: "5 AtomBits • 60 min" },
+  feat_weekly_title: { fa: "جشن رشد هفتگی", en: "Weekly Growth Celebration" },
   feat_weekly_desc: { fa: "نقشه راه ۷ روزه با اهداف و آزمون‌های جمع‌بندی.", en: "A 7-day roadmap with goals and review exams." },
-  feat_weekly_meta: { fa: "۳۲ میکرواتم این هفته", en: "32 MicroAtoms this week" },
+  feat_weekly_meta: { fa: "۳۲ اتم‌بیت این هفته", en: "32 AtomBits this week" },
   feat_hw_title: { fa: "مرکز تکالیف", en: "Homework Center" },
   feat_hw_desc: { fa: "تکالیف معلم‌ها در یک جا، با مهلت و وضعیت تحویل.", en: "All teacher assignments in one place with deadlines & status." },
   feat_hw_meta: { fa: "۳ تکلیف فعال", en: "3 active assignments" },
@@ -85,17 +85,17 @@ export const translations = {
   feat_exam_desc: { fa: "آزمون‌های تشخیصی، تمرینی و رسمی به صورت تطبیقی.", en: "Diagnostic, practice, and official adaptive exams." },
   feat_exam_meta: { fa: "آزمون بعدی: شنبه", en: "Next exam: Saturday" },
   feat_progress_title: { fa: "ردیابی پیشرفت", en: "Progress Tracking" },
-  feat_progress_desc: { fa: "نمودار تسلط در هر فصل و توصیه‌های شخصی‌سازی شده.", en: "Mastery charts per chapter with personalized tips." },
+  feat_progress_desc: { fa: "رشدت را در هر فصل ببین و پیشنهادهای شخصی توربو را دنبال کن.", en: "See your growth by chapter and follow personalized Turbo Recommendations." },
   feat_progress_meta: { fa: "میانگین تسلط ۷۲٪", en: "Avg. mastery 72%" },
   badge_new: { fa: "جدید", en: "New" },
 
   // AI suggestion
-  ai_suggest_title: { fa: "پیشنهاد توربو", en: "Turbo Insight" },
-  ai_suggest_body: { fa: "توی مبحث «معادله درجه دوم» نیاز به تمرین بیشتری داری. ۱۰ دقیقه وقت بذاریم؟", en: "You need more practice on “Quadratic equations”. Spend 10 minutes?" },
+  ai_suggest_title: { fa: "بینش توربو", en: "Turbo Insight" },
+  ai_suggest_body: { fa: "«معادله درجه دوم» فرصت خوبی برای یک گام رشد تازه است. ۱۰ دقیقه با هم تمرین کنیم؟", en: "Quadratic equations are a great opportunity for your next growth step. Practice for 10 minutes?" },
   quick_practice: { fa: "شروع تمرین سریع", en: "Start quick practice" },
 
   // Today's plan
-  today_plan: { fa: "برنامه امروز", en: "Today's plan" },
+  today_plan: { fa: "مأموریت توربوی امروز", en: "Today's Turbo Mission" },
   view_full: { fa: "مشاهده کامل", en: "View all" },
   mastery_subjects: { fa: "تسلط بر دروس", en: "Mastery by subject" },
   in_progress: { fa: "در حال انجام", en: "In progress" },
@@ -104,19 +104,19 @@ export const translations = {
 
   // Daily page
   badge_ai: { fa: "قدرت‌گرفته از توربو", en: "Powered by Turbo" },
-  daily_title: { fa: "برنامه روزانه شما", en: "Your daily plan" },
-  daily_sub: { fa: "یکشنبه، ۲۰ خرداد • {n} میکرواتم • حدود ۶۰ دقیقه", en: "Sunday, Jun 10 • {n} MicroAtoms • ~60 min" },
+  daily_title: { fa: "مأموریت توربوی امروز", en: "Today's Turbo Mission" },
+  daily_sub: { fa: "یکشنبه، ۲۰ خرداد • {n} اتم‌بیت • حدود ۶۰ دقیقه", en: "Sunday, Jun 10 • {n} AtomBits • ~60 min" },
   rebuild_plan: { fa: "بازسازی برنامه", en: "Rebuild plan" },
   today_progress: { fa: "پیشرفت امروز", en: "Today's progress" },
   done_of_total: { fa: "{a} از {b} ({p}٪)", en: "{a} of {b} ({p}%)" },
-  todays_microatoms: { fa: "میکرواتم‌های امروز", en: "Today's MicroAtoms" },
+  todays_microatoms: { fa: "اتم‌بیت‌های امروز", en: "Today's AtomBits" },
   step: { fa: "گام", en: "Step" },
   now: { fa: "اکنون", en: "Now" },
   minutes: { fa: "{n} دقیقه", en: "{n} min" },
 
   // Weekly page
-  weekly_title: { fa: "برنامه هفتگی شما", en: "Your weekly plan" },
-  weekly_sub: { fa: "هفته ۲۵ خرداد • ۳۲ میکرواتم • ۱ آزمون جمع‌بندی", en: "Week of Jun 10 • 32 MicroAtoms • 1 review exam" },
+  weekly_title: { fa: "جشن رشد هفتگی", en: "Weekly Growth Celebration" },
+  weekly_sub: { fa: "هفته ۲۵ خرداد • ۳۲ اتم‌بیت • ۱ آزمون جمع‌بندی", en: "Week of Jun 10 • 32 AtomBits • 1 review exam" },
   weekly_goals: { fa: "اهداف این هفته", en: "Weekly goals" },
   week_map: { fa: "نقشه هفته", en: "Week map" },
   today: { fa: "امروز", en: "Today" },
@@ -156,19 +156,19 @@ export const translations = {
   avg_mastery: { fa: "میانگین تسلط", en: "Average mastery" },
   vs_last_week: { fa: "+{n}٪ نسبت به هفته قبل", en: "+{n}% vs. last week" },
   weekly_xp: { fa: "XP این هفته", en: "Weekly XP" },
-  recent_achievements: { fa: "دستاوردهای اخیر", en: "Recent achievements" },
+  recent_achievements: { fa: "نشان‌های رشد اخیر", en: "Recent Growth Badges" },
 
   // Analytics
-  analytics_badge: { fa: "تحلیل توربو", en: "Turbo Analytics" },
+  analytics_badge: { fa: "تحلیل‌های توربو", en: "Turbo Analytics" },
   analytics_title: { fa: "گزارش توربوی شما", en: "Your Turbo Report" },
   analytics_subtitle: { fa: "روند روزانه و هفتگی بر اساس آزمون، تکلیف، زمان مطالعه و تسلط", en: "Daily and weekly trends based on exams, homework, study time, and mastery" },
   stat_exam_avg: { fa: "میانگین آزمون", en: "Exam Average" },
   stat_hw_rate: { fa: "نرخ تکلیف", en: "Homework Rate" },
   stat_study_time: { fa: "زمان مطالعه", en: "Study Time" },
-  stat_mastery: { fa: "تسلط میکرواتم", en: "MicroAtom Mastery" },
+  stat_mastery: { fa: "رشد اتم‌بیت‌ها", en: "AtomBit Growth" },
   tab_daily: { fa: "روزانه", en: "Daily" },
   tab_weekly: { fa: "هفتگی", en: "Weekly" },
-  ai_recommendations: { fa: "توصیه‌های توربو", en: "Turbo Recommendations" },
+  ai_recommendations: { fa: "پیشنهادهای توربو", en: "Turbo Recommendations" },
 
   // Profile
   edit: { fa: "ویرایش", en: "Edit" },

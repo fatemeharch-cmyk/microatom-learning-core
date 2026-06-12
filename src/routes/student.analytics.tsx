@@ -128,8 +128,8 @@ function PersonalAnalyticsPage() {
         <StatCard
           icon={BookOpen}
           label={t("stat_mastery")}
-          value="۶۲ میکرواتم"
-          delta={fa ? "+۸ میکرواتم این هفته" : "+8 MicroAtoms this week"}
+          value="۶۲ اتم‌بیت"
+          delta={fa ? "+۸ اتم‌بیت این هفته" : "+8 AtomBits this week"}
           colorClass="text-warning"
         />
       </div>
@@ -165,9 +165,9 @@ function PersonalAnalyticsPage() {
               yUnit="'"
             />
             <LineChartCard
-              title={fa ? "تسلط میکرواتم (امروز)" : "MicroAtom Mastery (Today)"}
+              title={fa ? "رشد اتم‌بیت‌ها (امروز)" : "AtomBit Growth (Today)"}
               data={masteryData.daily}
-              lines={[{ key: "value", color: "var(--color-warning)", name: fa ? "میکرواتم" : "MicroAtoms" }]}
+              lines={[{ key: "value", color: "var(--color-warning)", name: fa ? "اتم‌بیت" : "AtomBits" }]}
             />
           </div>
         </TabsContent>
@@ -196,9 +196,9 @@ function PersonalAnalyticsPage() {
               yUnit="'"
             />
             <LineChartCard
-              title={fa ? "تسلط میکرواتم (هفتگی)" : "MicroAtom Mastery (Weekly)"}
+              title={fa ? "رشد اتم‌بیت‌ها (هفتگی)" : "AtomBit Growth (Weekly)"}
               data={masteryData.weekly}
-              lines={[{ key: "value", color: "var(--color-warning)", name: fa ? "میکرواتم" : "MicroAtoms" }]}
+              lines={[{ key: "value", color: "var(--color-warning)", name: fa ? "اتم‌بیت" : "AtomBits" }]}
             />
           </div>
         </TabsContent>
@@ -215,7 +215,7 @@ function PersonalAnalyticsPage() {
             <p className="text-sm text-muted-foreground mt-1">
               {fa
                 ? "توصیه‌های توربو بر اساس داده‌های تحلیلی شما به‌زودی در اینجا نمایش داده می‌شود."
-                : "Turbo Recommendations based on your analytics data will appear here soon."}
+                : "Personalized Turbo Recommendations from the Turbo Engine will appear here soon."}
             </p>
           </div>
         </CardContent>
