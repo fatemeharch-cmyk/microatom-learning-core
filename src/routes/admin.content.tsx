@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   HIERARCHY_LEVELS,
   HIERARCHY_LEVELS_FA,
-  atomsForTopic,
+  atomsForSection,
   byId,
   chaptersForSubject,
   educationLevels,
@@ -15,7 +15,7 @@ import {
   microAtomsForAtom,
   subjects,
   subjectsForScope,
-  topicsForChapter,
+  sectionsForChapter,
 } from "@/lib/content-taxonomy";
 import { useScope } from "@/lib/scope";
 import { useI18n } from "@/lib/i18n";
@@ -33,19 +33,19 @@ function ContentLibrary() {
   const activeSubjects = useMemo(() => subjectsForScope(scope), [scope]);
   const [subjectId, setSubjectId] = useState(activeSubjects[0]?.id ?? "");
   const [chapterId, setChapterId] = useState<string>(() => chaptersForSubject(activeSubjects[0]?.id ?? "")[0]?.id ?? "");
-  const [topicId, setTopicId] = useState<string>(() => {
+  const [sectionId, setSectionId] = useState<string>(() => {
     const c = chaptersForSubject(activeSubjects[0]?.id ?? "")[0]?.id ?? "";
-    return topicsForChapter(c)[0]?.id ?? "";
+    return sectionsForChapter(c)[0]?.id ?? "";
   });
   const [atomId, setAtomId] = useState<string>(() => {
     const c = chaptersForSubject(activeSubjects[0]?.id ?? "")[0]?.id ?? "";
-    const t = topicsForChapter(c)[0]?.id ?? "";
-    return atomsForTopic(t)[0]?.id ?? "";
+    const section = sectionsForChapter(c)[0]?.id ?? "";
+    return atomsForSection(section)[0]?.id ?? "";
   });
 
   const chapters = chaptersForSubject(subjectId);
-  const topics = topicsForChapter(chapterId);
-  const atomList = atomsForTopic(topicId);
+  const sections = sectionsForChapter(chapterId);
+  const atomList = atomsForSection(sectionId);
   const micros = microAtomsForAtom(atomId);
 
   const name = (o: { nameFa: string; nameEn: string } | undefined) =>
@@ -150,9 +150,9 @@ function ContentLibrary() {
                 setSubjectId(id);
                 const c = chaptersForSubject(id)[0]?.id ?? "";
                 setChapterId(c);
-                const t = topicsForChapter(c)[0]?.id ?? "";
-                setTopicId(t);
-                setAtomId(atomsForTopic(t)[0]?.id ?? "");
+                const section = sectionsForChapter(c)[0]?.id ?? "";
+                setSectionId(section);
+                setAtomId(atomsForSection(section)[0]?.id ?? "");
               }}
             />
             <Column
@@ -161,19 +161,19 @@ function ContentLibrary() {
               selectedId={chapterId}
               onSelect={(id) => {
                 setChapterId(id);
-                const t = topicsForChapter(id)[0]?.id ?? "";
-                setTopicId(t);
-                setAtomId(atomsForTopic(t)[0]?.id ?? "");
+                const section = sectionsForChapter(id)[0]?.id ?? "";
+                setSectionId(section);
+                setAtomId(atomsForSection(section)[0]?.id ?? "");
               }}
               empty={fa ? "محتوا به‌زودی اضافه می‌شود" : "Content coming soon"}
             />
             <Column
-              title={fa ? "مبحث" : "Topic"}
-              items={topics.map((t) => ({ id: t.id, label: fa ? t.nameFa : t.nameEn }))}
-              selectedId={topicId}
+              title={fa ? "گفتار" : "Section"}
+              items={sections.map((section) => ({ id: section.id, label: fa ? section.nameFa : section.nameEn }))}
+              selectedId={sectionId}
               onSelect={(id) => {
-                setTopicId(id);
-                setAtomId(atomsForTopic(id)[0]?.id ?? "");
+                setSectionId(id);
+                setAtomId(atomsForSection(id)[0]?.id ?? "");
               }}
               empty={fa ? "—" : "—"}
             />
