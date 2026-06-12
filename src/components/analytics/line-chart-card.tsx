@@ -9,31 +9,26 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-type DataPoint = {
-  label: string;
-  value: number;
-};
+type DataPoint = Record<string, string | number>;
 
 interface LineChartCardProps {
   title: string;
   data: DataPoint[];
-  color?: string;
-  secondaryData?: DataPoint[];
-  secondaryColor?: string;
+  lines: { key: string; color: string; name?: string }[];
+  xKey?: string;
   yUnit?: string;
 }
 
 export function LineChartCard({
   title,
   data,
-  color = "var(--color-primary)",
-  secondaryData,
-  secondaryColor = "var(--color-success)",
+  lines,
+  xKey = "label",
   yUnit = "",
 }: LineChartCardProps) {
   const maxValue = Math.max(
-    ...data.map((d) => d.value),
-    ...(secondaryData ? secondaryData.map((d) => d.value) : [0]),
+    ...data.flatMap((d) => lines.map((l) => Number(d[l.key]) || 0)),
+    0,
   );
   const yMax = maxValue > 0 ? Math.ceil(maxValue * 1.15) : 10;
 
@@ -50,7 +45,7 @@ export function LineChartCard({
             <LineChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
               <XAxis
-                dataKey="label"
+                dataKey={xKey}
                 tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }}
                 axisLine={{ stroke: "var(--color-border)" }}
                 tickLine={false}
@@ -71,29 +66,21 @@ export function LineChartCard({
                 }}
                 labelStyle={{ color: "var(--color-foreground)", fontWeight: 600 }}
                 itemStyle={{ color: "var(--color-foreground)" }}
-                formatter={(value: number) => [`${value}${yUnit}`, ""]}
+                formatter={(value: number, name: string) => [`${value}${yUnit}`, name]}
               />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke={color}
-                strokeWidth={2.5}
-                dot={{ r: 3, fill: color, strokeWidth: 0 }}
-                activeDot={{ r: 5, stroke: color, strokeWidth: 2, fill: "var(--color-card)" }}
-                animationDuration={800}
-              />
-              {secondaryData && (
+              {lines.map((ln) => (
                 <Line
+                  key={ln.key}
                   type="monotone"
-                  data={secondaryData.map((d) => ({ label: d.label, value2: d.value }))}
-                  dataKey="value2"
-                  stroke={secondaryColor}
+                  dataKey={ln.key}
+                  name={ln.name || ln.key}
+                  stroke={ln.color}
                   strokeWidth={2.5}
-                  dot={{ r: 3, fill: secondaryColor, strokeWidth: 0 }}
-                  activeDot={{ r: 5, stroke: secondaryColor, strokeWidth: 2, fill: "var(--color-card)" }}
+                  dot={{ r: 3, fill: ln.color, strokeWidth: 0 }}
+                  activeDot={{ r: 5, stroke: ln.color, strokeWidth: 2, fill: "var(--color-card)" }}
                   animationDuration={800}
                 />
-              )}
+              ))}
             </LineChart>
           </ResponsiveContainer>
         </div>
