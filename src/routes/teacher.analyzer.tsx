@@ -225,8 +225,8 @@ function ExamAnalyzerPage() {
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "نتایج سؤالات را وارد کن — موتور هوشمند اختصاصی توربوی اتومیا سطح دشواری آزمون، سؤال و میکرواتم را محاسبه و توصیه تولید می‌کند."
-                : "Enter question results — Atomia's proprietary Turbo engine computes exam, question, and MicroAtom difficulty and generates recommendations."}
+                ? "نتایج سؤالات را وارد کن تا موتور توربوی اتومیا دشواری آزمون، سؤال و اتم‌بیت را تحلیل و پیشنهادهای توربو را آماده کند."
+                : "Enter question results so Atomia's proprietary Turbo Engine can analyze exam, question, and AtomBit difficulty and prepare Turbo Recommendations."}
             </p>
           </div>
           <Button
@@ -277,7 +277,7 @@ function ExamAnalyzerPage() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <Atom className="h-4 w-4 text-primary" />
-              <p className="text-xs text-muted-foreground">{fa ? "میکرواتم‌های پوشش‌داده‌شده" : "MicroAtoms covered"}</p>
+               <p className="text-xs text-muted-foreground">{fa ? "اتم‌بیت‌های پوشش‌داده‌شده" : "AtomBits covered"}</p>
             </div>
             <p className="text-3xl font-bold">{num(analyzed_data.microAtoms.length)}</p>
             <p className="text-xs text-muted-foreground mt-1 truncate">

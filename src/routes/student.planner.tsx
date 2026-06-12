@@ -80,10 +80,10 @@ function buildPlan(
   dailyMinutes: number,
   fa: boolean,
 ) {
-  // Weight subjects: low mastery + close exam = higher priority
+  // Weight subjects: growth opportunity + close exam = higher priority
   const subjectScores = new Map<string, number>();
   mastery.forEach((m) => {
-    const base = Math.max(5, 100 - m.pct); // weakness weight
+    const base = Math.max(5, 100 - m.pct); // growth-opportunity weight
     subjectScores.set(m.subject, (subjectScores.get(m.subject) ?? 0) + base);
   });
   exams.forEach((e) => {
@@ -91,7 +91,7 @@ function buildPlan(
     subjectScores.set(e.subject, (subjectScores.get(e.subject) ?? 0) + urgency);
   });
 
-  // Build a daily plan: homework due first, then top subject by score, then review of strongest weak
+  // Build a daily plan: homework due first, then top growth opportunity, then review
   const dueToday = hw.filter((h) => h.daysAway <= 1).slice(0, 2);
   const remaining = Math.max(15, dailyMinutes - dueToday.reduce((a, h) => a + h.minutes, 0));
 
@@ -115,7 +115,7 @@ function buildPlan(
       subject: focusSubject,
       activity: examFocus && examFocus.subject === focusSubject
         ? (fa ? `تمرین تمرکز روی «${examFocus.topic}»` : `Focused practice on "${examFocus.topic}"`)
-        : (fa ? "تمرین میکرواتم‌های ضعیف" : "Practice weak MicroAtoms"),
+        : (fa ? "تمرین اتم‌بیت‌های رشد" : "Practice growth AtomBits"),
       minutes: focusMin,
       kind: examFocus ? "exam" : "review",
     },
@@ -155,13 +155,13 @@ function buildPlan(
 
   // Recommendations
   const recs: { tone: "warn" | "info" | "good"; text: string }[] = [];
-  const weakest = [...mastery].sort((a, b) => a.pct - b.pct)[0];
-  if (weakest && weakest.pct < 60) {
+  const growthFocus = [...mastery].sort((a, b) => a.pct - b.pct)[0];
+  if (growthFocus && growthFocus.pct < 60) {
     recs.push({
       tone: "warn",
       text: fa
-        ? `تسلط در «${weakest.subject}» ${weakest.pct}٪ است — هر روز ۲۰ دقیقه روی این درس کار کن.`
-        : `Mastery in "${weakest.subject}" is ${weakest.pct}% — spend 20 min on it daily.`,
+        ? `«${growthFocus.subject}» فرصت رشد بعدی توست — روزی ۲۰ دقیقه برای پیشرفت در این درس وقت بگذار.`
+        : `"${growthFocus.subject}" is your next growth opportunity — spend 20 minutes on it daily.`,
     });
   }
   const nextExam = [...exams].sort((a, b) => a.daysAway - b.daysAway)[0];
@@ -177,8 +177,8 @@ function buildPlan(
     recs.push({
       tone: "warn",
       text: fa
-        ? "زمان مطالعه روزانه کم است؛ حداقل به ۶۰ دقیقه برسان تا برنامه اثرگذار باشد."
-        : "Daily time is low; aim for at least 60 min for the plan to be effective.",
+        ? "با رساندن زمان مطالعه به ۶۰ دقیقه، فرصت رشد بیشتری در برنامه‌ات می‌سازی."
+        : "Aim for 60 minutes to create more room for growth in your plan.",
     });
   } else if (dailyMinutes >= 90) {
     recs.push({
@@ -193,8 +193,8 @@ function buildPlan(
     recs.push({
       tone: "good",
       text: fa
-        ? `در «${strongest.subject}» قوی هستی — هفته‌ای یک‌بار میکرواتم چالشی حل کن.`
-        : `You're strong in "${strongest.subject}" — try one challenge MicroAtom weekly.`,
+        ? `در «${strongest.subject}» پیشرفت درخشانی داری — هفته‌ای یک اتم‌بیت چالشی امتحان کن.`
+        : `You're making great progress in "${strongest.subject}" — try one challenge AtomBit each week.`,
     });
   }
 
@@ -293,8 +293,8 @@ function PlannerPage() {
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "آزمون‌ها، تکالیف، زمان مطالعه و سطح تسلطت رو وارد کن — موتور هوشمند اختصاصی توربوی اتومیا برنامه‌ی روزانه و هفتگی می‌سازه."
-                : "Enter your exams, homework, study time, and mastery — Atomia's proprietary Turbo engine builds a tailored daily and weekly plan."}
+                ? "آزمون‌ها، تکالیف، زمان مطالعه و سطح تسلطت را وارد کن تا موتور توربوی اتومیا یک برنامه کاملاً شخصی برای مسیر رشدت بسازد."
+                : "Enter your exams, homework, study time, and mastery so Atomia's proprietary Turbo Engine can build a plan for your unique growth journey."}
             </p>
           </div>
           <Button
@@ -308,7 +308,7 @@ function PlannerPage() {
             ) : (
               <Wand2 className="h-4 w-4 mx-1" />
             )}
-            {generated ? (fa ? "بازسازی برنامه" : "Regenerate") : (fa ? "ساخت برنامه" : "Generate")}
+            {generated ? (fa ? "بازسازی برنامه توربو" : "Regenerate Turbo Plan") : (fa ? "ساخت برنامه توربو" : "Create Turbo Plan")}
           </Button>
         </CardContent>
       </Card>
@@ -434,7 +434,7 @@ function PlannerPage() {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <Target className="h-4 w-4 text-primary" />
-                {fa ? "تسلط بر میکرواتم‌ها" : "MicroAtom mastery"}
+                {fa ? "رشد اتم‌بیت‌ها" : "AtomBit Growth"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -471,7 +471,7 @@ function PlannerPage() {
               </TabsTrigger>
               <TabsTrigger value="recs">
                 <Lightbulb className="h-4 w-4 mx-1" />
-                {fa ? "توصیه‌ها" : "Tips"}
+                {fa ? "پیشنهادهای توربو" : "Turbo Recommendations"}
               </TabsTrigger>
             </TabsList>
 
@@ -479,7 +479,7 @@ function PlannerPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base flex items-center justify-between">
-                    <span>{fa ? "برنامه امروز" : "Today's plan"}</span>
+                    <span>{fa ? "برنامه توربوی امروز" : "Today's Turbo Plan"}</span>
                     <Badge variant="secondary" className="bg-primary/15 text-primary border-0">
                       {num(plan.daily.reduce((a, b) => a + b.minutes, 0))} {fa ? "دقیقه" : "min"}
                     </Badge>
@@ -552,7 +552,7 @@ function PlannerPage() {
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <Lightbulb className="h-4 w-4 text-primary" />
-                    {fa ? "توصیه‌های شخصی‌سازی‌شده" : "Personalized recommendations"}
+                    {fa ? "پیشنهادهای شخصی توربو" : "Personalized Turbo Recommendations"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
