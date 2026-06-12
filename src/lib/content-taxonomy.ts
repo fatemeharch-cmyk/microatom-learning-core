@@ -5,7 +5,7 @@
  *
  *   EducationLevel → Grade → Major → Subject → Chapter → Section → Atom → MicroAtom → Question
  *
- * v1 release ships ONLY with Grade 11 — Experimental (Science) content active.
+ * v1 release ships ONLY with Grade 11 — Experimental Sciences content active.
  * Future levels, grades, and majors are intentionally not seeded. They can be
  * added as data later without changing this model or the surrounding UI.
  *
@@ -104,7 +104,7 @@ export const grades: Grade[] = [
 ];
 
 export const majors: Major[] = [
-  { id: "experimental", gradeId: "g11", nameFa: "علوم تجربی",  nameEn: "Experimental (Science)", active: true  },
+  { id: "experimental", gradeId: "g11", nameFa: "علوم تجربی", nameEn: "Experimental Sciences", active: true },
 ];
 
 // Subjects for Grade 11 — Experimental (the v1 active set).
@@ -117,7 +117,7 @@ export const subjects: Subject[] = [
   { id: "english-11",       majorId: "experimental", nameFa: "زبان انگلیسی", nameEn: "English",     color: "#06b6d4", active: true },
 ];
 
-// A representative chapter/topic/atom/microatom tree for Biology 2 to make
+// A representative chapter/section/atom/microatom tree for Biology 2 to make
 // the architecture concrete. Other subjects use the same schema — content
 // is added incrementally without code changes.
 export const chapters: Chapter[] = [

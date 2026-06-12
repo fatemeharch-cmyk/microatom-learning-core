@@ -232,7 +232,7 @@ function CurriculumAdmin() {
             <h1 className="text-xl font-bold">Curriculum Database</h1>
             <p className="text-sm opacity-90 mt-1">
               Manage the 9-level content hierarchy: Education Level → Grade → Major → Subject → Chapter →
-              Section → Atom → MicroAtom → Question. Designed for Grade 11 — Experimental in v1, scales to
+               Section → Atom → MicroAtom → Question. The MVP scope is Grade 11 — Experimental Sciences and scales to
               any future grade or major.
             </p>
           </div>
