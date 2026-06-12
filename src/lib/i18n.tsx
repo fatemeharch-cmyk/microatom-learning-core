@@ -33,6 +33,7 @@ export const translations = {
   nav_profile: { fa: "پروفایل", en: "Profile" },
   nav_tracking: { fa: "ردیابی مطالعه", en: "Study Tracking" },
   nav_planner: { fa: "برنامه‌ساز هوشمند", en: "AI Planner" },
+  nav_analytics: { fa: "تحلیل شخصی", en: "Personal Analytics" },
 
   // Nav (teacher)
   t_nav_overview: { fa: "نمای کلی", en: "Overview" },
