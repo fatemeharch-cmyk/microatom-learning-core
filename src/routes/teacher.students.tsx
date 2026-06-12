@@ -33,17 +33,17 @@ type Student = {
 const studentsFA: Student[] = [
   { id: "1", name: "آرین رضایی", cls: "پایه ۱۰ - الف", mastery: 87, xp: 2480, trend: 6 },
   { id: "2", name: "سارا محمدی", cls: "پایه ۱۰ - الف", mastery: 92, xp: 3100, trend: 4 },
-  { id: "3", name: "علی کریمی", cls: "پایه ۱۰ - ب", mastery: 54, xp: 1320, trend: -8, alert: "افت محسوس در فیزیک" },
+  { id: "3", name: "علی کریمی", cls: "پایه ۱۰ - ب", mastery: 54, xp: 1320, trend: -8, alert: "فرصت رشد بیشتر در فیزیک" },
   { id: "4", name: "نگار صالحی", cls: "پایه ۱۱ - الف", mastery: 78, xp: 2210, trend: 2 },
-  { id: "5", name: "محمد حسینی", cls: "پایه ۱۰ - ب", mastery: 41, xp: 980, trend: -12, alert: "۳ تکلیف تحویل نشده" },
+  { id: "5", name: "محمد حسینی", cls: "پایه ۱۰ - ب", mastery: 41, xp: 980, trend: -12, alert: "فرصت بازیابی تداوم تکالیف" },
   { id: "6", name: "زهرا اکبری", cls: "پایه ۱۱ - الف", mastery: 83, xp: 2650, trend: 5 },
 ];
 const studentsEN: Student[] = [
   { id: "1", name: "Arian Rezaei", cls: "Grade 10-A", mastery: 87, xp: 2480, trend: 6 },
   { id: "2", name: "Sara Mohammadi", cls: "Grade 10-A", mastery: 92, xp: 3100, trend: 4 },
-  { id: "3", name: "Ali Karimi", cls: "Grade 10-B", mastery: 54, xp: 1320, trend: -8, alert: "Drop in Physics" },
+  { id: "3", name: "Ali Karimi", cls: "Grade 10-B", mastery: 54, xp: 1320, trend: -8, alert: "Growth opportunity in Physics" },
   { id: "4", name: "Negar Salehi", cls: "Grade 11-A", mastery: 78, xp: 2210, trend: 2 },
-  { id: "5", name: "Mohammad Hosseini", cls: "Grade 10-B", mastery: 41, xp: 980, trend: -12, alert: "3 missing homework" },
+  { id: "5", name: "Mohammad Hosseini", cls: "Grade 10-B", mastery: 41, xp: 980, trend: -12, alert: "Opportunity to rebuild homework consistency" },
   { id: "6", name: "Zahra Akbari", cls: "Grade 11-A", mastery: 83, xp: 2650, trend: 5 },
 ];
 
@@ -98,13 +98,13 @@ function StudentAnalytics() {
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="text-xs text-muted-foreground">{fa ? "برترین‌ها" : "Top performers"}</p>
+            <p className="text-xs text-muted-foreground">{fa ? "رشد درخشان" : "Thriving growth"}</p>
             <p className="text-3xl font-extrabold mt-2 text-success">{top.length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="text-xs text-muted-foreground">{fa ? "نیازمند توجه" : "At risk"}</p>
+            <p className="text-xs text-muted-foreground">{fa ? "فرصت همراهی" : "Support opportunities"}</p>
             <p className="text-3xl font-extrabold mt-2 text-destructive">{risk.length}</p>
           </CardContent>
         </Card>
@@ -136,7 +136,7 @@ function StudentAnalytics() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{s.name}</p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {s.cls} • {s.alert ?? (fa ? "تسلط پایین" : "Low mastery")}
+                    {s.cls} • {s.alert ?? (fa ? "فرصت رشد تسلط" : "Mastery growth opportunity")}
                   </p>
                 </div>
                 <Button size="sm" variant="outline" className="rounded-full">
@@ -180,8 +180,8 @@ function StudentAnalytics() {
                   {f === "all"
                     ? fa ? "همه" : "All"
                     : f === "top"
-                      ? fa ? "برترین‌ها" : "Top"
-                      : fa ? "نیازمند توجه" : "At risk"}
+                      ? fa ? "رشد درخشان" : "Thriving"
+                      : fa ? "فرصت همراهی" : "Support"}
                 </button>
               ))}
             </div>

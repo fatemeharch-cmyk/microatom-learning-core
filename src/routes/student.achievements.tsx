@@ -3,6 +3,6 @@ import { PagePlaceholder } from "@/components/dashboard-shell";
 
 export const Route = createFileRoute("/student/achievements")({
   component: () => (
-    <PagePlaceholder title="Achievements" description="Badges, streaks and milestones earned through MicroAtom mastery." />
+    <PagePlaceholder title="Growth Badges" description="Celebrate your Learning Streak, AtomBit progress, and personal milestones." />
   ),
 });

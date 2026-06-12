@@ -29,8 +29,8 @@ const weekly = [
 const badges = [
   { icon: "🔥", name: "آتش‌فشان", desc: "۷ روز پیاپی" },
   { icon: "🎯", name: "تیرانداز", desc: "۵۰ پاسخ صحیح" },
-  { icon: "⚡", name: "سریع", desc: "میکرواتم زیر ۲ دقیقه" },
-  { icon: "🧠", name: "متفکر", desc: "۱۰ مفهوم سخت" },
+  { icon: "⚡", name: "پرتلاش", desc: "یک اتم‌بیت در ۲ دقیقه" },
+  { icon: "🧠", name: "رشد پایدار", desc: "۱۰ مفهوم چالشی" },
 ];
 
 function ProgressPage() {
@@ -59,7 +59,7 @@ function ProgressPage() {
         <Card>
           <CardContent className="p-5">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Flame className="h-4 w-4 text-warning" /> روزهای پیاپی
+              <Flame className="h-4 w-4 text-warning" /> تداوم یادگیری
             </div>
             <p className="text-3xl font-extrabold mt-2">۱۲ روز</p>
             <p className="text-xs text-muted-foreground mt-1">رکورد شخصی: ۲۱ روز</p>
@@ -110,7 +110,7 @@ function ProgressPage() {
               <div className="flex justify-between text-sm">
                 <span className="font-medium">{s.name}</span>
                 <span className="text-muted-foreground">
-                  {s.mastered}/{s.total} میکرواتم • {s.mastery}٪
+                   {s.mastered}/{s.total} اتم‌بیت • {s.mastery}٪
                 </span>
               </div>
               <Progress value={s.mastery} />
@@ -123,7 +123,7 @@ function ProgressPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" /> دستاوردهای اخیر
+            <Sparkles className="h-4 w-4 text-primary" /> نشان‌های رشد اخیر
           </CardTitle>
         </CardHeader>
         <CardContent>

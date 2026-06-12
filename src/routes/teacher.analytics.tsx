@@ -34,12 +34,12 @@ const chaptersEN = [
   { name: "Ch.4 - Limits & derivatives", mastery: 41 },
 ];
 
-const weakFA = [
+const growthFA = [
   { topic: "حل معادله درجه دوم", pct: 34 },
   { topic: "ترکیب توابع", pct: 41 },
   { topic: "نمودار سینوس و کسینوس", pct: 47 },
 ];
-const weakEN = [
+const growthEN = [
   { topic: "Solving quadratics", pct: 34 },
   { topic: "Function composition", pct: 41 },
   { topic: "Sine & cosine graphs", pct: 47 },
@@ -52,7 +52,7 @@ function ClassAnalytics() {
   const fa = lang === "fa";
   const classes = fa ? classesFA : classesEN;
   const chapters = fa ? chaptersFA : chaptersEN;
-  const weak = fa ? weakFA : weakEN;
+  const growth = fa ? growthFA : growthEN;
   const [selected, setSelected] = useState(classes[0].id);
   const c = classes.find((x) => x.id === selected)!;
   const max = Math.max(...weekly);
@@ -69,8 +69,8 @@ function ClassAnalytics() {
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {fa
-            ? "تسلط، مشارکت و نقاط ضعف هر کلاس را در یک نگاه ببین."
-            : "Mastery, engagement and weak spots for each class at a glance."}
+            ? "روند رشد، مشارکت و فرصت‌های یادگیری هر کلاس را در یک نگاه ببین."
+            : "See mastery growth, engagement, and learning opportunities for each class at a glance."}
         </p>
       </div>
 
@@ -160,11 +160,11 @@ function ClassAnalytics() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {fa ? "نقاط ضعف کلاس" : "Class weak spots"}
+            {fa ? "فرصت‌های رشد کلاس" : "Class Growth Opportunities"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {weak.map((w) => (
+          {growth.map((w) => (
             <div
               key={w.topic}
               className="flex items-center gap-3 p-3 rounded-xl border bg-card"

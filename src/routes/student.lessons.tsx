@@ -3,6 +3,6 @@ import { PagePlaceholder } from "@/components/dashboard-shell";
 
 export const Route = createFileRoute("/student/lessons")({
   component: () => (
-    <PagePlaceholder title="Lessons" description="Browse subjects, chapters, topics, atoms and MicroAtoms." />
+    <PagePlaceholder title="Lessons" description="Explore subjects, chapters, topics, and AtomBits at your own pace." />
   ),
 });

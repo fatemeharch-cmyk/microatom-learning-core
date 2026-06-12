@@ -50,7 +50,7 @@ function Homework() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <MiniStat label="کل" value={counts.all} />
         <MiniStat label="در انتظار" value={counts.pending} tone="info" />
-        <MiniStat label="تأخیر" value={counts.overdue} tone="destructive" />
+        <MiniStat label="فرصت تکمیل" value={counts.overdue} tone="destructive" />
         <MiniStat label="انجام شده" value={counts.done} tone="success" />
       </div>
 
@@ -58,7 +58,7 @@ function Homework() {
         <TabsList>
           <TabsTrigger value="all">همه</TabsTrigger>
           <TabsTrigger value="pending">در انتظار</TabsTrigger>
-          <TabsTrigger value="overdue">تأخیری</TabsTrigger>
+          <TabsTrigger value="overdue">فرصت تکمیل</TabsTrigger>
           <TabsTrigger value="done">انجام شده</TabsTrigger>
         </TabsList>
         <TabsContent value="all" className="space-y-3 mt-4">
@@ -106,7 +106,7 @@ function MiniStat({
 function HWRow({ hw }: { hw: HW }) {
   const statusBadge = {
     pending: <Badge variant="secondary" className="bg-info/15 text-info border-0">در انتظار</Badge>,
-    overdue: <Badge variant="destructive">تأخیر</Badge>,
+    overdue: <Badge variant="secondary" className="bg-warning/15 text-warning border-0">فرصت تکمیل</Badge>,
     submitted: <Badge variant="secondary" className="bg-success/15 text-success border-0">تحویل شده</Badge>,
     graded: <Badge variant="secondary" className="bg-success/15 text-success border-0">نمره: {hw.score}</Badge>,
   }[hw.status];
