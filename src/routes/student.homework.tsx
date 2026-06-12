@@ -106,7 +106,7 @@ function MiniStat({
 function HWRow({ hw }: { hw: HW }) {
   const statusBadge = {
     pending: <Badge variant="secondary" className="bg-info/15 text-info border-0">در انتظار</Badge>,
-    overdue: <Badge variant="destructive">تأخیر</Badge>,
+    overdue: <Badge variant="secondary" className="bg-warning/15 text-warning border-0">فرصت تکمیل</Badge>,
     submitted: <Badge variant="secondary" className="bg-success/15 text-success border-0">تحویل شده</Badge>,
     graded: <Badge variant="secondary" className="bg-success/15 text-success border-0">نمره: {hw.score}</Badge>,
   }[hw.status];
