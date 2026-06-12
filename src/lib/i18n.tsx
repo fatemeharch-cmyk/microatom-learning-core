@@ -19,17 +19,17 @@ export const translations = {
 
   // Header
   xp_short: { fa: "امتیاز", en: "XP" },
-  streak_days: { fa: "{n} روز پیاپی", en: "{n}-day streak" },
+  streak_days: { fa: "تداوم یادگیری {n} روزه", en: "{n}-day Learning Streak" },
   notifications: { fa: "اعلان‌ها", en: "Notifications" },
   language: { fa: "زبان", en: "Language" },
 
   // Nav (student)
   nav_dashboard: { fa: "داشبورد", en: "Dashboard" },
-  nav_daily: { fa: "برنامه روزانه", en: "Daily Plan" },
-  nav_weekly: { fa: "برنامه هفتگی", en: "Weekly Plan" },
+  nav_daily: { fa: "مأموریت روزانه توربو", en: "Daily Turbo Mission" },
+  nav_weekly: { fa: "جشن رشد هفتگی", en: "Weekly Growth Celebration" },
   nav_homework: { fa: "مرکز تکالیف", en: "Homework" },
   nav_exams: { fa: "مرکز آزمون", en: "Exams" },
-  nav_progress: { fa: "پیشرفت من", en: "Progress" },
+  nav_progress: { fa: "پیشرفت اتم‌بیت‌ها", en: "AtomBit Progress" },
   nav_profile: { fa: "پروفایل", en: "Profile" },
   nav_tracking: { fa: "ردیابی مطالعه", en: "Study Tracking" },
   nav_planner: { fa: "برنامه‌ریز توربو", en: "Turbo Planner" },
@@ -127,7 +127,7 @@ export const translations = {
   hw_sub: { fa: "همه تکالیف معلم‌هات در یک جا", en: "All teacher assignments in one place" },
   all: { fa: "همه", en: "All" },
   pending: { fa: "در انتظار", en: "Pending" },
-  overdue: { fa: "تأخیری", en: "Overdue" },
+  overdue: { fa: "فرصت تکمیل", en: "Completion Opportunity" },
   completed: { fa: "انجام شده", en: "Completed" },
   total: { fa: "کل", en: "Total" },
   submit: { fa: "ارسال", en: "Submit" },
