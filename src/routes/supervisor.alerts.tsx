@@ -3,6 +3,6 @@ import { PagePlaceholder } from "@/components/dashboard-shell";
 
 export const Route = createFileRoute("/supervisor/alerts")({
   component: () => (
-    <PagePlaceholder title="Alerts" description="Struggling students and intervention recommendations." />
+    <PagePlaceholder title="Growth Alerts" description="Students who may benefit from support and Turbo Recommendations." />
   ),
 });

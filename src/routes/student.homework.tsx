@@ -50,7 +50,7 @@ function Homework() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <MiniStat label="کل" value={counts.all} />
         <MiniStat label="در انتظار" value={counts.pending} tone="info" />
-        <MiniStat label="تأخیر" value={counts.overdue} tone="destructive" />
+        <MiniStat label="فرصت تکمیل" value={counts.overdue} tone="destructive" />
         <MiniStat label="انجام شده" value={counts.done} tone="success" />
       </div>
 
@@ -58,7 +58,7 @@ function Homework() {
         <TabsList>
           <TabsTrigger value="all">همه</TabsTrigger>
           <TabsTrigger value="pending">در انتظار</TabsTrigger>
-          <TabsTrigger value="overdue">تأخیری</TabsTrigger>
+          <TabsTrigger value="overdue">فرصت تکمیل</TabsTrigger>
           <TabsTrigger value="done">انجام شده</TabsTrigger>
         </TabsList>
         <TabsContent value="all" className="space-y-3 mt-4">
