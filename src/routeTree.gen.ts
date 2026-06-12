@@ -46,6 +46,7 @@ import { Route as ParentChildrenRouteImport } from './routes/parent.children'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemRouteImport } from './routes/admin.system'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
+import { Route as AdminCurriculumImportRouteImport } from './routes/admin.curriculum-import'
 import { Route as AdminCurriculumRouteImport } from './routes/admin.curriculum'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
 
@@ -234,6 +235,11 @@ const AdminRolesRoute = AdminRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCurriculumImportRoute = AdminCurriculumImportRouteImport.update({
+  id: '/curriculum-import',
+  path: '/curriculum-import',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCurriculumRoute = AdminCurriculumRouteImport.update({
   id: '/curriculum',
   path: '/curriculum',
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
+  '/admin/curriculum-import': typeof AdminCurriculumImportRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
+  '/admin/curriculum-import': typeof AdminCurriculumImportRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
+  '/admin/curriculum-import': typeof AdminCurriculumImportRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
@@ -375,6 +384,7 @@ export interface FileRouteTypes {
     | '/teacher'
     | '/admin/content'
     | '/admin/curriculum'
+    | '/admin/curriculum-import'
     | '/admin/roles'
     | '/admin/system'
     | '/admin/users'
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/content'
     | '/admin/curriculum'
+    | '/admin/curriculum-import'
     | '/admin/roles'
     | '/admin/system'
     | '/admin/users'
@@ -452,6 +463,7 @@ export interface FileRouteTypes {
     | '/teacher'
     | '/admin/content'
     | '/admin/curriculum'
+    | '/admin/curriculum-import'
     | '/admin/roles'
     | '/admin/system'
     | '/admin/users'
@@ -755,6 +767,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRolesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/curriculum-import': {
+      id: '/admin/curriculum-import'
+      path: '/curriculum-import'
+      fullPath: '/admin/curriculum-import'
+      preLoaderRoute: typeof AdminCurriculumImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/curriculum': {
       id: '/admin/curriculum'
       path: '/curriculum'
@@ -775,6 +794,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminContentRoute: typeof AdminContentRoute
   AdminCurriculumRoute: typeof AdminCurriculumRoute
+  AdminCurriculumImportRoute: typeof AdminCurriculumImportRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSystemRoute: typeof AdminSystemRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -784,6 +804,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminContentRoute: AdminContentRoute,
   AdminCurriculumRoute: AdminCurriculumRoute,
+  AdminCurriculumImportRoute: AdminCurriculumImportRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSystemRoute: AdminSystemRoute,
   AdminUsersRoute: AdminUsersRoute,
