@@ -3,6 +3,6 @@ import { PagePlaceholder } from "@/components/dashboard-shell";
 
 export const Route = createFileRoute("/supervisor/analytics")({
   component: () => (
-    <PagePlaceholder title="Analytics" description="Trends across subjects, classrooms and time." />
+    <PagePlaceholder title="Turbo Analytics" description="Growth trends and learning opportunities across subjects, classrooms, and time." />
   ),
 });

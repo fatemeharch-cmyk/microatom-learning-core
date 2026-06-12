@@ -57,17 +57,17 @@ const microEN = [
   { name: "Past perfect tense", subject: "English", mastery: 47, students: 139 },
 ];
 
-const atRiskFA = [
-  { name: "مهدی کاظمی", cls: "۱۰-الف", mastery: 38, missed: 5, reason: "افت تسلط و غیبت در تکالیف" },
-  { name: "سارا محمدی", cls: "۱۰-ب", mastery: 42, missed: 4, reason: "نمرات پایین آزمون اخیر" },
-  { name: "علی نوری", cls: "۱۱-ج", mastery: 45, missed: 6, reason: "بدون فعالیت در ۷ روز اخیر" },
-  { name: "نگار حسینی", cls: "۹-الف", mastery: 47, missed: 3, reason: "افت تدریجی هفتگی" },
+const supportFA = [
+  { name: "مهدی کاظمی", cls: "۱۰-الف", mastery: 38, missed: 5, reason: "فرصت تقویت تداوم تکالیف و تسلط" },
+  { name: "سارا محمدی", cls: "۱۰-ب", mastery: 42, missed: 4, reason: "فرصت رشد پس از آزمون اخیر" },
+  { name: "علی نوری", cls: "۱۱-ج", mastery: 45, missed: 6, reason: "فرصت بازگشت به مسیر یادگیری" },
+  { name: "نگار حسینی", cls: "۹-الف", mastery: 47, missed: 3, reason: "فرصت همراهی برای رشد هفتگی" },
 ];
-const atRiskEN = [
-  { name: "Mehdi Kazemi", cls: "10-A", mastery: 38, missed: 5, reason: "Mastery drop and missing homework" },
-  { name: "Sara Mohammadi", cls: "10-B", mastery: 42, missed: 4, reason: "Low scores on recent exam" },
-  { name: "Ali Nouri", cls: "11-C", mastery: 45, missed: 6, reason: "No activity in 7 days" },
-  { name: "Negar Hosseini", cls: "9-A", mastery: 47, missed: 3, reason: "Gradual weekly decline" },
+const supportEN = [
+  { name: "Mehdi Kazemi", cls: "10-A", mastery: 38, missed: 5, reason: "Opportunity to strengthen homework consistency and mastery" },
+  { name: "Sara Mohammadi", cls: "10-B", mastery: 42, missed: 4, reason: "Growth opportunity after the recent exam" },
+  { name: "Ali Nouri", cls: "11-C", mastery: 45, missed: 6, reason: "Opportunity to reconnect with the learning journey" },
+  { name: "Negar Hosseini", cls: "9-A", mastery: 47, missed: 3, reason: "Support opportunity for weekly growth" },
 ];
 
 const teachersFA = [
@@ -96,7 +96,7 @@ function SupervisorOverview() {
   const grades = fa ? gradesFA : gradesEN;
   const subjects = fa ? subjectsFA : subjectsEN;
   const micro = fa ? microFA : microEN;
-  const atRisk = fa ? atRiskFA : atRiskEN;
+  const support = fa ? supportFA : supportEN;
   const teachers = fa ? teachersFA : teachersEN;
   const [grade, setGrade] = useState(grades[1]);
   const num = (n: number | string) => (fa ? toFa(n) : String(n));
@@ -116,8 +116,8 @@ function SupervisorOverview() {
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "آمار کلی، نقاط ضعف، دانش‌آموزان در معرض خطر و عملکرد معلم‌ها."
-                : "Grade stats, weak spots, at-risk students, and teacher performance."}
+                 ? "روند رشد، فرصت‌های یادگیری و مسیر همراهی دانش‌آموزان و معلم‌ها."
+                 : "Growth trends, learning opportunities, and support pathways for students and teachers."}
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -144,7 +144,7 @@ function SupervisorOverview() {
         <StatCard icon={<Users className="h-4 w-4" />} label={fa ? "دانش‌آموزان" : "Students"} value={num(428)} sub={fa ? `${num(18)} کلاس` : "18 classes"} tone="primary" />
         <StatCard icon={<GraduationCap className="h-4 w-4" />} label={fa ? "معلم‌ها" : "Teachers"} value={num(22)} sub={fa ? `۵ درس` : "5 subjects"} tone="success" />
         <StatCard icon={<TrendingUp className="h-4 w-4" />} label={fa ? "میانگین تسلط" : "Avg. mastery"} value={`${num(67)}%`} sub={fa ? `+${num(3)}% هفتگی` : "+3% weekly"} tone="xp" />
-        <StatCard icon={<AlertTriangle className="h-4 w-4" />} label={fa ? "در معرض خطر" : "At risk"} value={num(24)} sub={fa ? `${num(6)}% کل` : "6% of total"} tone="warning" />
+        <StatCard icon={<AlertTriangle className="h-4 w-4" />} label={fa ? "فرصت همراهی" : "Support opportunities"} value={num(24)} sub={fa ? `${num(6)}% کل` : "6% of total"} tone="warning" />
       </div>
 
       {/* Weak subjects + weak microatoms */}
@@ -153,7 +153,7 @@ function SupervisorOverview() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-primary" />
-              {fa ? "ضعیف‌ترین دروس" : "Weakest subjects"}
+               {fa ? "فرصت‌های رشد دروس" : "Subject Growth Opportunities"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -182,7 +182,7 @@ function SupervisorOverview() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <TrendingDown className="h-4 w-4 text-destructive" />
-              {fa ? "ضعیف‌ترین میکرواتم‌ها" : "Weakest MicroAtoms"}
+               {fa ? "فرصت‌های رشد اتم‌بیت" : "AtomBit Growth Opportunities"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -212,15 +212,15 @@ function SupervisorOverview() {
           <CardTitle className="text-base flex items-center justify-between">
             <span className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-destructive" />
-              {fa ? "دانش‌آموزان در معرض خطر" : "At-risk students"}
+               {fa ? "فرصت‌های همراهی دانش‌آموزان" : "Student Support Opportunities"}
             </span>
             <Badge variant="secondary" className="bg-destructive/15 text-destructive border-0">
-              {num(atRisk.length)}
+               {num(support.length)}
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {atRisk.map((s, i) => (
+           {support.map((s, i) => (
             <div key={i} className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/40 transition">
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="bg-destructive/15 text-destructive text-xs">
