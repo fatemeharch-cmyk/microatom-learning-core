@@ -105,12 +105,12 @@ function StudyTracking() {
     return { tp, ta, wp, wa, adherence };
   }, [sessions]);
 
-  // AI-style recommendation based on adherence and per-subject gaps
+  // Turbo recommendation based on adherence and per-subject gaps
   const recommendation = useMemo(() => {
     if (sessions.length === 0) {
       return fa
-        ? "اولین جلسه‌ات رو ثبت کن تا AI برنامه‌ت رو شخصی‌سازی کنه."
-        : "Log your first session so AI can personalize your plan.";
+        ? "اولین جلسه‌ات رو ثبت کن تا توربو برنامه‌ت رو شخصی‌سازی کنه."
+        : "Log your first session so Turbo can personalize your plan.";
     }
     // find subject with biggest planned-actual gap last 7d
     const week = new Date();
@@ -133,17 +133,17 @@ function StudyTracking() {
     const w = worst as { name: string; gap: number } | null;
     if (totals.adherence >= 90) {
       return fa
-        ? `عالیه! پایبندی ${totals.adherence}٪. برنامه‌ی AI شدت رو کمی بالا می‌بره.`
-        : `Great! ${totals.adherence}% adherence. AI will slightly increase intensity.`;
+        ? `عالیه! پایبندی ${totals.adherence}٪. توربو شدت برنامه رو کمی بالا می‌بره.`
+        : `Great! ${totals.adherence}% adherence. Turbo will slightly increase intensity.`;
     }
     if (w && w.gap > 15) {
       return fa
-        ? `در درس «${w.name}» حدود ${w.gap} دقیقه عقبی. AI ۱ بلاک اضافه برای فردا اضافه می‌کنه.`
-        : `You're ~${w.gap} min behind on "${w.name}". AI will add 1 extra block tomorrow.`;
+        ? `در درس «${w.name}» حدود ${w.gap} دقیقه عقبی. توربو ۱ بلاک اضافه برای فردا اضافه می‌کنه.`
+        : `You're ~${w.gap} min behind on "${w.name}". Turbo will add 1 extra block tomorrow.`;
     }
     return fa
-      ? `پایبندی ${totals.adherence}٪. AI زمان جلسات رو کمی کوتاه‌تر می‌کنه تا تمرکزت بهتر بشه.`
-      : `Adherence ${totals.adherence}%. AI will shorten sessions slightly to boost focus.`;
+      ? `پایبندی ${totals.adherence}٪. توربو زمان جلسات رو کمی کوتاه‌تر می‌کنه تا تمرکزت بهتر بشه.`
+      : `Adherence ${totals.adherence}%. Turbo will shorten sessions slightly to boost focus.`;
   }, [sessions, totals, fa]);
 
   const todayPct = totals.tp > 0 ? Math.min(100, Math.round((totals.ta / totals.tp) * 100)) : 0;
@@ -160,8 +160,8 @@ function StudyTracking() {
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {fa
-            ? "زمان برنامه‌ریزی‌شده و واقعی هر جلسه رو ثبت کن تا AI برنامه‌ت رو دقیق‌تر کنه."
-            : "Log planned vs actual time per session so AI can refine your plan."}
+            ? "زمان برنامه‌ریزی‌شده و واقعی هر جلسه رو ثبت کن تا توربو برنامه‌ت رو دقیق‌تر کنه."
+            : "Log planned vs actual time per session so Turbo can refine your plan."}
         </p>
       </div>
 
@@ -211,7 +211,7 @@ function StudyTracking() {
         </Card>
       </div>
 
-      {/* AI recommendation */}
+      {/* Turbo recommendation */}
       <Card className="border-primary/40 bg-primary/5">
         <CardContent className="p-5 flex items-start gap-3">
           <div className="h-10 w-10 rounded-xl bg-[image:var(--gradient-primary)] text-primary-foreground grid place-items-center shrink-0">
@@ -219,7 +219,7 @@ function StudyTracking() {
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold">
-              {fa ? "پیشنهاد هوش مصنوعی" : "AI recommendation"}
+              {fa ? "پیشنهاد توربو" : "Turbo Insight"}
             </p>
             <p className="text-sm text-muted-foreground mt-1">{recommendation}</p>
           </div>

@@ -218,15 +218,15 @@ function ExamAnalyzerPage() {
           </div>
           <div className="flex-1">
             <Badge variant="secondary" className="bg-white/15 text-primary-foreground border-0 mb-2">
-              {fa ? "ساخته شده با هوش مصنوعی" : "Powered by AI"}
+              {fa ? "قدرت‌گرفته از توربو" : "Powered by Turbo"}
             </Badge>
             <h1 className="text-xl sm:text-2xl font-bold">
-              {fa ? "تحلیلگر هوشمند آزمون" : "AI Exam Analyzer"}
+              {fa ? "تحلیلگر آزمون توربو" : "Turbo Exam Analyzer"}
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "نتایج سؤالات را وارد کن — AI سطح دشواری آزمون، سؤال و میکرواتم را محاسبه و توصیه‌ها را تولید می‌کند."
-                : "Enter question results — AI computes exam, question, and MicroAtom difficulty and generates recommendations."}
+                ? "نتایج سؤالات را وارد کن — موتور هوشمند اختصاصی توربوی اتومیا سطح دشواری آزمون، سؤال و میکرواتم را محاسبه و توصیه تولید می‌کند."
+                : "Enter question results — Atomia's proprietary Turbo engine computes exam, question, and MicroAtom difficulty and generates recommendations."}
             </p>
           </div>
           <Button

@@ -4,8 +4,8 @@ import { GraduationCap, BookOpen, Users, ShieldCheck, Settings } from "lucide-re
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Smart MicroAtom — Select Role" },
-      { name: "description", content: "AI-powered MicroAtom learning platform." },
+      { title: "Atomia — Adaptive MicroAtom Learning" },
+      { name: "description", content: "Atomia is an adaptive MicroAtom learning platform powered by its proprietary Turbo engine." },
     ],
   }),
   component: Index,
@@ -24,7 +24,7 @@ function Index() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
       <div className="max-w-3xl w-full">
         <div className="text-center mb-10">
-          <p className="text-sm text-muted-foreground">Smart MicroAtom</p>
+          <p className="text-sm text-muted-foreground">Atomia</p>
           <h1 className="text-4xl font-bold tracking-tight mt-2">Choose your dashboard</h1>
           <p className="text-muted-foreground mt-2">Skeleton preview — select a role to explore navigation.</p>
         </div>

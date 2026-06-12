@@ -29,7 +29,7 @@ function WeeklyPlan() {
     <div className="space-y-6 max-w-6xl">
       <div>
         <Badge variant="secondary" className="mb-2">
-          <Sparkles className="h-3 w-3 ml-1" /> طراحی شده توسط AI
+          <Sparkles className="h-3 w-3 ml-1" /> طراحی شده توسط توربو
         </Badge>
         <h1 className="text-2xl font-bold tracking-tight">برنامه هفتگی شما</h1>
         <p className="text-sm text-muted-foreground mt-1">

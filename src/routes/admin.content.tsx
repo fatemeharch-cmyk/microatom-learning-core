@@ -66,8 +66,8 @@ function ContentLibrary() {
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "تمام محتوا، آزمون‌ها و ماژول‌های AI نسخه اول روی همین دامنه کار می‌کنند. ساختار طوری طراحی شده که افزودن پایه‌ها و رشته‌های جدید بدون بازطراحی انجام شود."
-                : "All content, exams and AI modules in v1 operate within this scope. The schema scales to new grades and majors without redesign."}
+                ? "تمام محتوا، آزمون‌ها و ماژول‌های توربوی نسخه اول روی همین دامنه کار می‌کنند. ساختار طوری طراحی شده که افزودن پایه‌ها و رشته‌های جدید بدون بازطراحی انجام شود."
+                : "All content, exams and Turbo modules in v1 operate within this scope. The schema scales to new grades and majors without redesign."}
             </p>
           </div>
           {locked && (

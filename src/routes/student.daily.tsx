@@ -27,7 +27,7 @@ function DailyPlan() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <Badge variant="secondary" className="mb-2">
-            <Sparkles className="h-3 w-3 ml-1" /> ساخته شده با هوش مصنوعی
+            <Sparkles className="h-3 w-3 ml-1" /> قدرت‌گرفته از توربو
           </Badge>
           <h1 className="text-2xl font-bold tracking-tight">برنامه روزانه شما</h1>
           <p className="text-sm text-muted-foreground mt-1">

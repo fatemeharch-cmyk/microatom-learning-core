@@ -37,7 +37,7 @@ export function DashboardShell({ role, roleLabel, items }: Props) {
         <Sidebar collapsible="icon">
           <SidebarHeader>
             <div className="px-2 py-3">
-              <p className="text-xs text-muted-foreground">Smart MicroAtom</p>
+              <p className="text-xs text-muted-foreground">Atomia</p>
               <p className="text-sm font-semibold text-sidebar-foreground">{roleLabel}</p>
             </div>
           </SidebarHeader>
