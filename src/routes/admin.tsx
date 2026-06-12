@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LayoutDashboard, Users, ShieldCheck, Library, Database, Settings } from "lucide-react";
+import { LayoutDashboard, Users, ShieldCheck, Library, Database, FileUp, Settings } from "lucide-react";
 import { DashboardShell, type NavItem } from "@/components/dashboard-shell";
 
 const items: NavItem[] = [
@@ -8,6 +8,7 @@ const items: NavItem[] = [
   { title: "Roles", url: "/admin/roles", icon: ShieldCheck },
   { title: "Content library", url: "/admin/content", icon: Library },
   { title: "Curriculum DB", url: "/admin/curriculum", icon: Database },
+  { title: "Import Curriculum CSV", url: "/admin/curriculum-import", icon: FileUp },
   { title: "System", url: "/admin/system", icon: Settings },
 ];
 
