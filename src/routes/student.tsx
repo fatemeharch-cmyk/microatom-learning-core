@@ -9,6 +9,7 @@ import {
   Timer,
   Sparkles,
   User,
+  BarChart3,
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
 
@@ -21,6 +22,7 @@ const items: NavItem[] = [
   { titleKey: "nav_exams", url: "/student/exams", icon: GraduationCap },
   { titleKey: "nav_tracking", url: "/student/tracking", icon: Timer },
   { titleKey: "nav_progress", url: "/student/progress", icon: TrendingUp },
+  { titleKey: "nav_analytics", url: "/student/analytics", icon: BarChart3 },
   { titleKey: "nav_profile", url: "/student/profile", icon: User },
 ];
 
