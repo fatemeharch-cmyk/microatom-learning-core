@@ -3,7 +3,7 @@ export type SurveyAudience = "student" | "teacher" | "parent";
 export interface SurveyQuestion {
   id: string;
   questionText: string;
-  type: Webhook sync?: "radio" | "rating" | "text";
+  type: "radio" | "rating" | "text";
   options?: string[];
 }
 
