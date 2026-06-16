@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useI18n, type TKey } from "@/lib/i18n";
 
-export type NavItem = { titleKey: TKey; url: string; icon: LucideIcon };
+export type NavItem = { titleKey?: TKey; title?: string; url: string; icon: LucideIcon };
 
 export function SupervisorShell({
   items,
@@ -64,7 +64,7 @@ export function SupervisorShell({
                           <SidebarMenuButton asChild isActive={active}>
                             <Link to={item.url} className="flex items-center gap-2">
                               <item.icon className="h-4 w-4 shrink-0" />
-                              <span className="truncate">{t(item.titleKey)}</span>
+                              <span className="truncate">{item.title ?? (item.titleKey ? t(item.titleKey) : "")}</span>
                             </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
