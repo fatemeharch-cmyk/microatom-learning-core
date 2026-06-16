@@ -6,7 +6,7 @@ import { ClipboardList, CheckCircle2, Clock, BookOpen } from "lucide-react";
 import { classRegistration, teacherActivity } from "@/lib/admin-mock";
 
 export const Route = createFileRoute("/admin/registration")({
-  component: AdminRegistration;
+  component: AdminRegistration,
 });
 
 const statusMeta: Record<string, { label: string; tone: string; icon: React.ReactNode }> = {
