@@ -1,184 +1,124 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { BarChart3, TrendingDown, TrendingUp, Users, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { useI18n } from "@/lib/i18n";
+import { BarChart3, Sparkles, TrendingUp } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 export const Route = createFileRoute("/teacher/analytics")({
-  component: ClassAnalytics,
+  component: TeacherAnalytics;
 });
 
-const classesFA = [
-  { id: "10a", name: "پایه ۱۰ - الف", students: 30, mastery: 74, engagement: 88, trend: +5 },
-  { id: "10b", name: "پایه ۱۰ - ب", students: 28, mastery: 62, engagement: 71, trend: -3 },
-  { id: "11a", name: "پایه ۱۱ - الف", students: 32, mastery: 81, engagement: 92, trend: +2 },
-];
-const classesEN = [
-  { id: "10a", name: "Grade 10-A", students: 30, mastery: 74, engagement: 88, trend: +5 },
-  { id: "10b", name: "Grade 10-B", students: 28, mastery: 62, engagement: 71, trend: -3 },
-  { id: "11a", name: "Grade 11-A", students: 32, mastery: 81, engagement: 92, trend: +2 },
+const trend = [
+  { week: "هفته ۱", value: 62 },
+  { week: "هفته ۲", value: 66 },
+  { week: "هفته ۳", value: 70 },
+  { week: "هفته ۴", value: 73 },
+  { week: "هفته ۵", value: 78 },
 ];
 
-const chaptersFA = [
-  { name: "فصل ۱ - مجموعه‌ها", mastery: 86 },
-  { name: "فصل ۲ - توابع", mastery: 64 },
-  { name: "فصل ۳ - مثلثات", mastery: 52 },
-  { name: "فصل ۴ - حد و مشتق", mastery: 41 },
-];
-const chaptersEN = [
-  { name: "Ch.1 - Sets", mastery: 86 },
-  { name: "Ch.2 - Functions", mastery: 64 },
-  { name: "Ch.3 - Trigonometry", mastery: 52 },
-  { name: "Ch.4 - Limits & derivatives", mastery: 41 },
+const topics = [
+  { name: "مقدمه تنفس سلولی", value: 84, level: "تسلط خوب" },
+  { name: "تنفس هوازی", value: 72, level: "در حال شکل‌گیری" },
+  { name: "تنفس بی‌هوازی", value: 58, level: "فرصت رشد" },
+  { name: "نقش میتوکندری", value: 76, level: "تسلط خوب" },
+  { name: "ATP و انرژی سلولی", value: 64, level: "در حال شکل‌گیری" },
 ];
 
-const growthFA = [
-  { topic: "حل معادله درجه دوم", pct: 34 },
-  { topic: "ترکیب توابع", pct: 41 },
-  { topic: "نمودار سینوس و کسینوس", pct: 47 },
-];
-const growthEN = [
-  { topic: "Solving quadratics", pct: 34 },
-  { topic: "Function composition", pct: 41 },
-  { topic: "Sine & cosine graphs", pct: 47 },
+const suggestions = [
+  "یک تمرین گروهی کوتاه روی «تنفس بی‌هوازی» می‌تواند درک کلاس را تقویت کند.",
+  "یک ویدئو ۵ دقیقه‌ای درباره چرخه ATP، یادگیری را عمیق‌تر می‌کند.",
+  "یک کوییز سه‌سوالی پایان زنگ، ماندگاری مفاهیم را افزایش می‌دهد.",
 ];
 
-const weekly = [62, 68, 65, 71, 74, 73, 78];
-
-function ClassAnalytics() {
-  const { lang } = useI18n();
-  const fa = lang === "fa";
-  const classes = fa ? classesFA : classesEN;
-  const chapters = fa ? chaptersFA : chaptersEN;
-  const growth = fa ? growthFA : growthEN;
-  const [selected, setSelected] = useState(classes[0].id);
-  const c = classes.find((x) => x.id === selected)!;
-  const max = Math.max(...weekly);
-
+function TeacherAnalytics() {
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6" dir="rtl">
       <div>
-        <Badge variant="secondary" className="mb-2">
-          <BarChart3 className="h-3 w-3 mx-1" />
-          {fa ? "تحلیل کلاس" : "Class analytics"}
-        </Badge>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {fa ? "عملکرد کلاس‌ها" : "Class performance"}
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <BarChart3 className="h-6 w-6 text-primary" /> تحلیل کلاس
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {fa
-            ? "روند رشد، مشارکت و فرصت‌های یادگیری هر کلاس را در یک نگاه ببین."
-            : "See mastery growth, engagement, and learning opportunities for each class at a glance."}
+          نگاهی آموزشی به روند یادگیری کلاس — فقط درباره درس شما
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-3">
-        {classes.map((cl) => (
-          <button
-            key={cl.id}
-            onClick={() => setSelected(cl.id)}
-            className={`text-start rounded-xl border p-4 transition ${
-              selected === cl.id
-                ? "border-primary bg-primary/5"
-                : "bg-card hover:bg-accent/40"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <p className="font-semibold">{cl.name}</p>
-              {cl.trend >= 0 ? (
-                <span className="text-xs flex items-center gap-1 text-success">
-                  <TrendingUp className="h-3 w-3" />+{cl.trend}٪
-                </span>
-              ) : (
-                <span className="text-xs flex items-center gap-1 text-destructive">
-                  <TrendingDown className="h-3 w-3" />
-                  {cl.trend}٪
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-              <Users className="h-3 w-3" /> {cl.students} {fa ? "دانش‌آموز" : "students"}
-            </p>
-            <div className="mt-3 space-y-1.5">
-              <div className="flex justify-between text-[11px] text-muted-foreground">
-                <span>{fa ? "تسلط" : "Mastery"}</span>
-                <span>{cl.mastery}٪</span>
-              </div>
-              <Progress value={cl.mastery} className="h-1.5" />
-            </div>
-          </button>
-        ))}
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <Card>
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              {fa ? `روند ۷ هفته - ${c.name}` : `7-week trend - ${c.name}`}
+              <TrendingUp className="h-4 w-4 text-success" /> روند رشد میانگین کلاس
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-end gap-2 h-40">
-              {weekly.map((v, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground">{v}</span>
-                  <div
-                    className="w-full rounded-t bg-[image:var(--gradient-primary)]"
-                    style={{ height: `${(v / max) * 100}%` }}
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="week" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} domain={[40, 100]} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: 12,
+                    }}
                   />
-                  <span className="text-[10px]">W{i + 1}</span>
-                </div>
-              ))}
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="oklch(0.6 0.18 260)"
+                    strokeWidth={3}
+                    dot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-[image:var(--gradient-primary)] text-primary-foreground border-0">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-primary" />
-              {fa ? "تسلط بر فصل‌ها" : "Mastery by chapter"}
+            <CardTitle className="text-base flex items-center gap-2 text-primary-foreground">
+              <Sparkles className="h-4 w-4" /> پیشنهادهای آموزشی توربو
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {chapters.map((ch) => (
-              <div key={ch.name} className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="font-medium">{ch.name}</span>
-                  <span className="text-muted-foreground">{ch.mastery}٪</span>
-                </div>
-                <Progress value={ch.mastery} className="h-2" />
-              </div>
-            ))}
+          <CardContent>
+            <ul className="space-y-3 text-sm">
+              {suggestions.map((s, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white mt-2 shrink-0" />
+                  <span className="opacity-95">{s}</span>
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">
-            {fa ? "فرصت‌های رشد کلاس" : "Class Growth Opportunities"}
-          </CardTitle>
+          <CardTitle className="text-base">وضعیت درک مفاهیم</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {growth.map((w) => (
-            <div
-              key={w.topic}
-              className="flex items-center gap-3 p-3 rounded-xl border bg-card"
-            >
-              <div className="h-9 w-9 rounded-lg bg-destructive/10 text-destructive grid place-items-center">
-                <TrendingDown className="h-4 w-4" />
+        <CardContent className="space-y-4">
+          {topics.map((t) => (
+            <div key={t.name} className="space-y-1.5">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium">{t.name}</span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">{t.level}</Badge>
+                  <span className="text-muted-foreground">{t.value}٪</span>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{w.topic}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {fa ? "میانگین پاسخ صحیح:" : "Average correct:"} {w.pct}٪
-                </p>
-              </div>
-              <Progress value={w.pct} className="w-32 h-1.5" />
+              <Progress value={t.value} className="h-2" />
             </div>
           ))}
         </CardContent>
