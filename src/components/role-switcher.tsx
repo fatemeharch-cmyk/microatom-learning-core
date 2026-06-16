@@ -1,4 +1,4 @@
-import { Check, ChevronDown, ArrowLeftRight } from "lucide-react";
+import { Check, ChevronDown, ArrowLeftRight, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useRole } from "@/lib/role-context";
+import { useAuth } from "@/lib/auth-context";
 import { ROLES, type RoleId } from "@/lib/roles";
 import { useI18n } from "@/lib/i18n";
 
@@ -24,6 +25,7 @@ type Props = {
  */
 export function RoleSwitcher({ compact = false }: Props) {
   const { activeRole, availableRoles, setActiveRole } = useRole();
+  const { user, logout } = useAuth();
   const { lang } = useI18n();
   const fa = lang === "fa";
 
@@ -83,6 +85,23 @@ export function RoleSwitcher({ compact = false }: Props) {
             </DropdownMenuItem>
           );
         })}
+        {user ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                logout();
+              }}
+              className="gap-2 py-2.5 text-destructive focus:text-destructive"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="text-sm font-medium">
+                {fa ? "خروج از حساب" : "Sign out"}
+              </span>
+            </DropdownMenuItem>
+          </>
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

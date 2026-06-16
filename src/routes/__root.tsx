@@ -14,6 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "../lib/i18n";
 import { ScopeProvider } from "../lib/scope";
 import { RoleProvider } from "../lib/role-context";
+import { AuthProvider } from "../lib/auth-context";
+import { AuthGuard } from "../components/auth-guard";
 
 function NotFoundComponent() {
   return (
@@ -125,10 +127,14 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         <ScopeProvider>
-          <RoleProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-          </RoleProvider>
+          <AuthProvider>
+            <RoleProvider>
+              <AuthGuard>
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </AuthGuard>
+            </RoleProvider>
+          </AuthProvider>
         </ScopeProvider>
       </I18nProvider>
     </QueryClientProvider>
