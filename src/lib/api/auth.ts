@@ -33,6 +33,16 @@ const ROLE_STORAGE_KEY = "atomia.auth.role";
 const USER_ID_STORAGE_KEY = "atomia.auth.user_id";
 const isDev = !!import.meta.env?.DEV;
 
+export interface LoginDebugInfo {
+  url: string;
+  status: number;
+  responseKeys: string[];
+  authTokenExists: boolean;
+  role: RoleId | null;
+}
+
+export let lastLoginDebug: LoginDebugInfo | null = null;
+
 /**
  * Map raw Xano role strings to the internal RoleId.
  * Xano may return "grade_supervisor" for the supervisor role.
@@ -89,84 +99,130 @@ export async function login(
   password: string,
 ): Promise<{ user: AuthUser; token: string }> {
   const body = { username, password };
+  const loginUrl = buildApiUrl(endpoints.auth.login);
+  lastLoginDebug = null;
 
   if (isDev) {
     // eslint-disable-next-line no-console
     console.log("[auth] login →", {
-      url: buildApiUrl(endpoints.auth.login),
+      url: loginUrl,
       bodyKeys: Object.keys(body),
     });
   }
 
-  const res = await apiClient.post<LoginResponse>(
-    endpoints.auth.login,
-    body,
-    { skipAuth: true },
-  );
+  try {
+    const res = await apiClient.post<LoginResponse>(
+      endpoints.auth.login,
+      body,
+      { skipAuth: true },
+    );
 
-  const { authToken, user_id, role } = res.data ?? ({} as LoginResponse);
+    const { authToken, user_id, role } = res.data ?? ({} as LoginResponse);
 
-  if (isDev) {
-    // eslint-disable-next-line no-console
-    console.log("[auth] login ←", {
-      responseKeys: Object.keys(res.data ?? {}),
-    });
-  }
-
-  if (!authToken) {
-    throw new Error("Invalid login response: missing authToken");
-  }
-
-  // Persist token immediately so any follow-up call is authorized.
-  setAuthToken(authToken);
-  if (user_id !== undefined && user_id !== null) persistUserId(user_id);
-
-  // Resolve role: prefer login response, otherwise fall back to /auth/me.
-  let normalized = role ? normalizeRole(role) : null;
-  let profile: Record<string, unknown> = {};
-
-  if (!normalized) {
-    try {
-      const me = await apiClient.get<Record<string, unknown>>(
-        endpoints.auth.me,
-      );
-      profile = me.data ?? {};
-      normalized = normalizeRole((profile.role as string) ?? "");
-    } catch {
-      /* ignore — we'll surface the error below */
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log("[auth] login ←", {
+        responseKeys: Object.keys(res.data ?? {}),
+      });
     }
+
+    if (!authToken) {
+      lastLoginDebug = {
+        url: loginUrl,
+        status: res.status,
+        responseKeys: Object.keys(res.data ?? {}),
+        authTokenExists: false,
+        role: null,
+      };
+      throw new Error("Invalid login response: missing authToken");
+    }
+
+    // Persist token immediately so any follow-up call is authorized.
+    setAuthToken(authToken);
+    if (user_id !== undefined && user_id !== null) persistUserId(user_id);
+
+    // Resolve role: prefer login response, otherwise fall back to /auth/me.
+    let normalized = role ? normalizeRole(role) : null;
+    let profile: Record<string, unknown> = {};
+
     if (!normalized) {
-      throw new Error("Invalid login response: missing role");
+      try {
+        const me = await apiClient.get<Record<string, unknown>>(
+          endpoints.auth.me,
+        );
+        profile = me.data ?? {};
+        normalized = normalizeRole((profile.role as string) ?? "");
+      } catch {
+        /* ignore — we'll surface the error below */
+      }
+      if (!normalized) {
+        lastLoginDebug = {
+          url: loginUrl,
+          status: res.status,
+          responseKeys: Object.keys(res.data ?? {}),
+          authTokenExists: true,
+          role: null,
+        };
+        throw new Error("Invalid login response: missing role");
+      }
+    } else {
+      // Best-effort profile enrichment; never block login on this.
+      try {
+        const me = await apiClient.get<Record<string, unknown>>(
+          endpoints.auth.me,
+        );
+        profile = me.data ?? {};
+      } catch {
+        profile = {};
+      }
     }
-  } else {
-    // Best-effort profile enrichment; never block login on this.
-    try {
-      const me = await apiClient.get<Record<string, unknown>>(
-        endpoints.auth.me,
-      );
-      profile = me.data ?? {};
-    } catch {
-      profile = {};
+
+    persistRole(normalized);
+
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log("[auth] stored role:", normalized);
     }
+
+    const user: AuthUser = {
+      id: String(profile.id ?? profile.user_id ?? user_id ?? ""),
+      username: pickUsername({ ...profile, username }),
+      name: pickName(profile),
+      role: normalized,
+      email: (profile.email as string) ?? undefined,
+      avatarUrl: (profile.avatar_url as string) ?? undefined,
+    };
+
+    lastLoginDebug = {
+      url: loginUrl,
+      status: res.status,
+      responseKeys: Object.keys(res.data ?? {}),
+      authTokenExists: true,
+      role: normalized,
+    };
+
+    return { user, token: authToken };
+  } catch (err) {
+    if (!lastLoginDebug) {
+      const status =
+        err && typeof err === "object" && "status" in err
+          ? (err as any).status
+          : 0;
+      const payload =
+        err && typeof err === "object" && "payload" in err
+          ? (err as any).payload
+          : null;
+      lastLoginDebug = {
+        url: loginUrl,
+        status,
+        responseKeys:
+          payload && typeof payload === "object" ? Object.keys(payload) : [],
+        authTokenExists: false,
+        role: null,
+      };
+    }
+    throw err;
   }
-
-  persistRole(normalized);
-
-  if (isDev) {
-    // eslint-disable-next-line no-console
-    console.log("[auth] stored role:", normalized);
-  }
-
-  const user: AuthUser = {
-    id: String(profile.id ?? profile.user_id ?? user_id ?? ""),
-    username: pickUsername({ ...profile, username }),
-    name: pickName(profile),
-    role: normalized,
-    email: (profile.email as string) ?? undefined,
-    avatarUrl: (profile.avatar_url as string) ?? undefined,
-  };
-
-  return { user, token: authToken };
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
