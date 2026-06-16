@@ -100,6 +100,7 @@ export function TeacherShell({
             <header className="h-16 border-b flex items-center gap-2 sm:gap-3 px-3 sm:px-6 bg-card/60 backdrop-blur sticky top-0 z-30">
               <SidebarTrigger />
               <div className="flex-1 min-w-0" />
+              <RoleSwitcher compact />
               <Button
                 variant="outline"
                 size="sm"
