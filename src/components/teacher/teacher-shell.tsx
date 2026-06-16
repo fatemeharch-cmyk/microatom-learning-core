@@ -21,7 +21,8 @@ import { Button } from "@/components/ui/button";
 import { useI18n, type TKey } from "@/lib/i18n";
 
 export type NavItem = {
-  titleKey: TKey;
+  titleKey?: TKey;
+  title?: string;
   url: string;
   icon: LucideIcon;
 };
