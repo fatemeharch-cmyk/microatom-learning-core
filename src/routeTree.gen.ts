@@ -71,6 +71,7 @@ import { Route as AdminSystemRouteImport } from './routes/admin.system'
 import { Route as AdminScheduleRouteImport } from './routes/admin.schedule'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminRegistrationRouteImport } from './routes/admin.registration'
+import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminCurriculumImportRouteImport } from './routes/admin.curriculum-import'
 import { Route as AdminCurriculumRouteImport } from './routes/admin.curriculum'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
@@ -387,6 +388,11 @@ const AdminRegistrationRoute = AdminRegistrationRouteImport.update({
   path: '/registration',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCurriculumImportRoute = AdminCurriculumImportRouteImport.update({
   id: '/curriculum-import',
   path: '/curriculum-import',
@@ -425,6 +431,7 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/registration': typeof AdminRegistrationRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/schedule': typeof AdminScheduleRoute
@@ -489,6 +496,7 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/registration': typeof AdminRegistrationRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/schedule': typeof AdminScheduleRoute
@@ -559,6 +567,7 @@ export interface FileRoutesById {
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/registration': typeof AdminRegistrationRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/schedule': typeof AdminScheduleRoute
@@ -630,6 +639,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/curriculum'
     | '/admin/curriculum-import'
+    | '/admin/feedback'
     | '/admin/registration'
     | '/admin/roles'
     | '/admin/schedule'
@@ -694,6 +704,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/curriculum'
     | '/admin/curriculum-import'
+    | '/admin/feedback'
     | '/admin/registration'
     | '/admin/roles'
     | '/admin/schedule'
@@ -763,6 +774,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/curriculum'
     | '/admin/curriculum-import'
+    | '/admin/feedback'
     | '/admin/registration'
     | '/admin/roles'
     | '/admin/schedule'
@@ -1266,6 +1278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRegistrationRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/feedback': {
+      id: '/admin/feedback'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/curriculum-import': {
       id: '/admin/curriculum-import'
       path: '/curriculum-import'
@@ -1310,6 +1329,7 @@ interface AdminRouteChildren {
   AdminContentRoute: typeof AdminContentRoute
   AdminCurriculumRoute: typeof AdminCurriculumRoute
   AdminCurriculumImportRoute: typeof AdminCurriculumImportRoute
+  AdminFeedbackRoute: typeof AdminFeedbackRoute
   AdminRegistrationRoute: typeof AdminRegistrationRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminScheduleRoute: typeof AdminScheduleRoute
@@ -1324,6 +1344,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminContentRoute: AdminContentRoute,
   AdminCurriculumRoute: AdminCurriculumRoute,
   AdminCurriculumImportRoute: AdminCurriculumImportRoute,
+  AdminFeedbackRoute: AdminFeedbackRoute,
   AdminRegistrationRoute: AdminRegistrationRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminScheduleRoute: AdminScheduleRoute,
