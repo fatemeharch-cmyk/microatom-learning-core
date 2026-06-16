@@ -19,6 +19,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useI18n, type TKey } from "@/lib/i18n";
+import { RoleSwitcher } from "@/components/role-switcher";
 
 export type NavItem = { titleKey?: TKey; title?: string; url: string; icon: LucideIcon };
 
