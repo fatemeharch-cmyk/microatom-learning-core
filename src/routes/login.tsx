@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
 import { ROLES } from "@/lib/roles";
+import { lastLoginDebug, type LoginDebugInfo } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -36,6 +37,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [debug, setDebug] = useState<LoginDebugInfo | null>(null);
 
   // If already signed in, jump straight to the right workspace.
   useEffect(() => {
@@ -49,6 +51,7 @@ function LoginPage() {
     setMessage(null);
     setPending(true);
     const result = await login(username, password);
+    setDebug(lastLoginDebug);
     setPending(false);
     if (result.ok) {
       navigate({ to: ROLES[result.user.role].landing, replace: true });
