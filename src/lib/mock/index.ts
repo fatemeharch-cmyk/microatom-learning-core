@@ -15,5 +15,3 @@ export * from "./admin";
 export * from "./calendar";
 export * from "./notifications";
 export * from "./dashboard";
-
-export type { } from "@/lib/types";
