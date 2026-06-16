@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ClipboardEdit, Upload, CheckCircle2, Sparkles } from "lucide-react";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/teacher/log")({
   component: ClassLog,
