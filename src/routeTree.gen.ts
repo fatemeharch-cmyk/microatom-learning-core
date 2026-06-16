@@ -35,6 +35,7 @@ import { Route as StudentTrackingRouteImport } from './routes/student.tracking'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentPlannerRouteImport } from './routes/student.planner'
+import { Route as StudentNextStepRouteImport } from './routes/student.next-step'
 import { Route as StudentLessonsRouteImport } from './routes/student.lessons'
 import { Route as StudentHomeworkRouteImport } from './routes/student.homework'
 import { Route as StudentExamsRouteImport } from './routes/student.exams'
@@ -181,6 +182,11 @@ const StudentPlannerRoute = StudentPlannerRouteImport.update({
   path: '/planner',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentNextStepRoute = StudentNextStepRouteImport.update({
+  id: '/next-step',
+  path: '/next-step',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentLessonsRoute = StudentLessonsRouteImport.update({
   id: '/lessons',
   path: '/lessons',
@@ -279,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/student/exams': typeof StudentExamsRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
+  '/student/next-step': typeof StudentNextStepRoute
   '/student/planner': typeof StudentPlannerRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
@@ -317,6 +324,7 @@ export interface FileRoutesByTo {
   '/student/exams': typeof StudentExamsRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
+  '/student/next-step': typeof StudentNextStepRoute
   '/student/planner': typeof StudentPlannerRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
@@ -361,6 +369,7 @@ export interface FileRoutesById {
   '/student/exams': typeof StudentExamsRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
+  '/student/next-step': typeof StudentNextStepRoute
   '/student/planner': typeof StudentPlannerRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
@@ -406,6 +415,7 @@ export interface FileRouteTypes {
     | '/student/exams'
     | '/student/homework'
     | '/student/lessons'
+    | '/student/next-step'
     | '/student/planner'
     | '/student/profile'
     | '/student/progress'
@@ -444,6 +454,7 @@ export interface FileRouteTypes {
     | '/student/exams'
     | '/student/homework'
     | '/student/lessons'
+    | '/student/next-step'
     | '/student/planner'
     | '/student/profile'
     | '/student/progress'
@@ -487,6 +498,7 @@ export interface FileRouteTypes {
     | '/student/exams'
     | '/student/homework'
     | '/student/lessons'
+    | '/student/next-step'
     | '/student/planner'
     | '/student/profile'
     | '/student/progress'
@@ -702,6 +714,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentPlannerRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/next-step': {
+      id: '/student/next-step'
+      path: '/next-step'
+      fullPath: '/student/next-step'
+      preLoaderRoute: typeof StudentNextStepRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/lessons': {
       id: '/student/lessons'
       path: '/lessons'
@@ -856,6 +875,7 @@ interface StudentRouteChildren {
   StudentExamsRoute: typeof StudentExamsRoute
   StudentHomeworkRoute: typeof StudentHomeworkRoute
   StudentLessonsRoute: typeof StudentLessonsRoute
+  StudentNextStepRoute: typeof StudentNextStepRoute
   StudentPlannerRoute: typeof StudentPlannerRoute
   StudentProfileRoute: typeof StudentProfileRoute
   StudentProgressRoute: typeof StudentProgressRoute
@@ -871,6 +891,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentExamsRoute: StudentExamsRoute,
   StudentHomeworkRoute: StudentHomeworkRoute,
   StudentLessonsRoute: StudentLessonsRoute,
+  StudentNextStepRoute: StudentNextStepRoute,
   StudentPlannerRoute: StudentPlannerRoute,
   StudentProfileRoute: StudentProfileRoute,
   StudentProgressRoute: StudentProgressRoute,
