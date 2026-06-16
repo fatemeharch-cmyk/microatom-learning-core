@@ -8,16 +8,22 @@ import {
   type ReactNode,
 } from "react";
 import { ROLES, type RoleId } from "./roles";
+import {
+  login as apiLogin,
+  logout as apiLogout,
+  getCurrentUser as apiGetCurrentUser,
+} from "./api/auth";
+import { getAuthToken, setAuthToken } from "./api/client";
 
 /**
- * AuthProvider — mock authentication for Atomia.
+ * AuthProvider — real authentication for Atomia via Xano.
  *
- * No real backend is connected yet. A successful "login" stores a mock user
- * (id, name, role) in localStorage so refreshes keep the session. Replace the
- * `login()` implementation with a Xano fetch later — the rest of the app
- * already consumes `useAuth()` and won't need changes.
+ * Flow:
+ *   UI → AuthContext → src/lib/api/auth.ts → src/lib/api/client.ts → Xano
  *
- * UI → AuthContext → src/lib/api/auth.ts (future)
+ * The auth token and the current role are persisted in localStorage so that
+ * page refreshes keep the session. AuthGuard and the RoleSwitcher consume
+ * `useAuth()` exactly as before — no UI changes required.
  */
 
 export type AuthUser = {
@@ -25,42 +31,34 @@ export type AuthUser = {
   username: string;
   name: string;
   role: RoleId;
+  email?: string;
+  avatarUrl?: string;
 };
+
+type LoginResult =
+  | { ok: true; user: AuthUser }
+  | { ok: false; message: string };
 
 type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  /** True until we've finished reading localStorage on mount */
+  /** True until we've finished hydrating the session on mount */
   isHydrated: boolean;
-  login: (
-    username: string,
-    password: string,
-  ) => Promise<{ ok: true; user: AuthUser } | { ok: false; message: string }>;
+  login: (username: string, password: string) => Promise<LoginResult>;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const STORAGE_KEY = "atomia.auth.user";
+const USER_STORAGE_KEY = "atomia.auth.user";
+const ROLE_STORAGE_KEY = "atomia.auth.role";
 
-/**
- * Mock directory of usernames → (role, display name).
- * Accepts both `supervisor` and `grade_supervisor` for the supervisor role.
- * Password is accepted as long as it is non-empty.
- */
-const MOCK_USERS: Record<string, { role: RoleId; name: string }> = {
-  student: { role: "student", name: "آرمیتا یادگیر" },
-  teacher: { role: "teacher", name: "استاد رضایی" },
-  parent: { role: "parent", name: "خانواده محترم" },
-  supervisor: { role: "supervisor", name: "مسئول پایه" },
-  grade_supervisor: { role: "supervisor", name: "مسئول پایه" },
-  admin: { role: "admin", name: "مدیر مدرسه" },
-};
+const FRIENDLY_ERROR = "اطلاعات ورود را دوباره بررسی کنید.";
 
 function readStoredUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(USER_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AuthUser;
     if (!parsed?.role || !ROLES[parsed.role]) return null;
@@ -70,50 +68,84 @@ function readStoredUser(): AuthUser | null {
   }
 }
 
+function persistUser(user: AuthUser | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (user) {
+      window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+      window.localStorage.setItem(ROLE_STORAGE_KEY, user.role);
+    } else {
+      window.localStorage.removeItem(USER_STORAGE_KEY);
+      window.localStorage.removeItem(ROLE_STORAGE_KEY);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    setUser(readStoredUser());
-    setIsHydrated(true);
+    let cancelled = false;
+    const cached = readStoredUser();
+    if (cached) setUser(cached);
+
+    // If we have a token, try to refresh the user from /auth/me in the
+    // background so the cached profile stays in sync.
+    const token = getAuthToken();
+    if (token) {
+      apiGetCurrentUser()
+        .then((fresh) => {
+          if (cancelled) return;
+          if (fresh) {
+            setUser(fresh);
+            persistUser(fresh);
+          } else if (!cached) {
+            // Token is invalid and we had no cached session → clear it.
+            setAuthToken(null);
+          }
+        })
+        .catch(() => {
+          /* keep cached user if /me fails (e.g. offline) */
+        })
+        .finally(() => {
+          if (!cancelled) setIsHydrated(true);
+        });
+    } else {
+      setIsHydrated(true);
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = useCallback<AuthContextValue["login"]>(
     async (username, password) => {
-      const cleanUser = username.trim().toLowerCase();
+      const cleanUser = username.trim();
       if (!cleanUser || !password) {
-        return {
-          ok: false,
-          message: "لطفاً نام کاربری و رمز عبور را وارد کنید.",
-        };
+        return { ok: false, message: FRIENDLY_ERROR };
       }
-      const match = MOCK_USERS[cleanUser];
-      if (!match) {
-        return {
-          ok: false,
-          message:
-            "نام کاربری در حالت دمو شناسایی نشد. می‌توانید با student، teacher، parent، supervisor یا admin وارد شوید.",
-        };
+      try {
+        const { user: nextUser } = await apiLogin(cleanUser, password);
+        persistUser(nextUser);
+        setUser(nextUser);
+        return { ok: true, user: nextUser };
+      } catch {
+        // Make sure no stale token survives a failed attempt.
+        setAuthToken(null);
+        return { ok: false, message: FRIENDLY_ERROR };
       }
-      const next: AuthUser = {
-        id: `mock-${match.role}-1`,
-        username: cleanUser,
-        name: match.name,
-        role: match.role,
-      };
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      }
-      setUser(next);
-      return { ok: true, user: next };
     },
     [],
   );
 
   const logout = useCallback(() => {
+    void apiLogout();
+    persistUser(null);
     if (typeof window !== "undefined") {
-      window.localStorage.removeItem(STORAGE_KEY);
       // Also clear the cached active role so the next user starts fresh.
       window.localStorage.removeItem("atomia.activeRole");
     }
