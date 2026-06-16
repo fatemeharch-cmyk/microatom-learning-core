@@ -121,12 +121,15 @@ async function request<T>(
     }
 
     if (!res.ok) {
-      const message =
-        (data &&
-          typeof data === "object" &&
-          "message" in (data as Record<string, unknown>) &&
-          String((data as Record<string, unknown>).message)) ||
-        `Request failed with status ${res.status}`;
+      let message = `Request failed with status ${res.status}`;
+      if (
+        data &&
+        typeof data === "object" &&
+        "message" in (data as Record<string, unknown>)
+      ) {
+        const m = (data as Record<string, unknown>).message;
+        if (m) message = String(m);
+      }
       throw new ApiError(message, res.status, data);
     }
 
