@@ -68,10 +68,15 @@ import { Route as ParentCalendarRouteImport } from './routes/parent.calendar'
 import { Route as ParentAnnouncementsRouteImport } from './routes/parent.announcements'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemRouteImport } from './routes/admin.system'
+import { Route as AdminScheduleRouteImport } from './routes/admin.schedule'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
+import { Route as AdminRegistrationRouteImport } from './routes/admin.registration'
+import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminCurriculumImportRouteImport } from './routes/admin.curriculum-import'
 import { Route as AdminCurriculumRouteImport } from './routes/admin.curriculum'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
+import { Route as AdminClassesRouteImport } from './routes/admin.classes'
+import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
 
 const TeacherRoute = TeacherRouteImport.update({
   id: '/teacher',
@@ -368,9 +373,24 @@ const AdminSystemRoute = AdminSystemRouteImport.update({
   path: '/system',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminScheduleRoute = AdminScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminRolesRoute = AdminRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRegistrationRoute = AdminRegistrationRouteImport.update({
+  id: '/registration',
+  path: '/registration',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCurriculumImportRoute = AdminCurriculumImportRouteImport.update({
@@ -388,6 +408,16 @@ const AdminContentRoute = AdminContentRouteImport.update({
   path: '/content',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminClassesRoute = AdminClassesRouteImport.update({
+  id: '/classes',
+  path: '/classes',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCalendarRoute = AdminCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -396,10 +426,15 @@ export interface FileRoutesByFullPath {
   '/student': typeof StudentRouteWithChildren
   '/supervisor': typeof SupervisorRouteWithChildren
   '/teacher': typeof TeacherRouteWithChildren
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/classes': typeof AdminClassesRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/registration': typeof AdminRegistrationRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
@@ -456,10 +491,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/classes': typeof AdminClassesRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/registration': typeof AdminRegistrationRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
@@ -522,10 +562,15 @@ export interface FileRoutesById {
   '/student': typeof StudentRouteWithChildren
   '/supervisor': typeof SupervisorRouteWithChildren
   '/teacher': typeof TeacherRouteWithChildren
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/classes': typeof AdminClassesRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/registration': typeof AdminRegistrationRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
@@ -589,10 +634,15 @@ export interface FileRouteTypes {
     | '/student'
     | '/supervisor'
     | '/teacher'
+    | '/admin/calendar'
+    | '/admin/classes'
     | '/admin/content'
     | '/admin/curriculum'
     | '/admin/curriculum-import'
+    | '/admin/feedback'
+    | '/admin/registration'
     | '/admin/roles'
+    | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
     | '/parent/announcements'
@@ -649,10 +699,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/calendar'
+    | '/admin/classes'
     | '/admin/content'
     | '/admin/curriculum'
     | '/admin/curriculum-import'
+    | '/admin/feedback'
+    | '/admin/registration'
     | '/admin/roles'
+    | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
     | '/parent/announcements'
@@ -714,10 +769,15 @@ export interface FileRouteTypes {
     | '/student'
     | '/supervisor'
     | '/teacher'
+    | '/admin/calendar'
+    | '/admin/classes'
     | '/admin/content'
     | '/admin/curriculum'
     | '/admin/curriculum-import'
+    | '/admin/feedback'
+    | '/admin/registration'
     | '/admin/roles'
+    | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
     | '/parent/announcements'
@@ -1197,11 +1257,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSystemRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/schedule': {
+      id: '/admin/schedule'
+      path: '/schedule'
+      fullPath: '/admin/schedule'
+      preLoaderRoute: typeof AdminScheduleRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/roles': {
       id: '/admin/roles'
       path: '/roles'
       fullPath: '/admin/roles'
       preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/registration': {
+      id: '/admin/registration'
+      path: '/registration'
+      fullPath: '/admin/registration'
+      preLoaderRoute: typeof AdminRegistrationRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/feedback': {
+      id: '/admin/feedback'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/curriculum-import': {
@@ -1225,24 +1306,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminContentRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/classes': {
+      id: '/admin/classes'
+      path: '/classes'
+      fullPath: '/admin/classes'
+      preLoaderRoute: typeof AdminClassesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/calendar': {
+      id: '/admin/calendar'
+      path: '/calendar'
+      fullPath: '/admin/calendar'
+      preLoaderRoute: typeof AdminCalendarRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminCalendarRoute: typeof AdminCalendarRoute
+  AdminClassesRoute: typeof AdminClassesRoute
   AdminContentRoute: typeof AdminContentRoute
   AdminCurriculumRoute: typeof AdminCurriculumRoute
   AdminCurriculumImportRoute: typeof AdminCurriculumImportRoute
+  AdminFeedbackRoute: typeof AdminFeedbackRoute
+  AdminRegistrationRoute: typeof AdminRegistrationRoute
   AdminRolesRoute: typeof AdminRolesRoute
+  AdminScheduleRoute: typeof AdminScheduleRoute
   AdminSystemRoute: typeof AdminSystemRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCalendarRoute: AdminCalendarRoute,
+  AdminClassesRoute: AdminClassesRoute,
   AdminContentRoute: AdminContentRoute,
   AdminCurriculumRoute: AdminCurriculumRoute,
   AdminCurriculumImportRoute: AdminCurriculumImportRoute,
+  AdminFeedbackRoute: AdminFeedbackRoute,
+  AdminRegistrationRoute: AdminRegistrationRoute,
   AdminRolesRoute: AdminRolesRoute,
+  AdminScheduleRoute: AdminScheduleRoute,
   AdminSystemRoute: AdminSystemRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
