@@ -64,7 +64,7 @@ export function SupervisorShell({
                           <SidebarMenuButton asChild isActive={active}>
                             <Link to={item.url} className="flex items-center gap-2">
                               <item.icon className="h-4 w-4 shrink-0" />
-                              <span className="truncate">{t(item.titleKey)}</span>
+                              <span className="truncate">{item.title ?? (item.titleKey ? t(item.titleKey) : "")}</span>
                             </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
