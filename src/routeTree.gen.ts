@@ -68,6 +68,7 @@ import { Route as ParentCalendarRouteImport } from './routes/parent.calendar'
 import { Route as ParentAnnouncementsRouteImport } from './routes/parent.announcements'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemRouteImport } from './routes/admin.system'
+import { Route as AdminScheduleRouteImport } from './routes/admin.schedule'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminCurriculumImportRouteImport } from './routes/admin.curriculum-import'
 import { Route as AdminCurriculumRouteImport } from './routes/admin.curriculum'
@@ -369,6 +370,11 @@ const AdminSystemRoute = AdminSystemRouteImport.update({
   path: '/system',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminScheduleRoute = AdminScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminRolesRoute = AdminRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
@@ -407,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
@@ -468,6 +475,7 @@ export interface FileRoutesByTo {
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
@@ -535,6 +543,7 @@ export interface FileRoutesById {
   '/admin/curriculum': typeof AdminCurriculumRoute
   '/admin/curriculum-import': typeof AdminCurriculumImportRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
@@ -603,6 +612,7 @@ export interface FileRouteTypes {
     | '/admin/curriculum'
     | '/admin/curriculum-import'
     | '/admin/roles'
+    | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
     | '/parent/announcements'
@@ -664,6 +674,7 @@ export interface FileRouteTypes {
     | '/admin/curriculum'
     | '/admin/curriculum-import'
     | '/admin/roles'
+    | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
     | '/parent/announcements'
@@ -730,6 +741,7 @@ export interface FileRouteTypes {
     | '/admin/curriculum'
     | '/admin/curriculum-import'
     | '/admin/roles'
+    | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
     | '/parent/announcements'
@@ -1209,6 +1221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSystemRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/schedule': {
+      id: '/admin/schedule'
+      path: '/schedule'
+      fullPath: '/admin/schedule'
+      preLoaderRoute: typeof AdminScheduleRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/roles': {
       id: '/admin/roles'
       path: '/roles'
@@ -1253,6 +1272,7 @@ interface AdminRouteChildren {
   AdminCurriculumRoute: typeof AdminCurriculumRoute
   AdminCurriculumImportRoute: typeof AdminCurriculumImportRoute
   AdminRolesRoute: typeof AdminRolesRoute
+  AdminScheduleRoute: typeof AdminScheduleRoute
   AdminSystemRoute: typeof AdminSystemRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1264,6 +1284,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCurriculumRoute: AdminCurriculumRoute,
   AdminCurriculumImportRoute: AdminCurriculumImportRoute,
   AdminRolesRoute: AdminRolesRoute,
+  AdminScheduleRoute: AdminScheduleRoute,
   AdminSystemRoute: AdminSystemRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
