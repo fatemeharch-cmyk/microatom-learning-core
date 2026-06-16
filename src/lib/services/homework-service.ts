@@ -19,7 +19,7 @@ export async function getHomeworkStatusByStudent(studentId: string) {
   return items.map((h) => ({
     homeworkId: h.id,
     studentId,
-    status: h.status ?? "pending",
-    progress: h.progress ?? 0,
+    status: h.status,
+    completionRate: h.completionRate ?? 0,
   }));
 }
