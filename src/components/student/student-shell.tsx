@@ -19,6 +19,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useI18n, type TKey } from "@/lib/i18n";
+import { RoleSwitcher } from "@/components/role-switcher";
 
 export type NavItem = {
   titleKey?: TKey;
@@ -106,6 +107,7 @@ export function StudentShell({
                 <Flame className="h-3.5 w-3.5" />
                 <span>{t("streak_days", { n: lang === "fa" ? "۱۲" : 12 })}</span>
               </div>
+              <RoleSwitcher compact />
               <Button
                 variant="outline"
                 size="sm"
