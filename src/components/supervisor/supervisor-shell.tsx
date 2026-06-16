@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useI18n, type TKey } from "@/lib/i18n";
 
-export type NavItem = { titleKey: TKey; url: string; icon: LucideIcon };
+export type NavItem = { titleKey?: TKey; title?: string; url: string; icon: LucideIcon };
 
 export function SupervisorShell({
   items,
