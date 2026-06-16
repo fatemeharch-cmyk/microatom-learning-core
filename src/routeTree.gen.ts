@@ -56,9 +56,16 @@ import { Route as StudentExamsRouteImport } from './routes/student.exams'
 import { Route as StudentDailyRouteImport } from './routes/student.daily'
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
+import { Route as ParentWeeklyRouteImport } from './routes/parent.weekly'
 import { Route as ParentReportsRouteImport } from './routes/parent.reports'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
+import { Route as ParentMeetingsRouteImport } from './routes/parent.meetings'
+import { Route as ParentGrowthRouteImport } from './routes/parent.growth'
+import { Route as ParentFeedbackRouteImport } from './routes/parent.feedback'
+import { Route as ParentCompanionRouteImport } from './routes/parent.companion'
 import { Route as ParentChildrenRouteImport } from './routes/parent.children'
+import { Route as ParentCalendarRouteImport } from './routes/parent.calendar'
+import { Route as ParentAnnouncementsRouteImport } from './routes/parent.announcements'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemRouteImport } from './routes/admin.system'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
@@ -301,6 +308,11 @@ const StudentAchievementsRoute = StudentAchievementsRouteImport.update({
   path: '/achievements',
   getParentRoute: () => StudentRoute,
 } as any)
+const ParentWeeklyRoute = ParentWeeklyRouteImport.update({
+  id: '/weekly',
+  path: '/weekly',
+  getParentRoute: () => ParentRoute,
+} as any)
 const ParentReportsRoute = ParentReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -311,9 +323,39 @@ const ParentMessagesRoute = ParentMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => ParentRoute,
 } as any)
+const ParentMeetingsRoute = ParentMeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentGrowthRoute = ParentGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentFeedbackRoute = ParentFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentCompanionRoute = ParentCompanionRouteImport.update({
+  id: '/companion',
+  path: '/companion',
+  getParentRoute: () => ParentRoute,
+} as any)
 const ParentChildrenRoute = ParentChildrenRouteImport.update({
   id: '/children',
   path: '/children',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentCalendarRoute = ParentCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentAnnouncementsRoute = ParentAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
   getParentRoute: () => ParentRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -360,9 +402,16 @@ export interface FileRoutesByFullPath {
   '/admin/roles': typeof AdminRolesRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/parent/announcements': typeof ParentAnnouncementsRoute
+  '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
+  '/parent/companion': typeof ParentCompanionRoute
+  '/parent/feedback': typeof ParentFeedbackRoute
+  '/parent/growth': typeof ParentGrowthRoute
+  '/parent/meetings': typeof ParentMeetingsRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/reports': typeof ParentReportsRoute
+  '/parent/weekly': typeof ParentWeeklyRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/daily': typeof StudentDailyRoute
@@ -413,9 +462,16 @@ export interface FileRoutesByTo {
   '/admin/roles': typeof AdminRolesRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/parent/announcements': typeof ParentAnnouncementsRoute
+  '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
+  '/parent/companion': typeof ParentCompanionRoute
+  '/parent/feedback': typeof ParentFeedbackRoute
+  '/parent/growth': typeof ParentGrowthRoute
+  '/parent/meetings': typeof ParentMeetingsRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/reports': typeof ParentReportsRoute
+  '/parent/weekly': typeof ParentWeeklyRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/daily': typeof StudentDailyRoute
@@ -472,9 +528,16 @@ export interface FileRoutesById {
   '/admin/roles': typeof AdminRolesRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/parent/announcements': typeof ParentAnnouncementsRoute
+  '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
+  '/parent/companion': typeof ParentCompanionRoute
+  '/parent/feedback': typeof ParentFeedbackRoute
+  '/parent/growth': typeof ParentGrowthRoute
+  '/parent/meetings': typeof ParentMeetingsRoute
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/reports': typeof ParentReportsRoute
+  '/parent/weekly': typeof ParentWeeklyRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/daily': typeof StudentDailyRoute
@@ -532,9 +595,16 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/system'
     | '/admin/users'
+    | '/parent/announcements'
+    | '/parent/calendar'
     | '/parent/children'
+    | '/parent/companion'
+    | '/parent/feedback'
+    | '/parent/growth'
+    | '/parent/meetings'
     | '/parent/messages'
     | '/parent/reports'
+    | '/parent/weekly'
     | '/student/achievements'
     | '/student/analytics'
     | '/student/daily'
@@ -585,9 +655,16 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/system'
     | '/admin/users'
+    | '/parent/announcements'
+    | '/parent/calendar'
     | '/parent/children'
+    | '/parent/companion'
+    | '/parent/feedback'
+    | '/parent/growth'
+    | '/parent/meetings'
     | '/parent/messages'
     | '/parent/reports'
+    | '/parent/weekly'
     | '/student/achievements'
     | '/student/analytics'
     | '/student/daily'
@@ -643,9 +720,16 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/system'
     | '/admin/users'
+    | '/parent/announcements'
+    | '/parent/calendar'
     | '/parent/children'
+    | '/parent/companion'
+    | '/parent/feedback'
+    | '/parent/growth'
+    | '/parent/meetings'
     | '/parent/messages'
     | '/parent/reports'
+    | '/parent/weekly'
     | '/student/achievements'
     | '/student/analytics'
     | '/student/daily'
@@ -1029,6 +1113,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentAchievementsRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/parent/weekly': {
+      id: '/parent/weekly'
+      path: '/weekly'
+      fullPath: '/parent/weekly'
+      preLoaderRoute: typeof ParentWeeklyRouteImport
+      parentRoute: typeof ParentRoute
+    }
     '/parent/reports': {
       id: '/parent/reports'
       path: '/reports'
@@ -1043,11 +1134,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentMessagesRouteImport
       parentRoute: typeof ParentRoute
     }
+    '/parent/meetings': {
+      id: '/parent/meetings'
+      path: '/meetings'
+      fullPath: '/parent/meetings'
+      preLoaderRoute: typeof ParentMeetingsRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/growth': {
+      id: '/parent/growth'
+      path: '/growth'
+      fullPath: '/parent/growth'
+      preLoaderRoute: typeof ParentGrowthRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/feedback': {
+      id: '/parent/feedback'
+      path: '/feedback'
+      fullPath: '/parent/feedback'
+      preLoaderRoute: typeof ParentFeedbackRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/companion': {
+      id: '/parent/companion'
+      path: '/companion'
+      fullPath: '/parent/companion'
+      preLoaderRoute: typeof ParentCompanionRouteImport
+      parentRoute: typeof ParentRoute
+    }
     '/parent/children': {
       id: '/parent/children'
       path: '/children'
       fullPath: '/parent/children'
       preLoaderRoute: typeof ParentChildrenRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/calendar': {
+      id: '/parent/calendar'
+      path: '/calendar'
+      fullPath: '/parent/calendar'
+      preLoaderRoute: typeof ParentCalendarRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/announcements': {
+      id: '/parent/announcements'
+      path: '/announcements'
+      fullPath: '/parent/announcements'
+      preLoaderRoute: typeof ParentAnnouncementsRouteImport
       parentRoute: typeof ParentRoute
     }
     '/admin/users': {
@@ -1118,16 +1251,30 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface ParentRouteChildren {
+  ParentAnnouncementsRoute: typeof ParentAnnouncementsRoute
+  ParentCalendarRoute: typeof ParentCalendarRoute
   ParentChildrenRoute: typeof ParentChildrenRoute
+  ParentCompanionRoute: typeof ParentCompanionRoute
+  ParentFeedbackRoute: typeof ParentFeedbackRoute
+  ParentGrowthRoute: typeof ParentGrowthRoute
+  ParentMeetingsRoute: typeof ParentMeetingsRoute
   ParentMessagesRoute: typeof ParentMessagesRoute
   ParentReportsRoute: typeof ParentReportsRoute
+  ParentWeeklyRoute: typeof ParentWeeklyRoute
   ParentIndexRoute: typeof ParentIndexRoute
 }
 
 const ParentRouteChildren: ParentRouteChildren = {
+  ParentAnnouncementsRoute: ParentAnnouncementsRoute,
+  ParentCalendarRoute: ParentCalendarRoute,
   ParentChildrenRoute: ParentChildrenRoute,
+  ParentCompanionRoute: ParentCompanionRoute,
+  ParentFeedbackRoute: ParentFeedbackRoute,
+  ParentGrowthRoute: ParentGrowthRoute,
+  ParentMeetingsRoute: ParentMeetingsRoute,
   ParentMessagesRoute: ParentMessagesRoute,
   ParentReportsRoute: ParentReportsRoute,
+  ParentWeeklyRoute: ParentWeeklyRoute,
   ParentIndexRoute: ParentIndexRoute,
 }
 
