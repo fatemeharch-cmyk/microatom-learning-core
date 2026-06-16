@@ -15,6 +15,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { RoleSwitcher } from "@/components/role-switcher";
 
 export type NavItem = {
   title: string;
