@@ -14,7 +14,7 @@ import {
 } from "recharts";
 
 export const Route = createFileRoute("/teacher/analytics")({
-  component: TeacherAnalytics;
+  component: TeacherAnalytics,
 });
 
 const trend = [
