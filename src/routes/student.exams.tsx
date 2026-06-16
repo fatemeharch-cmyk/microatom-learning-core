@@ -1,113 +1,101 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { GraduationCap, PlayCircle, Calendar, Award, Timer } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { GraduationCap, Sparkles, CalendarDays, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/student/exams")({
-  component: Exams,
+  component: ExamsPage,
 });
 
-const upcoming = [
-  { id: 1, title: "آزمون جامع ریاضی - فصل ۱ و ۲", date: "پنج‌شنبه ۲۴ خرداد • ۱۰:۰۰", duration: "۹۰ دقیقه", questions: 30, kind: "رسمی" },
-  { id: 2, title: "آزمون تشخیصی فیزیک", date: "شنبه ۲۶ خرداد • ۱۸:۰۰", duration: "۴۵ دقیقه", questions: 20, kind: "تطبیقی" },
+const exams = [
+  {
+    title: "آزمون جامع فیزیک",
+    subject: "فیزیک",
+    date: "شنبه، ۲۶ خرداد",
+    score: null as number | null,
+    suggestion: "مرور فصل حرکت پرتابی برای آمادگی بیشتر",
+  },
+  {
+    title: "آزمون شیمی فصل ۱",
+    subject: "شیمی",
+    date: "۱۸ خرداد",
+    score: 78,
+    suggestion: "تمرکز روی محاسبات استوکیومتری برای رشد بیشتر",
+  },
+  {
+    title: "آزمون زیست‌شناسی",
+    subject: "زیست‌شناسی",
+    date: "۱۱ خرداد",
+    score: 85,
+    suggestion: "ادامه همین مسیر — تسلط در حال شکل‌گیری است",
+  },
+  {
+    title: "آزمون ریاضی فصل ۲",
+    subject: "ریاضی",
+    date: "۴ خرداد",
+    score: 64,
+    suggestion: "تمرین بیشتر روی معادلات درجه دوم فرصت رشد خوبی است",
+  },
 ];
 
-const practice = [
-  { id: 3, title: "تمرین سریع: توابع", q: 10, time: "۱۵ دقیقه" },
-  { id: 4, title: "تمرین: قوانین نیوتن", q: 12, time: "۲۰ دقیقه" },
-  { id: 5, title: "تمرین لغات زبان", q: 25, time: "۱۰ دقیقه" },
-];
-
-const past = [
-  { id: 6, title: "آزمون ماهانه شیمی", date: "۱۰ خرداد", score: "۱۶/۲۰", correct: "۲۴ از ۳۰" },
-  { id: 7, title: "آزمون هفتگی ریاضی", date: "۸ خرداد", score: "۱۸/۲۰", correct: "۲۷ از ۳۰" },
-  { id: 8, title: "آزمون تشخیصی زبان", date: "۲ خرداد", score: "۱۴/۲۰", correct: "۲۱ از ۳۰" },
-];
-
-function Exams() {
+function ExamsPage() {
   return (
-    <div className="space-y-6 max-w-5xl">
-      <div className="flex items-center gap-3">
-        <div className="h-11 w-11 rounded-xl bg-success/15 text-success grid place-items-center">
-          <GraduationCap className="h-5 w-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">مرکز آزمون</h1>
-          <p className="text-sm text-muted-foreground">آزمون‌های رسمی، تطبیقی و تمرینی</p>
-        </div>
+    <div className="space-y-6" dir="rtl">
+      <div>
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <GraduationCap className="h-6 w-6 text-primary" /> آزمون‌های من
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          نگاهی به مسیر آزمون‌ها و پیشنهادهای یادگیری توربو
+        </p>
       </div>
 
-      <Tabs defaultValue="upcoming">
-        <TabsList>
-          <TabsTrigger value="upcoming">پیش‌رو</TabsTrigger>
-          <TabsTrigger value="practice">تمرینی</TabsTrigger>
-          <TabsTrigger value="past">گذشته</TabsTrigger>
-        </TabsList>
+      <Card className="bg-[image:var(--gradient-primary)] text-primary-foreground border-0">
+        <CardContent className="p-6 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-2xl bg-white/15 grid place-items-center">
+            <TrendingUp className="h-6 w-6" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm opacity-90">میانگین رشد در ۴ آزمون اخیر</p>
+            <p className="text-2xl font-bold">۷۵٪</p>
+          </div>
+          <Badge className="bg-white/20 text-white border-0">روند مثبت</Badge>
+        </CardContent>
+      </Card>
 
-        <TabsContent value="upcoming" className="space-y-3 mt-4">
-          {upcoming.map((e) => (
-            <Card key={e.id}>
-              <CardContent className="p-5 flex flex-col md:flex-row md:items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary grid place-items-center">
-                  <Calendar className="h-5 w-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold">{e.title}</h3>
-                    <Badge>{e.kind}</Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {e.date} • {e.questions} سؤال • {e.duration}
-                  </p>
-                </div>
-                <Button variant="outline" className="rounded-full">یادآور</Button>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="practice" className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
-          {practice.map((p) => (
-            <Card key={p.id} className="hover:shadow-md transition">
-              <CardHeader>
-                <CardTitle className="text-base">{p.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{p.q} سؤال</span>
-                  <span className="flex items-center gap-1">
-                    <Timer className="h-3 w-3" /> {p.time}
-                  </span>
-                </div>
-                <Button size="sm" className="w-full rounded-full">
-                  <PlayCircle className="h-4 w-4" /> شروع تمرین
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="past" className="space-y-3 mt-4">
-          {past.map((p) => (
-            <Card key={p.id}>
-              <CardContent className="p-4 flex items-center gap-3">
-                <Award className="h-5 w-5 text-xp" />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold truncate">{p.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {p.date} • {p.correct} صحیح
-                  </p>
-                </div>
-                <Badge variant="secondary" className="bg-success/15 text-success border-0 text-base font-bold">
-                  {p.score}
+      <div className="grid md:grid-cols-2 gap-4">
+        {exams.map((e, i) => (
+          <Card key={i} className="hover:shadow-md transition">
+            <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+              <div>
+                <CardTitle className="text-base">{e.title}</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
+                  <CalendarDays className="h-3 w-3" /> {e.date} • {e.subject}
+                </p>
+              </div>
+              {e.score !== null ? (
+                <Badge variant="secondary" className="text-base font-bold">
+                  {e.score}٪
                 </Badge>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-      </Tabs>
+              ) : (
+                <Badge className="bg-info/15 text-info border-info/30">پیش رو</Badge>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {e.score !== null && <Progress value={e.score} className="h-2" />}
+              <div className="p-3 rounded-xl bg-accent/30 flex gap-2">
+                <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <p className="text-sm flex-1">{e.suggestion}</p>
+              </div>
+              <Button size="sm" variant="outline" className="rounded-full">
+                مشاهده جزئیات
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

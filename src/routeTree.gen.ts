@@ -32,11 +32,16 @@ import { Route as SupervisorAnalyticsRouteImport } from './routes/supervisor.ana
 import { Route as SupervisorAlertsRouteImport } from './routes/supervisor.alerts'
 import { Route as StudentWeeklyRouteImport } from './routes/student.weekly'
 import { Route as StudentTrackingRouteImport } from './routes/student.tracking'
+import { Route as StudentScheduleRouteImport } from './routes/student.schedule'
+import { Route as StudentResourcesRouteImport } from './routes/student.resources'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentPlannerRouteImport } from './routes/student.planner'
+import { Route as StudentNotebookRouteImport } from './routes/student.notebook'
+import { Route as StudentNextStepRouteImport } from './routes/student.next-step'
 import { Route as StudentLessonsRouteImport } from './routes/student.lessons'
 import { Route as StudentHomeworkRouteImport } from './routes/student.homework'
+import { Route as StudentGrowthRouteImport } from './routes/student.growth'
 import { Route as StudentExamsRouteImport } from './routes/student.exams'
 import { Route as StudentDailyRouteImport } from './routes/student.daily'
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
@@ -166,6 +171,16 @@ const StudentTrackingRoute = StudentTrackingRouteImport.update({
   path: '/tracking',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentScheduleRoute = StudentScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentResourcesRoute = StudentResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentProgressRoute = StudentProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
@@ -181,6 +196,16 @@ const StudentPlannerRoute = StudentPlannerRouteImport.update({
   path: '/planner',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentNotebookRoute = StudentNotebookRouteImport.update({
+  id: '/notebook',
+  path: '/notebook',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentNextStepRoute = StudentNextStepRouteImport.update({
+  id: '/next-step',
+  path: '/next-step',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentLessonsRoute = StudentLessonsRouteImport.update({
   id: '/lessons',
   path: '/lessons',
@@ -189,6 +214,11 @@ const StudentLessonsRoute = StudentLessonsRouteImport.update({
 const StudentHomeworkRoute = StudentHomeworkRouteImport.update({
   id: '/homework',
   path: '/homework',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentGrowthRoute = StudentGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentExamsRoute = StudentExamsRouteImport.update({
@@ -277,11 +307,16 @@ export interface FileRoutesByFullPath {
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/daily': typeof StudentDailyRoute
   '/student/exams': typeof StudentExamsRoute
+  '/student/growth': typeof StudentGrowthRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
+  '/student/next-step': typeof StudentNextStepRoute
+  '/student/notebook': typeof StudentNotebookRoute
   '/student/planner': typeof StudentPlannerRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
+  '/student/resources': typeof StudentResourcesRoute
+  '/student/schedule': typeof StudentScheduleRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
@@ -315,11 +350,16 @@ export interface FileRoutesByTo {
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/daily': typeof StudentDailyRoute
   '/student/exams': typeof StudentExamsRoute
+  '/student/growth': typeof StudentGrowthRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
+  '/student/next-step': typeof StudentNextStepRoute
+  '/student/notebook': typeof StudentNotebookRoute
   '/student/planner': typeof StudentPlannerRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
+  '/student/resources': typeof StudentResourcesRoute
+  '/student/schedule': typeof StudentScheduleRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
@@ -359,11 +399,16 @@ export interface FileRoutesById {
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/daily': typeof StudentDailyRoute
   '/student/exams': typeof StudentExamsRoute
+  '/student/growth': typeof StudentGrowthRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
+  '/student/next-step': typeof StudentNextStepRoute
+  '/student/notebook': typeof StudentNotebookRoute
   '/student/planner': typeof StudentPlannerRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
+  '/student/resources': typeof StudentResourcesRoute
+  '/student/schedule': typeof StudentScheduleRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
@@ -404,11 +449,16 @@ export interface FileRouteTypes {
     | '/student/analytics'
     | '/student/daily'
     | '/student/exams'
+    | '/student/growth'
     | '/student/homework'
     | '/student/lessons'
+    | '/student/next-step'
+    | '/student/notebook'
     | '/student/planner'
     | '/student/profile'
     | '/student/progress'
+    | '/student/resources'
+    | '/student/schedule'
     | '/student/tracking'
     | '/student/weekly'
     | '/supervisor/alerts'
@@ -442,11 +492,16 @@ export interface FileRouteTypes {
     | '/student/analytics'
     | '/student/daily'
     | '/student/exams'
+    | '/student/growth'
     | '/student/homework'
     | '/student/lessons'
+    | '/student/next-step'
+    | '/student/notebook'
     | '/student/planner'
     | '/student/profile'
     | '/student/progress'
+    | '/student/resources'
+    | '/student/schedule'
     | '/student/tracking'
     | '/student/weekly'
     | '/supervisor/alerts'
@@ -485,11 +540,16 @@ export interface FileRouteTypes {
     | '/student/analytics'
     | '/student/daily'
     | '/student/exams'
+    | '/student/growth'
     | '/student/homework'
     | '/student/lessons'
+    | '/student/next-step'
+    | '/student/notebook'
     | '/student/planner'
     | '/student/profile'
     | '/student/progress'
+    | '/student/resources'
+    | '/student/schedule'
     | '/student/tracking'
     | '/student/weekly'
     | '/supervisor/alerts'
@@ -681,6 +741,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentTrackingRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/schedule': {
+      id: '/student/schedule'
+      path: '/schedule'
+      fullPath: '/student/schedule'
+      preLoaderRoute: typeof StudentScheduleRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/resources': {
+      id: '/student/resources'
+      path: '/resources'
+      fullPath: '/student/resources'
+      preLoaderRoute: typeof StudentResourcesRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/progress': {
       id: '/student/progress'
       path: '/progress'
@@ -702,6 +776,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentPlannerRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/notebook': {
+      id: '/student/notebook'
+      path: '/notebook'
+      fullPath: '/student/notebook'
+      preLoaderRoute: typeof StudentNotebookRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/next-step': {
+      id: '/student/next-step'
+      path: '/next-step'
+      fullPath: '/student/next-step'
+      preLoaderRoute: typeof StudentNextStepRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/lessons': {
       id: '/student/lessons'
       path: '/lessons'
@@ -714,6 +802,13 @@ declare module '@tanstack/react-router' {
       path: '/homework'
       fullPath: '/student/homework'
       preLoaderRoute: typeof StudentHomeworkRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/growth': {
+      id: '/student/growth'
+      path: '/growth'
+      fullPath: '/student/growth'
+      preLoaderRoute: typeof StudentGrowthRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/exams': {
@@ -854,11 +949,16 @@ interface StudentRouteChildren {
   StudentAnalyticsRoute: typeof StudentAnalyticsRoute
   StudentDailyRoute: typeof StudentDailyRoute
   StudentExamsRoute: typeof StudentExamsRoute
+  StudentGrowthRoute: typeof StudentGrowthRoute
   StudentHomeworkRoute: typeof StudentHomeworkRoute
   StudentLessonsRoute: typeof StudentLessonsRoute
+  StudentNextStepRoute: typeof StudentNextStepRoute
+  StudentNotebookRoute: typeof StudentNotebookRoute
   StudentPlannerRoute: typeof StudentPlannerRoute
   StudentProfileRoute: typeof StudentProfileRoute
   StudentProgressRoute: typeof StudentProgressRoute
+  StudentResourcesRoute: typeof StudentResourcesRoute
+  StudentScheduleRoute: typeof StudentScheduleRoute
   StudentTrackingRoute: typeof StudentTrackingRoute
   StudentWeeklyRoute: typeof StudentWeeklyRoute
   StudentIndexRoute: typeof StudentIndexRoute
@@ -869,11 +969,16 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentAnalyticsRoute: StudentAnalyticsRoute,
   StudentDailyRoute: StudentDailyRoute,
   StudentExamsRoute: StudentExamsRoute,
+  StudentGrowthRoute: StudentGrowthRoute,
   StudentHomeworkRoute: StudentHomeworkRoute,
   StudentLessonsRoute: StudentLessonsRoute,
+  StudentNextStepRoute: StudentNextStepRoute,
+  StudentNotebookRoute: StudentNotebookRoute,
   StudentPlannerRoute: StudentPlannerRoute,
   StudentProfileRoute: StudentProfileRoute,
   StudentProgressRoute: StudentProgressRoute,
+  StudentResourcesRoute: StudentResourcesRoute,
+  StudentScheduleRoute: StudentScheduleRoute,
   StudentTrackingRoute: StudentTrackingRoute,
   StudentWeeklyRoute: StudentWeeklyRoute,
   StudentIndexRoute: StudentIndexRoute,
