@@ -133,10 +133,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         persistUser(nextUser);
         setUser(nextUser);
         return { ok: true, user: nextUser };
-      } catch {
+      } catch (err) {
         // Make sure no stale token survives a failed attempt.
         setAuthToken(null);
-        return { ok: false, message: FRIENDLY_ERROR };
+        const raw = err instanceof Error ? err.message : String(err);
+        return {
+          ok: false,
+          message: import.meta.env.DEV ? raw : FRIENDLY_ERROR,
+        };
       }
     },
     [],
