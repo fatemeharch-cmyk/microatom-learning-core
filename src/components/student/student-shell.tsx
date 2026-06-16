@@ -107,6 +107,7 @@ export function StudentShell({
                 <Flame className="h-3.5 w-3.5" />
                 <span>{t("streak_days", { n: lang === "fa" ? "۱۲" : 12 })}</span>
               </div>
+              <RoleSwitcher compact />
               <Button
                 variant="outline"
                 size="sm"
