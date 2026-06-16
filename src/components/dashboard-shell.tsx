@@ -84,7 +84,8 @@ export function DashboardShell({ role, roleLabel, items }: Props) {
           <header className="h-14 border-b flex items-center gap-2 px-4">
             <SidebarTrigger />
             <div className="flex-1" />
-            <span className="text-sm text-muted-foreground">{roleLabel} Dashboard</span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">{roleLabel} Dashboard</span>
+            <RoleSwitcher compact />
           </header>
           <main className="flex-1 p-6">
             <Outlet />
