@@ -32,7 +32,7 @@ export const ROLE_VISIBILITY: Record<RoleId, CalendarEntry["kind"][]> = {
   student: ["class_period", "exam", "mentoring", "holiday", "announcement", "reflection_window"],
   parent: ["exam", "parent_meeting", "holiday", "announcement", "reflection_window"],
   teacher: ["class_period", "exam", "teacher_meeting", "holiday", "announcement"],
-  grade_supervisor: [
+  supervisor: [
     "class_period",
     "exam",
     "mentoring",
@@ -72,7 +72,7 @@ export const classPeriodToEntry = (p: ClassPeriod): CalendarEntry => ({
   endsAt: p.endsAt,
   title: p.topic ?? "کلاس درس",
   description: p.room ? `کلاس ${p.room}` : undefined,
-  audiences: ["student", "teacher", "grade_supervisor", "admin"],
+  audiences: ["student", "teacher", "supervisor", "admin"],
   source: p,
 });
 
@@ -84,7 +84,7 @@ export const examToEntry = (e: ExamEvent): CalendarEntry => ({
   endsAt: e.endsAt,
   title: e.title,
   description: e.description,
-  audiences: ["student", "parent", "teacher", "grade_supervisor", "admin"],
+  audiences: ["student", "parent", "teacher", "supervisor", "admin"],
   source: e,
 });
 
@@ -95,7 +95,7 @@ export const mentoringToEntry = (m: MentoringEvent): CalendarEntry => ({
   startsAt: m.startsAt,
   endsAt: m.endsAt,
   title: m.topic,
-  audiences: ["student", "grade_supervisor", "admin"],
+  audiences: ["student", "supervisor", "admin"],
   source: m,
 });
 
@@ -107,7 +107,7 @@ export const parentMeetingToEntry = (m: ParentMeeting): CalendarEntry => ({
   endsAt: m.endsAt,
   title: m.topic,
   description: m.location,
-  audiences: ["parent", "grade_supervisor", "admin"],
+  audiences: ["parent", "supervisor", "admin"],
   source: m,
 });
 
@@ -119,7 +119,7 @@ export const teacherMeetingToEntry = (m: TeacherMeeting): CalendarEntry => ({
   endsAt: m.endsAt,
   title: m.topic,
   description: m.location,
-  audiences: ["teacher", "grade_supervisor", "admin"],
+  audiences: ["teacher", "supervisor", "admin"],
   source: m,
 });
 
