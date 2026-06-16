@@ -1,13 +1,25 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { LayoutDashboard, Layers, Users, BarChart3, AlertTriangle } from "lucide-react";
+import {
+  LayoutDashboard,
+  CalendarRange,
+  HeartHandshake,
+  UserCircle,
+  ListChecks,
+  Sparkles,
+  MessageSquareHeart,
+  Users,
+} from "lucide-react";
 import { SupervisorShell, type NavItem } from "@/components/supervisor/supervisor-shell";
 
 const items: NavItem[] = [
-  { titleKey: "s_nav_overview", url: "/supervisor", icon: LayoutDashboard },
-  { titleKey: "s_nav_grade", url: "/supervisor/grade", icon: Layers },
-  { titleKey: "s_nav_teachers", url: "/supervisor/teachers", icon: Users },
-  { titleKey: "s_nav_analytics", url: "/supervisor/analytics", icon: BarChart3 },
-  { titleKey: "s_nav_alerts", url: "/supervisor/alerts", icon: AlertTriangle },
+  { title: "داشبورد", url: "/supervisor", icon: LayoutDashboard },
+  { title: "تقویم آموزشی", url: "/supervisor/calendar", icon: CalendarRange },
+  { title: "جلسات همراهی", url: "/supervisor/sessions", icon: HeartHandshake },
+  { title: "پروفایل دانش‌آموز", url: "/supervisor/student", icon: UserCircle },
+  { title: "پیگیری‌ها", url: "/supervisor/followups", icon: ListChecks },
+  { title: "خلاصه هوشمند توربو", url: "/supervisor/turbo", icon: Sparkles },
+  { title: "بازخوردهای هفتگی", url: "/supervisor/feedback", icon: MessageSquareHeart },
+  { title: "ارتباط با دبیران", url: "/supervisor/teachers-hub", icon: Users },
 ];
 
 export const Route = createFileRoute("/supervisor")({
