@@ -1,143 +1,69 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { NotebookPen, Clock, AlertCircle, CheckCircle2, Upload } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NotebookPen, Clock3, CheckCircle2, Sparkles, Hourglass } from "lucide-react";
 
 export const Route = createFileRoute("/student/homework")({
-  component: Homework,
+  component: HomeworkPage,
 });
 
-type HW = {
-  id: number;
-  title: string;
-  subject: string;
-  teacher: string;
-  due: string;
-  status: "pending" | "submitted" | "overdue" | "graded";
-  score?: string;
+type Status = "pending" | "in_progress" | "completed" | "needs_more_time";
+
+const statusMap: Record<Status, { label: string; cls: string; icon: typeof Clock3 }> = {
+  pending: { label: "فرصت تکمیل", cls: "bg-info/15 text-info border-info/30", icon: Clock3 },
+  in_progress: { label: "در حال انجام", cls: "bg-primary/15 text-primary border-primary/30", icon: Sparkles },
+  completed: { label: "تکمیل شده", cls: "bg-success/15 text-success border-success/30", icon: CheckCircle2 },
+  needs_more_time: { label: "نیاز به زمان بیشتر", cls: "bg-warning/15 text-warning border-warning/30", icon: Hourglass },
 };
 
-const list: HW[] = [
-  { id: 1, title: "تمرین‌های صفحه ۸۴ ریاضی", subject: "ریاضی", teacher: "خانم احمدی", due: "امروز ۲۰:۰۰", status: "pending" },
-  { id: 2, title: "گزارش آزمایش پاندول", subject: "فیزیک", teacher: "آقای رضایی", due: "فردا ۲۳:۵۹", status: "pending" },
-  { id: 3, title: "ترجمه درس ۴", subject: "زبان", teacher: "خانم کریمی", due: "دیروز", status: "overdue" },
-  { id: 4, title: "خلاصه فصل ۱ شیمی", subject: "شیمی", teacher: "آقای موسوی", due: "۱۷ خرداد", status: "submitted" },
-  { id: 5, title: "انشای آزاد", subject: "ادبیات", teacher: "خانم نوری", due: "۱۵ خرداد", status: "graded", score: "۱۸/۲۰" },
+const homework: { id: number; title: string; subject: string; due: string; status: Status }[] = [
+  { id: 1, title: "حل تمرین‌های فصل ۲ ریاضی", subject: "ریاضی", due: "فردا", status: "in_progress" },
+  { id: 2, title: "گزارش آزمایش تیتراسیون", subject: "شیمی", due: "۳ روز دیگر", status: "pending" },
+  { id: 3, title: "خلاصه فصل تنفس سلولی", subject: "زیست‌شناسی", due: "هفته آینده", status: "needs_more_time" },
+  { id: 4, title: "حل مسائل حرکت پرتابی", subject: "فیزیک", due: "دیروز", status: "completed" },
+  { id: 5, title: "نگارش انشاء", subject: "ادبیات", due: "۵ روز دیگر", status: "pending" },
 ];
 
-function Homework() {
-  const counts = {
-    all: list.length,
-    pending: list.filter((h) => h.status === "pending").length,
-    overdue: list.filter((h) => h.status === "overdue").length,
-    done: list.filter((h) => h.status === "submitted" || h.status === "graded").length,
-  };
-
+function HomeworkPage() {
   return (
-    <div className="space-y-6 max-w-5xl">
-      <div className="flex items-center gap-3">
-        <div className="h-11 w-11 rounded-xl bg-warning/15 text-warning grid place-items-center">
-          <NotebookPen className="h-5 w-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">مرکز تکالیف</h1>
-          <p className="text-sm text-muted-foreground">همه تکالیف معلم‌هات در یک جا</p>
-        </div>
+    <div className="space-y-6" dir="rtl">
+      <div>
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <NotebookPen className="h-6 w-6 text-primary" /> تکالیف من
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          همه تکالیف فعال و تکمیل شده در یک نگاه
+        </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MiniStat label="کل" value={counts.all} />
-        <MiniStat label="در انتظار" value={counts.pending} tone="info" />
-        <MiniStat label="فرصت تکمیل" value={counts.overdue} tone="destructive" />
-        <MiniStat label="انجام شده" value={counts.done} tone="success" />
+      <div className="grid md:grid-cols-2 gap-4">
+        {homework.map((h) => {
+          const s = statusMap[h.status];
+          const Icon = s.icon;
+          return (
+            <Card key={h.id} className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+                <div>
+                  <CardTitle className="text-base">{h.title}</CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">{h.subject}</p>
+                </div>
+                <Badge className={`${s.cls} border gap-1`}>
+                  <Icon className="h-3 w-3" /> {s.label}
+                </Badge>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground inline-flex items-center gap-1">
+                  <Clock3 className="h-3.5 w-3.5" /> مهلت: {h.due}
+                </span>
+                <Button size="sm" variant="outline" className="rounded-full">
+                  مشاهده
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
-
-      <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">همه</TabsTrigger>
-          <TabsTrigger value="pending">در انتظار</TabsTrigger>
-          <TabsTrigger value="overdue">فرصت تکمیل</TabsTrigger>
-          <TabsTrigger value="done">انجام شده</TabsTrigger>
-        </TabsList>
-        <TabsContent value="all" className="space-y-3 mt-4">
-          {list.map((h) => <HWRow key={h.id} hw={h} />)}
-        </TabsContent>
-        <TabsContent value="pending" className="space-y-3 mt-4">
-          {list.filter((h) => h.status === "pending").map((h) => <HWRow key={h.id} hw={h} />)}
-        </TabsContent>
-        <TabsContent value="overdue" className="space-y-3 mt-4">
-          {list.filter((h) => h.status === "overdue").map((h) => <HWRow key={h.id} hw={h} />)}
-        </TabsContent>
-        <TabsContent value="done" className="space-y-3 mt-4">
-          {list.filter((h) => h.status === "submitted" || h.status === "graded").map((h) => <HWRow key={h.id} hw={h} />)}
-        </TabsContent>
-      </Tabs>
     </div>
-  );
-}
-
-function MiniStat({
-  label,
-  value,
-  tone = "muted",
-}: {
-  label: string;
-  value: number;
-  tone?: "muted" | "info" | "destructive" | "success";
-}) {
-  const toneMap = {
-    muted: "text-foreground",
-    info: "text-info",
-    destructive: "text-destructive",
-    success: "text-success",
-  } as const;
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className={`text-2xl font-bold ${toneMap[tone]}`}>{value}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function HWRow({ hw }: { hw: HW }) {
-  const statusBadge = {
-    pending: <Badge variant="secondary" className="bg-info/15 text-info border-0">در انتظار</Badge>,
-    overdue: <Badge variant="secondary" className="bg-warning/15 text-warning border-0">فرصت تکمیل</Badge>,
-    submitted: <Badge variant="secondary" className="bg-success/15 text-success border-0">تحویل شده</Badge>,
-    graded: <Badge variant="secondary" className="bg-success/15 text-success border-0">نمره: {hw.score}</Badge>,
-  }[hw.status];
-
-  const Icon = hw.status === "overdue" ? AlertCircle : hw.status === "pending" ? Clock : CheckCircle2;
-  const iconTone =
-    hw.status === "overdue"
-      ? "text-destructive"
-      : hw.status === "pending"
-        ? "text-info"
-        : "text-success";
-
-  return (
-    <Card>
-      <CardContent className="p-4 flex items-center gap-3">
-        <Icon className={`h-5 w-5 shrink-0 ${iconTone}`} />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold truncate">{hw.title}</h3>
-            {statusBadge}
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {hw.subject} • {hw.teacher} • مهلت: {hw.due}
-          </p>
-        </div>
-        {(hw.status === "pending" || hw.status === "overdue") && (
-          <Button size="sm" className="rounded-full">
-            <Upload className="h-4 w-4" /> ارسال
-          </Button>
-        )}
-      </CardContent>
-    </Card>
   );
 }
