@@ -104,10 +104,7 @@ export async function login(
 
   if (isDev) {
     // eslint-disable-next-line no-console
-    console.log("[auth] login →", {
-      url: loginUrl,
-      bodyKeys: Object.keys(body),
-    });
+    console.log("[auth] login request body:", JSON.stringify(body));
   }
 
   try {
