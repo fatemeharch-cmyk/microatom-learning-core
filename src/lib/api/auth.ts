@@ -118,9 +118,7 @@ export async function login(
 
     if (isDev) {
       // eslint-disable-next-line no-console
-      console.log("[auth] login ←", {
-        responseKeys: Object.keys(res.data ?? {}),
-      });
+      console.log("[auth] login response:", JSON.stringify(res.data));
     }
 
     if (!authToken) {
