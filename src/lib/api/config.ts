@@ -15,7 +15,7 @@ export interface ApiConfig {
 const ENV: ApiEnvironment =
   (import.meta.env?.MODE as ApiEnvironment) ?? "development";
 
-const XANO_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:kSHfBveb";
+const XANO_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8hSBzNoS";
 
 const ENV_CONFIG: Record<ApiEnvironment, ApiConfig> = {
   development: {
