@@ -137,9 +137,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Make sure no stale token survives a failed attempt.
         setAuthToken(null);
         const raw = err instanceof Error ? err.message : String(err);
+        // TEMP: always surface the raw error (Xano message / network detail)
+        // so we can see why login fails in preview, not just dev.
+        // eslint-disable-next-line no-console
+        console.error("[auth] login failed:", err);
         return {
           ok: false,
-          message: import.meta.env.DEV ? raw : FRIENDLY_ERROR,
+          message: raw || FRIENDLY_ERROR,
         };
       }
     },
