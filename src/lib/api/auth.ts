@@ -31,7 +31,8 @@ export interface AuthUser {
 
 const ROLE_STORAGE_KEY = "atomia.auth.role";
 const USER_ID_STORAGE_KEY = "atomia.auth.user_id";
-const isDev = !!import.meta.env?.DEV;
+// TEMP: force-enable login debug logging in preview as well as dev.
+const isDev = true;
 
 export interface LoginDebugInfo {
   url: string;
