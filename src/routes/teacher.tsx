@@ -10,8 +10,9 @@ import {
   Library,
 } from "lucide-react";
 import { TeacherShell, type NavItem } from "@/components/teacher/teacher-shell";
+import { useHealthGlossary } from "@/lib/health-glossary";
 
-const items: NavItem[] = [
+const defaultItems: NavItem[] = [
   { title: "داشبورد", url: "/teacher", icon: LayoutDashboard },
   { title: "برنامه هفتگی", url: "/teacher/schedule", icon: CalendarRange },
   { title: "ثبت کلاس", url: "/teacher/log", icon: ClipboardEdit },
@@ -22,10 +23,16 @@ const items: NavItem[] = [
   { title: "منابع آموزشی", url: "/teacher/resources", icon: Library },
 ];
 
-export const Route = createFileRoute("/teacher")({
-  component: () => (
+function TeacherLayout() {
+  const { teacherItems } = useHealthGlossary();
+  const items: NavItem[] = teacherItems ?? defaultItems;
+  return (
     <TeacherShell items={items}>
       <Outlet />
     </TeacherShell>
-  ),
+  );
+}
+
+export const Route = createFileRoute("/teacher")({
+  component: TeacherLayout,
 });
