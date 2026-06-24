@@ -10,8 +10,9 @@ import {
   Users,
 } from "lucide-react";
 import { SupervisorShell, type NavItem } from "@/components/supervisor/supervisor-shell";
+import { useHealthGlossary } from "@/lib/health-glossary";
 
-const items: NavItem[] = [
+const defaultItems: NavItem[] = [
   { title: "داشبورد", url: "/supervisor", icon: LayoutDashboard },
   { title: "تقویم آموزشی", url: "/supervisor/calendar", icon: CalendarRange },
   { title: "جلسات همراهی", url: "/supervisor/sessions", icon: HeartHandshake },
@@ -22,10 +23,16 @@ const items: NavItem[] = [
   { title: "ارتباط با دبیران", url: "/supervisor/teachers-hub", icon: Users },
 ];
 
-export const Route = createFileRoute("/supervisor")({
-  component: () => (
+function SupervisorLayout() {
+  const { supervisorItems } = useHealthGlossary();
+  const items: NavItem[] = supervisorItems ?? defaultItems;
+  return (
     <SupervisorShell items={items}>
       <Outlet />
     </SupervisorShell>
-  ),
+  );
+}
+
+export const Route = createFileRoute("/supervisor")({
+  component: SupervisorLayout,
 });
