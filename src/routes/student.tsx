@@ -10,8 +10,9 @@ import {
   Sprout,
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
+import { useHealthGlossary } from "@/lib/health-glossary";
 
-const items: NavItem[] = [
+const defaultItems: NavItem[] = [
   { title: "امروز من", url: "/student", icon: Sun },
   { title: "گام بعدی", url: "/student/next-step", icon: Footprints },
   { title: "دفتر یادگیری", url: "/student/notebook", icon: BookOpenCheck },
@@ -22,10 +23,16 @@ const items: NavItem[] = [
   { title: "مسیر رشد", url: "/student/growth", icon: Sprout },
 ];
 
-export const Route = createFileRoute("/student")({
-  component: () => (
+function StudentLayout() {
+  const { studentItems } = useHealthGlossary();
+  const items: NavItem[] = studentItems ?? defaultItems;
+  return (
     <StudentShell items={items}>
       <Outlet />
     </StudentShell>
-  ),
+  );
+}
+
+export const Route = createFileRoute("/student")({
+  component: StudentLayout,
 });
