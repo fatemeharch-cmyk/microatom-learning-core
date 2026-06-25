@@ -5,7 +5,6 @@ import {
   HeartPulse,
   ScanLine,
   NotebookPen,
-  ScrollText,
   ShieldCheck,
   CalendarCheck2,
   Compass,
