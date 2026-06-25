@@ -32,7 +32,6 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import heroBooks from "@/assets/hero-books.png";
 import studentAvatar from "@/assets/student-avatar.png";
 import bannerScience from "@/assets/banner-science.png";
 
