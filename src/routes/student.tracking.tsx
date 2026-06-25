@@ -253,35 +253,23 @@ function StudyTracking() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="space-y-1.5 text-right">
               <Label>{fa ? "تاریخ" : "Date"}</Label>
-              {fa ? (
-                <DatePicker
-                  value={dateObj}
-                  onChange={(d: DateObject | null) => {
-                    if (!d) return;
-                    setDateObj(d);
-                    const js = d.toDate();
-                    setDate(
-                      `${js.getFullYear()}-${String(js.getMonth() + 1).padStart(2, "0")}-${String(js.getDate()).padStart(2, "0")}`,
-                    );
-                  }}
-                  calendar={persian}
-                  locale={persian_fa}
-                  calendarPosition="bottom-right"
-                  inputClass="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm text-right"
-                  containerClassName="w-full"
-                  format="D MMMM YYYY"
-                />
-              ) : (
-                <Input
-                  type="date"
-                  value={date}
-                  onChange={(e) => {
-                    setDate(e.target.value);
-                    setDateObj(new DateObject({ date: new Date(e.target.value), calendar: persian, locale: persian_fa }));
-                  }}
-                  dir="ltr"
-                />
-              )}
+              <DatePicker
+                value={dateObj}
+                onChange={(d: DateObject | null) => {
+                  if (!d) return;
+                  setDateObj(d);
+                  const js = d.toDate();
+                  setDate(
+                    `${js.getFullYear()}-${String(js.getMonth() + 1).padStart(2, "0")}-${String(js.getDate()).padStart(2, "0")}`,
+                  );
+                }}
+                calendar={persian}
+                locale={persian_fa}
+                calendarPosition="bottom-right"
+                inputClass="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm text-right"
+                containerClassName="w-full"
+                format="D MMMM YYYY"
+              />
             </div>
             <div className="space-y-1.5 text-right">
               <Label>{fa ? "درس" : "Subject"}</Label>
