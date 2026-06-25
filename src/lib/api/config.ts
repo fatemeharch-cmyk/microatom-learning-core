@@ -44,6 +44,8 @@ const ENV_CONFIG: Record<ApiEnvironment, ApiConfig> = {
 export const apiConfig: ApiConfig = ENV_CONFIG[ENV] ?? ENV_CONFIG.development;
 
 export function buildApiUrl(path: string): string {
+  // Allow absolute URLs to pass through (e.g. exam endpoints on a sibling group)
+  if (/^https?:\/\//i.test(path)) return path;
   const base = apiConfig.baseUrl.replace(/\/+$/, "");
   const version = apiConfig.apiVersion.replace(/^\/+|\/+$/g, "");
   const suffix = path.startsWith("/") ? path : `/${path}`;
