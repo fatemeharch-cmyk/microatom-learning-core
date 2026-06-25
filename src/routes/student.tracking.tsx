@@ -237,12 +237,25 @@ function StudyTracking() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="space-y-1.5">
               <Label>{fa ? "تاریخ" : "Date"}</Label>
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                dir="ltr"
-              />
+              {fa ? (
+                <div
+                  className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm"
+                  dir="rtl"
+                >
+                  {new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  }).format(new Date(date))}
+                </div>
+              ) : (
+                <Input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  dir="ltr"
+                />
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>{fa ? "درس" : "Subject"}</Label>
@@ -259,7 +272,7 @@ function StudyTracking() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>{fa ? "برنامه‌ریزی (دقیقه)" : "Planned (min)"}</Label>
+              <Label>{fa ? "برنامه‌ریزی (دوز)" : "Planned (min)"}</Label>
               <Input
                 type="number"
                 min={1}
@@ -269,7 +282,7 @@ function StudyTracking() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>{fa ? "واقعی (دقیقه)" : "Actual (min)"}</Label>
+              <Label>{fa ? "واقعی (دوز)" : "Actual (min)"}</Label>
               <Input
                 type="number"
                 min={0}
