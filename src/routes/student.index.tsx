@@ -115,55 +115,67 @@ function TodayPage() {
 
       {/* Profile card */}
       <section>
-        <Card className="border-0 rounded-[22px] shadow-sm bg-white max-w-md">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-4">
-              <div className="flex-1 min-w-0 text-right">
-                <h2 className="text-lg font-extrabold text-slate-800">آرمان محمدی</h2>
-                <p className="text-xs text-slate-500 mt-0.5">یازدهم تجربی</p>
+        <Card className="border-0 rounded-[22px] shadow-sm bg-white w-full">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-6 min-h-[180px] md:min-h-[200px]">
+              {/* Right column: info (first in RTL) */}
+              <div className="text-right order-1 md:order-1">
+                <h2 className="text-xl font-extrabold text-slate-800">آرمان محمدی</h2>
+                <p className="text-sm text-slate-500 mt-1">یازدهم تجربی</p>
                 <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-[11px] font-semibold">
                   <span className="text-amber-500">★</span> سطح فعلی: برتر
                 </div>
+                <div className="mt-4">
+                  <p className="text-[11px] text-slate-400">امتیاز سلامتی آموزشی</p>
+                  <div className="flex items-center justify-end gap-2 mt-1">
+                    <HeartPulse className="h-5 w-5 text-emerald-500" />
+                    <span className="text-3xl font-extrabold text-emerald-600">۸۴۶</span>
+                  </div>
+                </div>
               </div>
-              <div className="relative shrink-0">
-                <div className="h-20 w-20 rounded-full p-[3px] bg-gradient-to-tr from-violet-400 via-pink-300 to-sky-300">
+
+              {/* Center column: heartbeat */}
+              <div className="order-2 md:order-2 flex items-center justify-center">
+                <div className="relative w-full max-w-[360px]">
+                  <div className="absolute inset-0 -m-3 rounded-3xl bg-gradient-to-r from-emerald-100/60 via-emerald-50 to-violet-100/50 blur-xl" />
+                  <svg
+                    viewBox="0 0 320 80"
+                    className="relative w-full h-20 drop-shadow-[0_2px_8px_rgba(16,185,129,0.25)]"
+                    preserveAspectRatio="none"
+                  >
+                    <defs>
+                      <linearGradient id="hbLine" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0%" stopColor="#10b981" />
+                        <stop offset="75%" stopColor="#10b981" />
+                        <stop offset="100%" stopColor="#a78bfa" />
+                      </linearGradient>
+                    </defs>
+                    <polyline
+                      fill="none"
+                      stroke="url(#hbLine)"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      points="0,40 60,40 80,40 95,20 110,60 125,10 140,70 160,40 200,40 220,40 235,18 250,62 265,40 320,40"
+                    />
+                    <circle cx="305" cy="40" r="4" fill="#a78bfa" />
+                    <circle cx="305" cy="40" r="8" fill="#a78bfa" opacity="0.25" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Left column: avatar */}
+              <div className="order-3 md:order-3 flex items-center justify-start md:justify-end">
+                <div className="h-28 w-28 rounded-full p-[3px] bg-gradient-to-tr from-violet-400 via-pink-300 to-sky-300 shrink-0">
                   <img
                     src={studentAvatar}
                     alt="آرمان محمدی"
-                    width={80}
-                    height={80}
+                    width={112}
+                    height={112}
                     className="h-full w-full rounded-full object-cover bg-white"
                   />
                 </div>
               </div>
-            </div>
-            <div className="mt-4 flex items-end justify-between gap-3">
-              <div>
-                <p className="text-[10px] text-slate-400">امتیاز سلامتی آموزشی</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-2xl font-extrabold text-emerald-600">۸۴۶</span>
-                  <HeartPulse className="h-4 w-4 text-emerald-500" />
-                </div>
-              </div>
-              <svg viewBox="0 0 160 36" className="h-9 flex-1 text-emerald-500">
-                <polyline
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  points="0,22 18,22 24,10 30,30 40,18 56,18 62,4 70,28 84,18 100,18 108,8 116,26 128,18 160,18"
-                />
-                <polyline
-                  fill="none"
-                  stroke="#a78bfa"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity="0.7"
-                  points="120,18 128,22 138,8 148,28 158,18"
-                />
-              </svg>
             </div>
           </CardContent>
         </Card>
