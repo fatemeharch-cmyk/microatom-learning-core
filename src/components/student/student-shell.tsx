@@ -110,17 +110,20 @@ export function StudentShell({
     <div
       dir="rtl"
       className="font-vazir min-h-dvh"
-      style={{ background: "#f7f8ff" }}
+      style={{ background: "#f7f8ff", "--sidebar-width": "230px" } as React.CSSProperties}
     >
       <div className="flex min-h-dvh">
-        {/* Desktop sidebar (right) */}
-        <div className="hidden lg:flex order-2 w-[230px] shrink-0 border-l border-slate-100">
+        {/* Desktop sidebar (right in RTL, left visually — order-2) */}
+        <div className="hidden lg:flex order-2 w-[var(--sidebar-width)] shrink-0 border-l border-slate-100">
           <SidebarBody items={items} pathname={pathname} />
         </div>
 
-        {/* Main */}
-        <div className="flex-1 min-w-0 flex flex-col">
-          <header className="px-4 md:px-8 pt-6 pb-2 flex items-center gap-3">
+        {/* Main — right-aligned Persian dashboard, full remaining width */}
+        <div
+          className="flex-1 lg:flex-none lg:w-[calc(100%-var(--sidebar-width))] lg:max-w-none min-w-0 flex flex-col px-4 md:px-8 lg:px-8"
+          style={{ marginRight: 0, marginLeft: "auto" }}
+        >
+          <header className="pt-6 pb-2 flex items-center gap-3">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -162,7 +165,7 @@ export function StudentShell({
               <span>خروج</span>
             </button>
           </header>
-          <main className="flex-1 p-4 md:p-8 pt-2">{children}</main>
+          <main className="flex-1 pt-2">{children}</main>
         </div>
       </div>
     </div>
