@@ -51,7 +51,7 @@ const STUDENT_ITEMS: HealthNavItem[] = [
   { title: "کلینیک من", url: "/student", icon: Home },
   { title: "شرح حال", url: "/student/profile", icon: Stethoscope },
   { title: "نبض دانش", url: "/student/progress", icon: HeartPulse },
-  { title: "اسکن و نسخه", url: "/student/tracking", icon: ScanLine },
+  { title: "اسکن", url: "/student/tracking", icon: ScanLine },
   { title: "کلینیک یادگیری", url: "/student/notebook", icon: NotebookPen },
   { title: "مراقبت", url: "/student/schedule", icon: ShieldCheck },
   { title: "چکاب", url: "/student/exams", icon: CalendarCheck2 },
