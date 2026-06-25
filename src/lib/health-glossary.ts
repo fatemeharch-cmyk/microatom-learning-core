@@ -28,6 +28,7 @@ import {
   MessageCircleHeart,
   LayoutDashboard,
   GraduationCap,
+  Home,
 } from "lucide-react";
 
 export type HealthNavItem = {
@@ -46,17 +47,18 @@ export const HEALTH_STATUS_LABELS_FA: Record<HealthStatus, string> = {
 };
 
 const STUDENT_ITEMS: HealthNavItem[] = [
+  { title: "خانه", url: "/student", icon: Home },
   { title: "شرح حال", url: "/student/profile", icon: Stethoscope },
-  { title: "نبض", url: "/student/exams", icon: HeartPulse },
-  { title: "اسکن", url: "/student/analytics", icon: ScanLine },
+  { title: "نبض دانش", url: "/student/progress", icon: HeartPulse },
+  { title: "اسکین مَپ", url: "/student/tracking", icon: ScanLine },
   { title: "کلینیک یادگیری", url: "/student/notebook", icon: NotebookPen },
   { title: "نسخه", url: "/student/planner", icon: ScrollText },
-  { title: "مراقبت", url: "/student/tracking", icon: ShieldCheck },
-  { title: "چکاپ", url: "/student/progress", icon: CalendarCheck2 },
-  { title: "کاوش", url: "/student/lessons", icon: Compass },
+  { title: "مراقبت", url: "/student/schedule", icon: ShieldCheck },
+  { title: "چکاپ", url: "/student/exams", icon: CalendarCheck2 },
+  { title: "کاوش", url: "/student/analytics", icon: Compass },
   { title: "ماموریت", url: "/student/homework", icon: Target },
   { title: "پرونده رشد", url: "/student/growth", icon: FolderHeart },
-  { title: "افتخارات", url: "/student/achievements", icon: Trophy },
+  { title: "افتخارات پزشکی", url: "/student/achievements", icon: Trophy },
 ];
 
 const TEACHER_ITEMS: HealthNavItem[] = [
