@@ -48,6 +48,12 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function toJalaliShort(iso: string): string {
+  if (!iso) return "";
+  const d = new DateObject({ date: new Date(iso), calendar: persian, locale: persian_fa });
+  return d.format("D MMMM") ?? iso.slice(5);
+}
+
 function StudyTracking() {
   const { t, lang, dir } = useI18n();
   const fa = lang === "fa";
@@ -59,6 +65,13 @@ function StudyTracking() {
   const [actual, setActual] = useState<number>(0);
   const [date, setDate] = useState<string>(todayISO());
   const [note, setNote] = useState<string>("");
+  const [dateObj, setDateObj] = useState<DateObject | null>(
+    new DateObject({ date: new Date(todayISO()), calendar: persian, locale: persian_fa }),
+  );
+
+  useEffect(() => {
+    setDateObj(new DateObject({ date: new Date(date), calendar: persian, locale: persian_fa }));
+  }, [date]);
 
   useEffect(() => {
     setSessions(load());
@@ -240,31 +253,23 @@ function StudyTracking() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="space-y-1.5 text-right">
               <Label>{fa ? "تاریخ" : "Date"}</Label>
-              {fa ? (
-                <DatePicker
-                  value={new Date(date)}
-                  onChange={(d: DateObject | null) => {
-                    if (!d) return;
-                    const js = d.toDate();
-                    setDate(
-                      `${js.getFullYear()}-${String(js.getMonth() + 1).padStart(2, "0")}-${String(js.getDate()).padStart(2, "0")}`,
-                    );
-                  }}
-                  calendar={persian}
-                  locale={persian_fa}
-                  calendarPosition="bottom-right"
-                  inputClass="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm text-right"
-                  containerClassName="w-full"
-                  format="D MMMM YYYY"
-                />
-              ) : (
-                <Input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  dir="ltr"
-                />
-              )}
+              <DatePicker
+                value={dateObj}
+                onChange={(d: DateObject | null) => {
+                  if (!d) return;
+                  setDateObj(d);
+                  const js = d.toDate();
+                  setDate(
+                    `${js.getFullYear()}-${String(js.getMonth() + 1).padStart(2, "0")}-${String(js.getDate()).padStart(2, "0")}`,
+                  );
+                }}
+                calendar={persian}
+                locale={persian_fa}
+                calendarPosition="bottom-right"
+                inputClass="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm text-right"
+                containerClassName="w-full"
+                format="D MMMM YYYY"
+              />
             </div>
             <div className="space-y-1.5 text-right">
               <Label>{fa ? "درس" : "Subject"}</Label>
@@ -350,12 +355,12 @@ function StudyTracking() {
                     key={s.id}
                     className="flex items-center gap-3 p-3 rounded-xl border bg-card"
                   >
-                    <div className="flex flex-col items-center w-14 shrink-0">
-                      <span className="text-[10px] text-muted-foreground" dir="ltr">
-                        {s.date.slice(5)}
-                      </span>
-                      <span className="text-xs font-semibold">{s.subject}</span>
-                    </div>
+                  <div className="flex flex-col items-center w-20 shrink-0">
+                    <span className="text-[10px] text-muted-foreground" dir="rtl">
+                      {toJalaliShort(s.date)}
+                    </span>
+                    <span className="text-xs font-semibold">{s.subject}</span>
+                  </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-muted-foreground">
