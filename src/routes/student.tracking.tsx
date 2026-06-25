@@ -373,12 +373,12 @@ function StudyTracking() {
                     key={s.id}
                     className="flex items-center gap-3 p-3 rounded-xl border bg-card"
                   >
-                    <div className="flex flex-col items-center w-14 shrink-0">
-                      <span className="text-[10px] text-muted-foreground" dir="ltr">
-                        {s.date.slice(5)}
-                      </span>
-                      <span className="text-xs font-semibold">{s.subject}</span>
-                    </div>
+                  <div className="flex flex-col items-center w-16 shrink-0">
+                    <span className="text-[10px] text-muted-foreground" dir="rtl">
+                      {toJalaliShort(s.date)}
+                    </span>
+                    <span className="text-xs font-semibold">{s.subject}</span>
+                  </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-muted-foreground">
