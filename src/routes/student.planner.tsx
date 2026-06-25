@@ -107,7 +107,7 @@ function buildPlan(
   const daily: Block[] = [
     ...dueToday.map<Block>((h) => ({
       subject: h.subject,
-      activity: fa ? `تکلیف: ${h.title}` : `Homework: ${h.title}`,
+      activity: fa ? `ماموریت: ${h.title}` : `Homework: ${h.title}`,
       minutes: h.minutes,
       kind: "hw",
     })),
@@ -144,7 +144,7 @@ function buildPlan(
       subject: examOnDay ? examOnDay.subject : subj,
       title: examOnDay
         ? fa
-          ? `آزمون ${examOnDay.subject} • ${examOnDay.topic}`
+          ? `چکاب ${examOnDay.subject} • ${examOnDay.topic}`
           : `${examOnDay.subject} exam • ${examOnDay.topic}`
         : fa
           ? `تمرکز روی ${subj}`
@@ -169,7 +169,7 @@ function buildPlan(
     recs.push({
       tone: "info",
       text: fa
-        ? `آزمون «${nextExam.subject}» در ${nextExam.daysAway} روز — هر روز یک ست تمرین کوتاه حل کن.`
+        ? `چکاب «${nextExam.subject}» در ${nextExam.daysAway} روز — هر روز یک ست تمرین کوتاه حل کن.`
         : `${nextExam.subject} exam in ${nextExam.daysAway} days — do one short practice set daily.`,
     });
   }
@@ -269,9 +269,9 @@ function PlannerPage() {
 
   const blockLabel = (k: Block["kind"]) =>
     k === "exam"
-      ? fa ? "آمادگی آزمون" : "Exam prep"
+      ? fa ? "آمادگی چکاب" : "Exam prep"
       : k === "hw"
-        ? fa ? "تکلیف" : "Homework"
+        ? fa ? "ماموریت" : "Homework"
         : k === "review"
           ? fa ? "مرور" : "Review"
           : fa ? "استراحت" : "Break";
@@ -293,7 +293,7 @@ function PlannerPage() {
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "آزمون‌ها، تکالیف، دوز مطالعه و سطح تسلطت را وارد کن تا موتور توربوی اتومیا یک برنامه کاملاً شخصی برای مسیر رشدت بسازد."
+                ? "چکاب‌ها، ماموریت‌ها، دوز مطالعه و سطح تسلطت را وارد کن تا موتور توربوی اتومیا یک برنامه کاملاً شخصی برای مسیر رشدت بسازد."
                 : "Enter your exams, homework, study time, and mastery so Atomia's proprietary Turbo Engine can build a plan for your unique growth journey."}
             </p>
           </div>
@@ -352,7 +352,7 @@ function PlannerPage() {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <GraduationCap className="h-4 w-4 text-primary" />
-                {fa ? "آزمون‌های پیش‌رو" : "Upcoming exams"}
+                {fa ? "چکاب‌های پیش‌رو" : "Upcoming exams"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -392,7 +392,7 @@ function PlannerPage() {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <NotebookPen className="h-4 w-4 text-primary" />
-                {fa ? "تکالیف" : "Homework"}
+                {fa ? "ماموریت‌ها" : "Homework"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -411,7 +411,7 @@ function PlannerPage() {
               ))}
               <div className="grid grid-cols-2 gap-2">
                 <Input placeholder={fa ? "درس" : "Subject"} value={hwSubj} onChange={(e) => setHwSubj(e.target.value)} />
-                <Input placeholder={fa ? "عنوان تکلیف" : "Title"} value={hwTitle} onChange={(e) => setHwTitle(e.target.value)} />
+                <Input placeholder={fa ? "عنوان ماموریت" : "Title"} value={hwTitle} onChange={(e) => setHwTitle(e.target.value)} />
               </div>
               <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
                 <div className="space-y-1">
@@ -538,7 +538,7 @@ function PlannerPage() {
                       </div>
                       {d.isExam && (
                         <Badge variant="secondary" className="bg-warning/15 text-warning border-0 shrink-0">
-                          {fa ? "آزمون" : "Exam"}
+                          {fa ? "چکاب" : "Exam"}
                         </Badge>
                       )}
                     </div>

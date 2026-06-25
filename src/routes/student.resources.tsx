@@ -14,7 +14,7 @@ const kindMap: Record<Kind, { label: string; icon: typeof FileText; cls: string 
   pdf: { label: "PDF", icon: FileText, cls: "bg-info/10 text-info" },
   video: { label: "ویدئو", icon: Video, cls: "bg-primary/10 text-primary" },
   worksheet: { label: "کاربرگ", icon: ClipboardList, cls: "bg-success/10 text-success" },
-  exam: { label: "نمونه آزمون", icon: FileSpreadsheet, cls: "bg-warning/10 text-warning" },
+  exam: { label: "نمونه چکاب", icon: FileSpreadsheet, cls: "bg-warning/10 text-warning" },
   link: { label: "لینک", icon: Link2, cls: "bg-accent text-accent-foreground" },
 };
 
@@ -30,7 +30,7 @@ const groups = [
   {
     subject: "ریاضی",
     items: [
-      { atomBit: "معادله درجه دوم", title: "نمونه آزمون فصل ۲", kind: "exam" as Kind },
+      { atomBit: "معادله درجه دوم", title: "نمونه چکاب فصل ۲", kind: "exam" as Kind },
       { atomBit: "معادله درجه دوم", title: "ویدئو حل تمرین", kind: "video" as Kind },
     ],
   },

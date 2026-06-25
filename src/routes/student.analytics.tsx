@@ -115,7 +115,7 @@ function PersonalAnalyticsPage() {
           icon={FileCheck}
           label={t("stat_hw_rate")}
           value="۸۵٪"
-          delta={fa ? "۱۲ از ۱۴ تکلیف این هفته" : "12 of 14 this week"}
+          delta={fa ? "۱۲ از ۱۴ ماموریت این هفته" : "12 of 14 this week"}
           colorClass="text-success"
         />
         <StatCard
@@ -145,13 +145,13 @@ function PersonalAnalyticsPage() {
         <TabsContent value="daily" className="space-y-4 mt-4">
           <div className="grid lg:grid-cols-2 gap-4">
             <LineChartCard
-              title={fa ? "روند نمرات آزمون (امروز)" : "Exam Score Trend (Today)"}
+              title={fa ? "روند نمرات چکاب (امروز)" : "Exam Score Trend (Today)"}
               data={examData.daily}
               lines={[{ key: "value", color: "var(--color-primary)", name: fa ? "نمره" : "Score" }]}
               yUnit="%"
             />
             <LineChartCard
-              title={fa ? "تکالیف (امروز)" : "Homework (Today)"}
+              title={fa ? "ماموریت‌ها (امروز)" : "Homework (Today)"}
               data={hwData.daily}
               lines={[
                 { key: "completed", color: "var(--color-success)", name: fa ? "انجام‌شده" : "Completed" },
@@ -176,13 +176,13 @@ function PersonalAnalyticsPage() {
         <TabsContent value="weekly" className="space-y-4 mt-4">
           <div className="grid lg:grid-cols-2 gap-4">
             <LineChartCard
-              title={fa ? "روند نمرات آزمون (هفتگی)" : "Exam Score Trend (Weekly)"}
+              title={fa ? "روند نمرات چکاب (هفتگی)" : "Exam Score Trend (Weekly)"}
               data={examData.weekly}
               lines={[{ key: "value", color: "var(--color-primary)", name: fa ? "نمره" : "Score" }]}
               yUnit="%"
             />
             <LineChartCard
-              title={fa ? "تکالیف (هفتگی)" : "Homework (Weekly)"}
+              title={fa ? "ماموریت‌ها (هفتگی)" : "Homework (Weekly)"}
               data={hwData.weekly}
               lines={[
                 { key: "completed", color: "var(--color-success)", name: fa ? "انجام‌شده" : "Completed" },
