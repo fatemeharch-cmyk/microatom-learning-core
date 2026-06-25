@@ -59,6 +59,10 @@ export const endpoints = {
     list: "/exams",
     insights: (studentId: string) => `/exams/insights/${studentId}`,
     detail: (id: string) => `/exams/${id}`,
+    sessionCreate: "/exam/session/create",
+    answerSubmit: "/exam/answer/submit",
+    result: "/exam/result",
+    recommendation: "/exam/recommendation",
   },
   calendar: {
     byRole: (role: string) => `/calendar/${role}`,
