@@ -113,7 +113,7 @@ function NotebookPage() {
                     <div className="p-3 rounded-xl bg-muted/40 flex gap-2">
                       <FileText className="h-4 w-4 text-success shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-muted-foreground">تکلیف</p>
+                        <p className="text-xs text-muted-foreground">ماموریت</p>
                         <p className="text-sm">{p.homework}</p>
                       </div>
                     </div>

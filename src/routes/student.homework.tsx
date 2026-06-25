@@ -30,10 +30,10 @@ function HomeworkPage() {
     <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <NotebookPen className="h-6 w-6 text-primary" /> تکالیف من
+          <NotebookPen className="h-6 w-6 text-primary" /> ماموریت‌ها من
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          همه تکالیف فعال و تکمیل شده در یک نگاه
+          همه ماموریت‌ها فعال و تکمیل شده در یک نگاه
         </p>
       </div>
 

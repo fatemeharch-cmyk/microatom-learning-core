@@ -14,7 +14,7 @@ const days = [
   { day: "دوشنبه", date: "۲۱", focus: "فیزیک + زیست", count: 4, done: 0, xp: 0 },
   { day: "سه‌شنبه", date: "۲۲", focus: "ریاضی + شیمی", count: 5, done: 0, xp: 0 },
   { day: "چهارشنبه", date: "۲۳", focus: "زبان + ادبیات", count: 4, done: 0, xp: 0 },
-  { day: "پنج‌شنبه", date: "۲۴", focus: "آزمون جمع‌بندی", count: 3, done: 0, xp: 0, exam: true },
+  { day: "پنج‌شنبه", date: "۲۴", focus: "چکاب جمع‌بندی", count: 3, done: 0, xp: 0, exam: true },
   { day: "جمعه", date: "۲۵", focus: "مرور آزاد", count: 6, done: 0, xp: 0 },
 ];
 
@@ -33,7 +33,7 @@ function WeeklyPlan() {
         </Badge>
         <h1 className="text-2xl font-bold tracking-tight">جشن رشد هفتگی</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          هفته ۲۵ خرداد • ۳۲ اتم‌بیت • ۱ آزمون جمع‌بندی
+          هفته ۲۵ خرداد • ۳۲ اتم‌بیت • ۱ چکاب جمع‌بندی
         </p>
       </div>
 
@@ -81,7 +81,7 @@ function WeeklyPlan() {
                     {d.today && <Badge>امروز</Badge>}
                     {d.exam && (
                       <Badge variant="secondary" className="bg-warning/15 text-warning border-0">
-                        آزمون
+                        چکاب
                       </Badge>
                     )}
                   </div>
