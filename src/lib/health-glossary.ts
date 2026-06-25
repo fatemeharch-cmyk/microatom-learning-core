@@ -30,6 +30,7 @@ import {
   GraduationCap,
   Home,
 } from "lucide-react";
+void ScrollText;
 
 export type HealthNavItem = {
   title: string;
