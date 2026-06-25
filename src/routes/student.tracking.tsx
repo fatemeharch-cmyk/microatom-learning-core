@@ -261,9 +261,10 @@ function StudyTracking() {
               <Label>{fa ? "تاریخ" : "Date"}</Label>
               {fa ? (
                 <DatePicker
-                  value={new Date(date)}
+                  value={dateObj}
                   onChange={(d: DateObject | null) => {
                     if (!d) return;
+                    setDateObj(d);
                     const js = d.toDate();
                     setDate(
                       `${js.getFullYear()}-${String(js.getMonth() + 1).padStart(2, "0")}-${String(js.getDate()).padStart(2, "0")}`,
@@ -280,7 +281,10 @@ function StudyTracking() {
                 <Input
                   type="date"
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) => {
+                    setDate(e.target.value);
+                    setDateObj(new DateObject({ date: new Date(e.target.value), calendar: persian, locale: persian_fa }));
+                  }}
                   dir="ltr"
                 />
               )}
