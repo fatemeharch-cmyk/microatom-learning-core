@@ -32,7 +32,6 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import heroBooks from "@/assets/hero-books.png";
 import studentAvatar from "@/assets/student-avatar.png";
 import bannerScience from "@/assets/banner-science.png";
 
@@ -98,94 +97,76 @@ const completedPrescriptions = [
 
 function TodayPage() {
   return (
-    <div className="space-y-6">
-      {/* Hero: books | greeting | profile */}
-      <section className="grid lg:grid-cols-12 gap-5 items-center">
-        {/* Profile card (right under RTL) */}
-        <div className="lg:col-span-4 order-1">
-          <Card className="border-0 rounded-[22px] shadow-sm bg-white">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-4">
-                <div className="flex-1 min-w-0 text-right">
-                  <h2 className="text-lg font-extrabold text-slate-800">آرمان محمدی</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">یازدهم تجربی</p>
-                  <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-[11px] font-semibold">
-                    <span className="text-amber-500">★</span> سطح فعلی: برتر
-                  </div>
-                </div>
-                <div className="relative shrink-0">
-                  <div className="h-20 w-20 rounded-full p-[3px] bg-gradient-to-tr from-violet-400 via-pink-300 to-sky-300">
-                    <img
-                      src={studentAvatar}
-                      alt="آرمان محمدی"
-                      width={80}
-                      height={80}
-                      className="h-full w-full rounded-full object-cover bg-white"
-                    />
-                  </div>
+    <div className="space-y-5">
+      {/* Greeting */}
+      <section className="text-right">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight">
+          سلام{" "}
+          <span className="bg-gradient-to-l from-pink-500 to-rose-500 bg-clip-text text-transparent">
+            آرمان
+          </span>{" "}
+          عزیز
+        </h1>
+        <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold">
+          <Leaf className="h-3.5 w-3.5" />
+          یازدهم تجربی
+        </div>
+      </section>
+
+      {/* Profile card */}
+      <section>
+        <Card className="border-0 rounded-[22px] shadow-sm bg-white max-w-md">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex-1 min-w-0 text-right">
+                <h2 className="text-lg font-extrabold text-slate-800">آرمان محمدی</h2>
+                <p className="text-xs text-slate-500 mt-0.5">یازدهم تجربی</p>
+                <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-[11px] font-semibold">
+                  <span className="text-amber-500">★</span> سطح فعلی: برتر
                 </div>
               </div>
-              <div className="mt-4 flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[10px] text-slate-400">امتیاز سلامتی آموزشی</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-2xl font-extrabold text-emerald-600">۸۴۶</span>
-                    <HeartPulse className="h-4 w-4 text-emerald-500" />
-                  </div>
+              <div className="relative shrink-0">
+                <div className="h-20 w-20 rounded-full p-[3px] bg-gradient-to-tr from-violet-400 via-pink-300 to-sky-300">
+                  <img
+                    src={studentAvatar}
+                    alt="آرمان محمدی"
+                    width={80}
+                    height={80}
+                    className="h-full w-full rounded-full object-cover bg-white"
+                  />
                 </div>
-                <svg viewBox="0 0 160 36" className="h-9 flex-1 text-emerald-500">
-                  <polyline
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    points="0,22 18,22 24,10 30,30 40,18 56,18 62,4 70,28 84,18 100,18 108,8 116,26 128,18 160,18"
-                  />
-                  <polyline
-                    fill="none"
-                    stroke="#a78bfa"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    opacity="0.7"
-                    points="120,18 128,22 138,8 148,28 158,18"
-                  />
-                </svg>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Centered greeting */}
-        <div className="lg:col-span-4 order-2 text-center px-2">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 leading-tight">
-            سلام{" "}
-            <span className="bg-gradient-to-l from-pink-500 to-rose-500 bg-clip-text text-transparent">
-              آرمان
-            </span>{" "}
-            عزیز
-          </h1>
-          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold">
-            <Leaf className="h-3.5 w-3.5" />
-            یازدهم تجربی
-          </div>
-          <p className="text-slate-500 text-sm mt-3 flex items-center justify-center gap-1.5">
-            <HeartPulse className="h-3.5 w-3.5 text-rose-500" />
-            هر روز یک قدم به آینده‌ای که می‌خواهی نزدیک‌تر!
-          </p>
-        </div>
-
-        {/* Books illustration (left under RTL) */}
-        <div className="lg:col-span-4 order-3 flex items-center justify-center">
-          <img
-            src={heroBooks}
-            alt="کتاب‌های درسی"
-            width={280}
-            height={280}
-            className="h-44 md:h-56 w-auto object-contain drop-shadow-xl"
-          />
-        </div>
+            </div>
+            <div className="mt-4 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-[10px] text-slate-400">امتیاز سلامتی آموزشی</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-2xl font-extrabold text-emerald-600">۸۴۶</span>
+                  <HeartPulse className="h-4 w-4 text-emerald-500" />
+                </div>
+              </div>
+              <svg viewBox="0 0 160 36" className="h-9 flex-1 text-emerald-500">
+                <polyline
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  points="0,22 18,22 24,10 30,30 40,18 56,18 62,4 70,28 84,18 100,18 108,8 116,26 128,18 160,18"
+                />
+                <polyline
+                  fill="none"
+                  stroke="#a78bfa"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity="0.7"
+                  points="120,18 128,22 138,8 148,28 158,18"
+                />
+              </svg>
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
       {/* Metric cards */}

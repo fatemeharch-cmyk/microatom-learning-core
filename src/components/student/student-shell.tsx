@@ -7,10 +7,10 @@
  */
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { Bell, ArrowLeft, Menu, HeartPulse } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { Bell, Menu, LogOut, HeartPulse } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { RoleSwitcher } from "@/components/role-switcher";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export type NavItem = {
@@ -102,6 +102,7 @@ export function StudentShell({
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { logout } = useAuth();
   const today = "شنبه ۲۵ اردیبهشت ۱۴۰۴";
 
   return (
@@ -151,14 +152,14 @@ export function StudentShell({
               {today}
             </div>
             <div className="flex-1" />
-            <RoleSwitcher compact />
-            <Link
-              to="/"
-              className="hidden md:inline-flex items-center gap-1 text-xs text-slate-500 hover:text-violet-600"
+            <button
+              onClick={() => logout()}
+              className="h-10 px-3 sm:px-4 rounded-2xl bg-white inline-flex items-center gap-1.5 shadow-sm border border-slate-100 text-slate-500 hover:text-rose-600 transition text-xs font-medium"
+              aria-label="خروج"
             >
-              <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
-              تغییر نقش
-            </Link>
+              <LogOut className="h-4 w-4" />
+              <span>خروج</span>
+            </button>
           </header>
           <main className="flex-1 p-4 md:p-8 pt-2">{children}</main>
         </div>
