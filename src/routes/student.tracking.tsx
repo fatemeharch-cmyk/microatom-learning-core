@@ -176,7 +176,7 @@ function StudyTracking() {
             <p className="text-3xl font-extrabold mt-2">
               {totals.ta}
               <span className="text-base font-medium text-muted-foreground">
-                {" "}/ {totals.tp} {fa ? "دقیقه" : "min"}
+                {" "}/ {totals.tp} {fa ? "دوز" : "min"}
               </span>
             </p>
             <Progress value={todayPct} className="mt-3" />
