@@ -91,7 +91,7 @@ const upcomingCheckups = [
 const completedPrescriptions = [
   { title: "تمرین فصل ۲ زیست", Icon: Leaf, tone: "bg-emerald-100 text-emerald-600" },
   { title: "مسئله‌های شیمی آلی ۱", Icon: FlaskConical, tone: "bg-violet-100 text-violet-600" },
-  { title: "آزمون آنلاین فیزیک", Icon: Atom, tone: "bg-sky-100 text-sky-600" },
+  { title: "چکاب آنلاین فیزیک", Icon: Atom, tone: "bg-sky-100 text-sky-600" },
   { title: "تمرین ریاضی دیفرانسیل", Icon: Sigma, tone: "bg-orange-100 text-orange-600" },
 ];
 

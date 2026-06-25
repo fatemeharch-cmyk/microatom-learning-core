@@ -76,7 +76,7 @@ const SUPERVISOR_ITEMS: HealthNavItem[] = [
   { title: "شرح حال دانش‌آموزان", url: "/supervisor/student", icon: Stethoscope },
   { title: "کلینیک‌های فعال", url: "/supervisor/followups", icon: NotebookPen },
   { title: "نسخه‌ها", url: "/supervisor/sessions", icon: ScrollText },
-  { title: "چکاپ پایه", url: "/supervisor/grade", icon: CalendarCheck2 },
+  { title: "چکاب پایه", url: "/supervisor/grade", icon: CalendarCheck2 },
   { title: "اتاق مشاوره", url: "/supervisor/feedback", icon: MessageCircleHeart },
   { title: "اورژانس", url: "/supervisor/alerts", icon: Siren },
 ];
