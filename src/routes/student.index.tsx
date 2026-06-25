@@ -117,26 +117,26 @@ function TodayPage() {
       <section>
         <Card className="border-0 rounded-[22px] shadow-sm bg-white w-full">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-6 min-h-[180px] md:min-h-[200px]">
-              {/* Right column: info (first in RTL) */}
-              <div className="text-right order-1 md:order-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[160px] md:min-h-[180px] items-stretch">
+              {/* Right column: info */}
+              <div className="text-right order-1 flex flex-col justify-start">
                 <h2 className="text-xl font-extrabold text-slate-800">آرمان محمدی</h2>
                 <p className="text-sm text-slate-500 mt-1">یازدهم تجربی</p>
-                <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-[11px] font-semibold">
+                <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-[11px] font-semibold self-start">
                   <span className="text-amber-500">★</span> سطح فعلی: برتر
                 </div>
-                <div className="mt-4">
+                <div className="mt-3">
                   <p className="text-[11px] text-slate-400">امتیاز سلامتی آموزشی</p>
-                  <div className="flex items-center justify-end gap-2 mt-1">
-                    <HeartPulse className="h-5 w-5 text-emerald-500" />
+                  <div className="flex items-center justify-start gap-2 mt-1">
                     <span className="text-3xl font-extrabold text-emerald-600">۸۴۶</span>
+                    <HeartPulse className="h-5 w-5 text-emerald-500" />
                   </div>
                 </div>
               </div>
 
               {/* Center column: heartbeat */}
-              <div className="order-2 md:order-2 flex items-center justify-center">
-                <div className="relative w-full max-w-[360px]">
+              <div className="order-2 flex items-center justify-center h-full">
+                <div className="relative w-full max-w-[320px]">
                   <div className="absolute inset-0 -m-3 rounded-3xl bg-gradient-to-r from-emerald-100/60 via-emerald-50 to-violet-100/50 blur-xl" />
                   <svg
                     viewBox="0 0 320 80"
@@ -165,7 +165,7 @@ function TodayPage() {
               </div>
 
               {/* Left column: avatar */}
-              <div className="order-3 md:order-3 flex items-center justify-start md:justify-end">
+              <div className="order-3 flex items-center justify-start md:justify-end h-full">
                 <div className="h-28 w-28 rounded-full p-[3px] bg-gradient-to-tr from-violet-400 via-pink-300 to-sky-300 shrink-0">
                   <img
                     src={studentAvatar}

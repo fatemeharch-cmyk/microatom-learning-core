@@ -30,15 +30,15 @@ function SidebarBody({
   onNavigate?: () => void;
 }) {
   return (
-    <aside className="h-full w-full bg-white flex flex-col py-6 px-5 gap-4">
+    <aside className="h-full w-full bg-white flex flex-col py-6 px-5 gap-4" dir="rtl">
       {/* Brand (heart logo) */}
-      <div className="flex items-center justify-end gap-3 pb-4">
+      <div className="flex items-center justify-start gap-3 pb-4">
+        <div className="relative h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 grid place-items-center shrink-0">
+          <HeartPulse className="h-5 w-5 text-violet-600" />
+        </div>
         <div className="text-right">
           <p className="text-base font-extrabold text-slate-800 leading-tight">مسیر رشد</p>
           <p className="text-[10px] text-slate-400 mt-0.5">پلتفرم یادگیری هوشمند</p>
-        </div>
-        <div className="relative h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 grid place-items-center">
-          <HeartPulse className="h-5 w-5 text-violet-600" />
         </div>
       </div>
 
@@ -53,13 +53,12 @@ function SidebarBody({
               key={item.url}
               to={item.url}
               onClick={onNavigate}
-              className={`group flex items-center justify-end gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
+              className={`group flex items-center justify-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
                 active
                   ? "bg-violet-50 text-violet-700"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
               }`}
             >
-              <span className="truncate">{item.title}</span>
               <span
                 className={`h-8 w-8 rounded-xl grid place-items-center transition ${
                   active
@@ -69,6 +68,7 @@ function SidebarBody({
               >
                 <item.icon className="h-4 w-4" />
               </span>
+              <span className="truncate text-right">{item.title}</span>
             </Link>
           );
         })}
