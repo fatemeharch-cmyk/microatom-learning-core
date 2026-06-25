@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { GraduationCap, Sparkles, CalendarDays, TrendingUp } from "lucide-react";
+import { ExamRunner } from "@/components/student/exam-runner";
 
 export const Route = createFileRoute("/student/exams")({
   component: ExamsPage,
@@ -65,7 +66,10 @@ function ExamsPage() {
         </CardContent>
       </Card>
 
+      <ExamRunner />
+
       <div className="grid md:grid-cols-2 gap-4">
+
         {exams.map((e, i) => (
           <Card key={i} className="hover:shadow-md transition">
             <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
