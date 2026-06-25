@@ -7,7 +7,7 @@
  */
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { Sparkles, Bell, ArrowLeft, Menu } from "lucide-react";
+import { Bell, ArrowLeft, Menu, HeartPulse } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { RoleSwitcher } from "@/components/role-switcher";
@@ -30,20 +30,20 @@ function SidebarBody({
   onNavigate?: () => void;
 }) {
   return (
-    <aside className="h-full w-full bg-white flex flex-col py-6 px-4 gap-4">
-      {/* Brand */}
-      <div className="flex items-center gap-3 px-2 pb-4 border-b border-slate-100">
-        <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 grid place-items-center text-white shadow-md shadow-violet-200">
-          <Sparkles className="h-5 w-5" />
-        </div>
-        <div className="min-w-0">
+    <aside className="h-full w-full bg-white flex flex-col py-6 px-5 gap-4">
+      {/* Brand (heart logo) */}
+      <div className="flex items-center justify-end gap-3 pb-4">
+        <div className="text-right">
           <p className="text-base font-extrabold text-slate-800 leading-tight">مسیر رشد</p>
-          <p className="text-[11px] text-slate-400 mt-0.5">پلتفرم یادگیری هوشمند</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">پلتفرم یادگیری هوشمند</p>
+        </div>
+        <div className="relative h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 grid place-items-center">
+          <HeartPulse className="h-5 w-5 text-violet-600" />
         </div>
       </div>
 
       {/* Menu */}
-      <nav className="flex-1 flex flex-col gap-1 overflow-y-auto">
+      <nav className="flex-1 flex flex-col gap-0.5 overflow-y-auto">
         {items.map((item) => {
           const active =
             pathname === item.url ||
@@ -53,37 +53,38 @@ function SidebarBody({
               key={item.url}
               to={item.url}
               onClick={onNavigate}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
+              className={`group flex items-center justify-end gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
                 active
-                  ? "bg-violet-100/80 text-violet-700 shadow-sm"
+                  ? "bg-violet-50 text-violet-700"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
               }`}
             >
+              <span className="truncate">{item.title}</span>
               <span
-                className={`h-8 w-8 rounded-lg grid place-items-center ${
+                className={`h-8 w-8 rounded-xl grid place-items-center transition ${
                   active
-                    ? "bg-white text-violet-600 shadow-sm"
+                    ? "bg-gradient-to-br from-violet-100 to-pink-100 text-violet-600"
                     : "bg-slate-50 text-slate-400 group-hover:text-violet-500"
                 }`}
               >
                 <item.icon className="h-4 w-4" />
               </span>
-              <span className="truncate">{item.title}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Footer card */}
-      <div className="rounded-2xl p-4 bg-gradient-to-br from-violet-500 via-indigo-500 to-blue-500 text-white shadow-lg shadow-indigo-200">
-        <p className="text-sm font-bold">هدف تو مهمه</p>
-        <p className="text-[11px] opacity-90 mt-1 leading-relaxed">
-          ما اینجاییم تا هوشمندانه‌تر یاد بگیری
+      <div className="rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-pink-50 text-slate-700 text-right">
+        <p className="text-sm font-bold text-slate-800">هدف تو مهمه</p>
+        <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+          ما اینجاییم تا هوشمندانه‌تر یاد بگیری و بهتر برخضی
         </p>
         <Button
           asChild
           size="sm"
-          className="mt-3 w-full rounded-full bg-white text-violet-600 hover:bg-white/90 font-semibold"
+          variant="outline"
+          className="mt-3 w-full rounded-full bg-white border-violet-200 text-violet-700 hover:bg-violet-50 font-semibold"
         >
           <Link to="/student/next-step">ادامه مسیر</Link>
         </Button>
