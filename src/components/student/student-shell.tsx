@@ -7,10 +7,10 @@
  */
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { Bell, ArrowLeft, Menu, HeartPulse } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { Bell, Menu, LogOut, HeartPulse } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { RoleSwitcher } from "@/components/role-switcher";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export type NavItem = {
