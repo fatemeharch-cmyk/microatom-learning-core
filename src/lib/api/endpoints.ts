@@ -59,10 +59,11 @@ export const endpoints = {
     list: "/exams",
     insights: (studentId: string) => `/exams/insights/${studentId}`,
     detail: (id: string) => `/exams/${id}`,
-    sessionCreate: "/exam/session/create",
-    answerSubmit: "/exam/answer/submit",
-    result: "/exam/result",
-    recommendation: "/exam/recommendation",
+    // Biology exam endpoints live on a dedicated Xano API group.
+    sessionCreate: "https://x8ki-letl-twmt.n7.xano.io/api:biology/exam/session/create",
+    answerSubmit: "https://x8ki-letl-twmt.n7.xano.io/api:biology/exam/answer/submit",
+    result: "https://x8ki-letl-twmt.n7.xano.io/api:biology/exam/result",
+    recommendation: "https://x8ki-letl-twmt.n7.xano.io/api:biology/exam/recommendation",
   },
   calendar: {
     byRole: (role: string) => `/calendar/${role}`,
