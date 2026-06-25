@@ -191,7 +191,7 @@ function StudyTracking() {
             <p className="text-3xl font-extrabold mt-2">
               {totals.wa}
               <span className="text-base font-medium text-muted-foreground">
-                {" "}/ {totals.wp} {fa ? "دقیقه" : "min"}
+                {" "}/ {totals.wp} {fa ? "دوز" : "min"}
               </span>
             </p>
             <p className="text-xs text-muted-foreground mt-2">
