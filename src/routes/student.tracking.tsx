@@ -237,8 +237,8 @@ function StudyTracking() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <div className="space-y-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="space-y-1.5 text-right">
               <Label>{fa ? "تاریخ" : "Date"}</Label>
               {fa ? (
                 <DatePicker
@@ -266,10 +266,11 @@ function StudyTracking() {
                 />
               )}
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 text-right">
               <Label>{fa ? "درس" : "Subject"}</Label>
               <select
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                dir="rtl"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm text-right"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
               >
@@ -280,36 +281,39 @@ function StudyTracking() {
                 ))}
               </select>
             </div>
-            <div className="space-y-1.5">
-              <Label>{fa ? "برنامه‌ریزی (دوز)" : "Planned (min)"}</Label>
+            <div className="space-y-1.5 text-right">
+              <Label>{fa ? "دوز برنامه‌ریزی" : "Planned (min)"}</Label>
               <Input
                 type="number"
                 min={1}
                 value={planned}
                 onChange={(e) => setPlanned(Number(e.target.value) || 0)}
+                className="h-9 text-right"
                 dir="ltr"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label>{fa ? "واقعی (دوز)" : "Actual (min)"}</Label>
+            <div className="space-y-1.5 text-right">
+              <Label>{fa ? "دوز واقعی" : "Actual (min)"}</Label>
               <Input
                 type="number"
                 min={0}
                 value={actual}
                 onChange={(e) => setActual(Number(e.target.value) || 0)}
+                className="h-9 text-right"
                 dir="ltr"
               />
             </div>
-            <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
+            <div className="space-y-1.5 text-right">
               <Label>{fa ? "یادداشت (اختیاری)" : "Note (optional)"}</Label>
               <Input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder={fa ? "مثلاً: فصل ۲ تمرین‌ها" : "e.g. Ch.2 exercises"}
+                className="h-9 text-right"
               />
             </div>
           </div>
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex justify-start">
             <Button onClick={addSession} className="rounded-full gap-1.5">
               <Plus className="h-4 w-4" />
               {fa ? "ثبت جلسه" : "Add session"}
