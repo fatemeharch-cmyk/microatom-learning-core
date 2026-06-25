@@ -152,7 +152,7 @@ function StudyTracking() {
   const todayPct = totals.tp > 0 ? Math.min(100, Math.round((totals.ta / totals.tp) * 100)) : 0;
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div dir="rtl" className="space-y-6 w-full text-right">
       <div>
         <Badge variant="secondary" className="mb-2">
           <Timer className="h-3 w-3 mx-1" />
