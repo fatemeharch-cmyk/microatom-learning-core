@@ -71,6 +71,13 @@ function StudyTracking() {
   const [actual, setActual] = useState<number>(0);
   const [date, setDate] = useState<string>(todayISO());
   const [note, setNote] = useState<string>("");
+  const [dateObj, setDateObj] = useState<DateObject | null>(
+    new DateObject({ date: new Date(todayISO()), calendar: persian, locale: persian_fa }),
+  );
+
+  useEffect(() => {
+    setDateObj(new DateObject({ date: new Date(date), calendar: persian, locale: persian_fa }));
+  }, [date]);
 
   useEffect(() => {
     setSessions(load());
