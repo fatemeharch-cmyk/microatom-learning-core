@@ -56,13 +56,3 @@ function Row({ icon: Icon, label, value }: { icon: React.ElementType; label: str
     </div>
   );
 }
-
-function Row({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
-  return (
-    <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
-      <Icon className="h-4 w-4 text-muted-foreground" />
-      <span className="text-muted-foreground w-24 text-xs">{label}</span>
-      <span className="font-medium">{value}</span>
-    </div>
-  );
-}
