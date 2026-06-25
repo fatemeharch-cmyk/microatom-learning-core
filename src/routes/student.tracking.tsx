@@ -156,7 +156,7 @@ function StudyTracking() {
           {fa ? "ردیابی مطالعه" : "Study Tracking"}
         </Badge>
         <h1 className="text-2xl font-bold tracking-tight">
-          {fa ? "زمان مطالعه‌ی تو" : "Your study time"}
+          {fa ? "دوز مطالعه‌ی تو" : "Your study time"}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {fa
