@@ -241,16 +241,22 @@ function StudyTracking() {
             <div className="space-y-1.5">
               <Label>{fa ? "تاریخ" : "Date"}</Label>
               {fa ? (
-                <div
-                  className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm"
-                  dir="rtl"
-                >
-                  {new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  }).format(new Date(date))}
-                </div>
+                <DatePicker
+                  value={new Date(date)}
+                  onChange={(d: DateObject | null) => {
+                    if (!d) return;
+                    const js = d.toDate();
+                    setDate(
+                      `${js.getFullYear()}-${String(js.getMonth() + 1).padStart(2, "0")}-${String(js.getDate()).padStart(2, "0")}`,
+                    );
+                  }}
+                  calendar={persian}
+                  locale={persian_fa}
+                  calendarPosition="bottom-right"
+                  inputClass="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm text-right"
+                  containerClassName="w-full"
+                  format="D MMMM YYYY"
+                />
               ) : (
                 <Input
                   type="date"
