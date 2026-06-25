@@ -31,12 +31,12 @@ function SidebarBody({
 }) {
   return (
     <aside className="h-full w-full bg-white flex flex-col py-6 px-5 gap-4" dir="rtl">
-      {/* Brand (heart logo) */}
-      <div className="flex items-center justify-start gap-3 pb-4">
+      {/* Brand (heart logo) — RTL: icon right, text to its left, right-aligned */}
+      <div dir="rtl" className="flex flex-row items-center gap-3 pb-4 w-full">
         <div className="relative h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 grid place-items-center shrink-0">
           <HeartPulse className="h-5 w-5 text-violet-600" />
         </div>
-        <div className="text-right">
+        <div className="flex-1 text-right">
           <p className="text-base font-extrabold text-slate-800 leading-tight">مسیر رشد</p>
           <p className="text-[10px] text-slate-400 mt-0.5">پلتفرم یادگیری هوشمند</p>
         </div>
@@ -53,14 +53,15 @@ function SidebarBody({
               key={item.url}
               to={item.url}
               onClick={onNavigate}
-              className={`group flex items-center justify-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
+              dir="rtl"
+              className={`group flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition w-full ${
                 active
                   ? "bg-violet-50 text-violet-700"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
               }`}
             >
               <span
-                className={`h-8 w-8 rounded-xl grid place-items-center transition ${
+                className={`h-8 w-8 rounded-xl grid place-items-center shrink-0 transition ${
                   active
                     ? "bg-gradient-to-br from-violet-100 to-pink-100 text-violet-600"
                     : "bg-slate-50 text-slate-400 group-hover:text-violet-500"
@@ -68,7 +69,7 @@ function SidebarBody({
               >
                 <item.icon className="h-4 w-4" />
               </span>
-              <span className="truncate text-right">{item.title}</span>
+              <span className="flex-1 truncate text-right">{item.title}</span>
             </Link>
           );
         })}

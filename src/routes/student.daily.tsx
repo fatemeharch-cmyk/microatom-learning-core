@@ -31,7 +31,7 @@ function DailyPlan() {
           </Badge>
           <h1 className="text-2xl font-bold tracking-tight">مأموریت توربوی امروز</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            یکشنبه، ۲۰ خرداد • {total} اتم‌بیت • حدود ۶۰ دقیقه
+            یکشنبه، ۲۰ خرداد • {total} اتم‌بیت • حدود ۶۰ دوز
           </p>
         </div>
         <Button variant="outline" className="rounded-full">
@@ -81,7 +81,7 @@ function DailyPlan() {
               </div>
               <div className="hidden sm:flex flex-col items-end text-xs gap-1">
                 <span className="flex items-center gap-1 text-muted-foreground">
-                  <Clock className="h-3 w-3" /> {b.duration} دقیقه
+                  <Clock className="h-3 w-3" /> {b.duration} دوز
                 </span>
                 <Badge variant="secondary" className="bg-xp/15 text-xp border-0">
                   +{b.xp} XP

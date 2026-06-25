@@ -156,7 +156,7 @@ function StudyTracking() {
           {fa ? "ردیابی مطالعه" : "Study Tracking"}
         </Badge>
         <h1 className="text-2xl font-bold tracking-tight">
-          {fa ? "زمان مطالعه‌ی تو" : "Your study time"}
+          {fa ? "دوز مطالعه‌ی تو" : "Your study time"}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {fa
@@ -176,7 +176,7 @@ function StudyTracking() {
             <p className="text-3xl font-extrabold mt-2">
               {totals.ta}
               <span className="text-base font-medium text-muted-foreground">
-                {" "}/ {totals.tp} {fa ? "دقیقه" : "min"}
+                {" "}/ {totals.tp} {fa ? "دوز" : "min"}
               </span>
             </p>
             <Progress value={todayPct} className="mt-3" />
@@ -191,7 +191,7 @@ function StudyTracking() {
             <p className="text-3xl font-extrabold mt-2">
               {totals.wa}
               <span className="text-base font-medium text-muted-foreground">
-                {" "}/ {totals.wp} {fa ? "دقیقه" : "min"}
+                {" "}/ {totals.wp} {fa ? "دوز" : "min"}
               </span>
             </p>
             <p className="text-xs text-muted-foreground mt-2">
@@ -237,12 +237,25 @@ function StudyTracking() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="space-y-1.5">
               <Label>{fa ? "تاریخ" : "Date"}</Label>
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                dir="ltr"
-              />
+              {fa ? (
+                <div
+                  className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm"
+                  dir="rtl"
+                >
+                  {new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  }).format(new Date(date))}
+                </div>
+              ) : (
+                <Input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  dir="ltr"
+                />
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>{fa ? "درس" : "Subject"}</Label>
@@ -259,7 +272,7 @@ function StudyTracking() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>{fa ? "برنامه‌ریزی (دقیقه)" : "Planned (min)"}</Label>
+              <Label>{fa ? "برنامه‌ریزی (دوز)" : "Planned (min)"}</Label>
               <Input
                 type="number"
                 min={1}
@@ -269,7 +282,7 @@ function StudyTracking() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>{fa ? "واقعی (دقیقه)" : "Actual (min)"}</Label>
+              <Label>{fa ? "واقعی (دوز)" : "Actual (min)"}</Label>
               <Input
                 type="number"
                 min={0}
@@ -333,7 +346,7 @@ function StudyTracking() {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-muted-foreground">
-                          {s.actual} / {s.planned} {fa ? "دقیقه" : "min"} ({pct}٪)
+                          {s.actual} / {s.planned} {fa ? "دوز" : "min"} ({pct}٪)
                         </span>
                         <Badge variant="secondary" className={`border-0 ${status.cls}`}>
                           {status.label}
