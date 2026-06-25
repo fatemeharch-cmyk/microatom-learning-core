@@ -48,12 +48,6 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function toJalaliDisplay(iso: string): string {
-  if (!iso) return "";
-  const d = new DateObject({ date: new Date(iso), calendar: persian, locale: persian_fa });
-  return d.format("D MMMM YYYY") ?? iso;
-}
-
 function toJalaliShort(iso: string): string {
   if (!iso) return "";
   const d = new DateObject({ date: new Date(iso), calendar: persian, locale: persian_fa });
