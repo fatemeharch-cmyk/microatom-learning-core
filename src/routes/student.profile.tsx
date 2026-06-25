@@ -11,36 +11,48 @@ export const Route = createFileRoute("/student/profile")({
 
 function Profile() {
   return (
-    <div className="space-y-6 max-w-3xl">
-      <Card>
+    <div className="space-y-6 max-w-3xl" dir="rtl">
+      <Card className="overflow-hidden border-0 shadow-sm bg-gradient-to-br from-violet-50 via-sky-50 to-emerald-50">
         <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-4">
-          <Avatar className="h-20 w-20">
-            <AvatarFallback className="bg-primary text-primary-foreground text-xl">آر</AvatarFallback>
+          <Avatar className="h-20 w-20 ring-4 ring-white shadow">
+            <AvatarFallback className="bg-[image:var(--gradient-primary)] text-primary-foreground text-xl">آر</AvatarFallback>
           </Avatar>
           <div className="flex-1 text-center sm:text-right">
+            <p className="text-xs text-violet-700/80 mb-1">پروفایل پزشکی دانش‌آموز</p>
             <h1 className="text-xl font-bold">آرمین رضایی</h1>
-            <p className="text-sm text-muted-foreground">دانش‌آموز پایه دهم • رشته ریاضی</p>
-            <div className="flex gap-2 mt-2 justify-center sm:justify-start">
-              <Badge>سطح ۸</Badge>
-              <Badge variant="secondary" className="bg-xp/15 text-xp border-0">۲٬۴۸۰ XP</Badge>
+            <p className="text-sm text-muted-foreground">پایه یازدهم • علوم تجربی</p>
+            <div className="flex gap-2 mt-2 justify-center sm:justify-start flex-wrap">
+              <Badge className="bg-emerald-100 text-emerald-700 border-0 rounded-full">وضعیت: سالم</Badge>
+              <Badge className="bg-violet-100 text-violet-700 border-0 rounded-full">سطح ۸</Badge>
+              <Badge variant="secondary" className="bg-amber-100 text-amber-700 border-0 rounded-full">۲٬۴۸۰ XP</Badge>
             </div>
           </div>
-          <Button variant="outline" className="rounded-full">
+          <Button variant="outline" className="rounded-full bg-white/70">
             <Settings className="h-4 w-4" /> ویرایش
           </Button>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base">اطلاعات حساب</CardTitle>
+          <CardTitle className="text-base">شرح حال و اطلاعات حساب</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <Row icon={Mail} label="ایمیل" value="armin@example.com" />
           <Row icon={School} label="مدرسه" value="دبیرستان شهید بهشتی" />
-          <Row icon={User} label="کلاس" value="۱۰-الف • سرپرست: خانم احمدی" />
+          <Row icon={User} label="کلاس" value="۱۱-تجربی الف • سرپرست: خانم احمدی" />
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function Row({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border bg-card/50">
+      <Icon className="h-4 w-4 text-muted-foreground" />
+      <span className="text-muted-foreground w-24 text-xs">{label}</span>
+      <span className="font-medium">{value}</span>
     </div>
   );
 }
