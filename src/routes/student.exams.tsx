@@ -12,28 +12,28 @@ export const Route = createFileRoute("/student/exams")({
 
 const exams = [
   {
-    title: "آزمون جامع فیزیک",
+    title: "چکاب جامع فیزیک",
     subject: "فیزیک",
     date: "شنبه، ۲۶ خرداد",
     score: null as number | null,
     suggestion: "مرور فصل حرکت پرتابی برای آمادگی بیشتر",
   },
   {
-    title: "آزمون شیمی فصل ۱",
+    title: "چکاب شیمی فصل ۱",
     subject: "شیمی",
     date: "۱۸ خرداد",
     score: 78,
     suggestion: "تمرکز روی محاسبات استوکیومتری برای رشد بیشتر",
   },
   {
-    title: "آزمون زیست‌شناسی",
+    title: "چکاب زیست‌شناسی",
     subject: "زیست‌شناسی",
     date: "۱۱ خرداد",
     score: 85,
     suggestion: "ادامه همین مسیر — تسلط در حال شکل‌گیری است",
   },
   {
-    title: "آزمون ریاضی فصل ۲",
+    title: "چکاب ریاضی فصل ۲",
     subject: "ریاضی",
     date: "۴ خرداد",
     score: 64,
@@ -46,10 +46,10 @@ function ExamsPage() {
     <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <GraduationCap className="h-6 w-6 text-primary" /> آزمون‌های من
+          <GraduationCap className="h-6 w-6 text-primary" /> چکاب‌های من
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          نگاهی به مسیر آزمون‌ها و پیشنهادهای یادگیری توربو
+          نگاهی به مسیر چکاب‌ها و پیشنهادهای یادگیری توربو
         </p>
       </div>
 
@@ -59,7 +59,7 @@ function ExamsPage() {
             <TrendingUp className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <p className="text-sm opacity-90">میانگین رشد در ۴ آزمون اخیر</p>
+            <p className="text-sm opacity-90">میانگین رشد در ۴ چکاب اخیر</p>
             <p className="text-2xl font-bold">۷۵٪</p>
           </div>
           <Badge className="bg-white/20 text-white border-0">روند مثبت</Badge>

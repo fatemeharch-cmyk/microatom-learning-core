@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { User, Mail, School, Settings } from "lucide-react";
+import { User, School, Award, HeartPulse, CalendarDays, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -35,12 +35,14 @@ function Profile() {
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base">شرح حال و اطلاعات حساب</CardTitle>
+          <CardTitle className="text-base">شرح حال</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
-          <Row icon={Mail} label="ایمیل" value="armin@example.com" />
-          <Row icon={School} label="مدرسه" value="دبیرستان شهید بهشتی" />
-          <Row icon={User} label="کلاس" value="۱۱-تجربی الف • سرپرست: خانم احمدی" />
+          <Row icon={User} label="نام دانش‌آموز" value="آرمین رضایی" />
+          <Row icon={School} label="پایه" value="یازدهم • علوم تجربی" />
+          <Row icon={Award} label="سطح فعلی" value="سطح ۸ — برتر" />
+          <Row icon={HeartPulse} label="امتیاز سلامتی آموزشی" value="۸۴۶" />
+          <Row icon={CalendarDays} label="تاریخ ثبت مطالعه" value="۲۵ اردیبهشت ۱۴۰۴" />
         </CardContent>
       </Card>
     </div>
@@ -51,7 +53,7 @@ function Row({ icon: Icon, label, value }: { icon: React.ElementType; label: str
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl border bg-card/50">
       <Icon className="h-4 w-4 text-muted-foreground" />
-      <span className="text-muted-foreground w-24 text-xs">{label}</span>
+      <span className="text-muted-foreground w-32 text-xs">{label}</span>
       <span className="font-medium">{value}</span>
     </div>
   );

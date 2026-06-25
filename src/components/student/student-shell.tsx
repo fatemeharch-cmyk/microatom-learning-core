@@ -76,9 +76,9 @@ function SidebarBody({
 
       {/* Footer card */}
       <div className="rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-pink-50 text-slate-700 text-right">
-        <p className="text-sm font-bold text-slate-800">هدف تو مهمه</p>
+        <p className="text-sm font-bold text-slate-800">هدف تو روشنه</p>
         <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-          ما اینجاییم تا هوشمندانه‌تر یاد بگیری و بهتر برخضی
+          با هر چکاب، مسیر یادگیریت دقیق‌تر میشه.
         </p>
         <Button
           asChild
@@ -86,7 +86,7 @@ function SidebarBody({
           variant="outline"
           className="mt-3 w-full rounded-full bg-white border-violet-200 text-violet-700 hover:bg-violet-50 font-semibold"
         >
-          <Link to="/student/next-step">ادامه مسیر</Link>
+          <Link to="/student/next-step">ادامه مسیر رشد</Link>
         </Button>
       </div>
     </aside>

@@ -113,7 +113,7 @@ export function ExamRunner() {
       setPhase("taking");
     } catch (err) {
       const msg =
-        err instanceof ApiError ? err.message : "خطا در شروع آزمون.";
+        err instanceof ApiError ? err.message : "خطا در شروع چکاب.";
       setError(msg);
     } finally {
       setBusy(false);
@@ -208,19 +208,19 @@ export function ExamRunner() {
       <Card dir="rtl">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-primary" /> شروع آزمون تمرینی
+            <BookOpen className="h-5 w-5 text-primary" /> شروع چکاب تمرینی
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            پس از پایان آزمون، صفحه‌ی بازبینی کامل با پاسخ مرجع کتاب نمایش داده می‌شود.
+            پس از پایان چکاب، صفحه‌ی بازبینی کامل با پاسخ مرجع کتاب نمایش داده می‌شود.
           </p>
           {error && (
             <p className="text-sm text-destructive">{error}</p>
           )}
           <Button onClick={startExam} disabled={busy} className="rounded-full">
             {busy ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
-            شروع آزمون
+            شروع چکاب
           </Button>
         </CardContent>
       </Card>
@@ -238,7 +238,7 @@ export function ExamRunner() {
             <CardTitle className="text-base">
               سؤال {currentIdx + 1} از {total}
             </CardTitle>
-            <Badge variant="secondary">در حال آزمون</Badge>
+            <Badge variant="secondary">در حال چکاب</Badge>
           </div>
           <Progress value={progress} className="h-2" />
         </CardHeader>
@@ -257,7 +257,7 @@ export function ExamRunner() {
           <div className="flex gap-2">
             <Button onClick={submitCurrent} disabled={busy} className="rounded-full">
               {busy ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
-              {currentIdx + 1 >= total ? "پایان آزمون" : "ثبت و سؤال بعدی"}
+              {currentIdx + 1 >= total ? "پایان چکاب" : "ثبت و سؤال بعدی"}
             </Button>
           </div>
         </CardContent>
@@ -280,14 +280,14 @@ export function ExamRunner() {
       {/* A — Score summary */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">نتیجه آزمون</CardTitle>
+          <CardTitle className="text-base">نتیجه چکاب</CardTitle>
           <Button
             size="sm"
             variant="outline"
             onClick={restart}
             className="rounded-full"
           >
-            <RefreshCw className="h-4 w-4 ml-2" /> آزمون جدید
+            <RefreshCw className="h-4 w-4 ml-2" /> چکاب جدید
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
