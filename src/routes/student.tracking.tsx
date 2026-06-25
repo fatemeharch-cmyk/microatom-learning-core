@@ -346,7 +346,7 @@ function StudyTracking() {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-muted-foreground">
-                          {s.actual} / {s.planned} {fa ? "دقیقه" : "min"} ({pct}٪)
+                          {s.actual} / {s.planned} {fa ? "دوز" : "min"} ({pct}٪)
                         </span>
                         <Badge variant="secondary" className={`border-0 ${status.cls}`}>
                           {status.label}
