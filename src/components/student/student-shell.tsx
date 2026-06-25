@@ -102,6 +102,7 @@ export function StudentShell({
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { logout } = useAuth();
   const today = "شنبه ۲۵ اردیبهشت ۱۴۰۴";
 
   return (
