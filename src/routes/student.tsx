@@ -1,31 +1,39 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import {
-  Sun,
-  Footprints,
-  BookOpenCheck,
-  CalendarRange,
+  Home,
+  Stethoscope,
+  HeartPulse,
+  ScanLine,
   NotebookPen,
-  GraduationCap,
-  Library,
-  Sprout,
+  ScrollText,
+  ShieldCheck,
+  CalendarCheck2,
+  Compass,
+  Target,
+  FolderHeart,
+  Trophy,
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
 import { useHealthGlossary } from "@/lib/health-glossary";
 
-const defaultItems: NavItem[] = [
-  { title: "امروز من", url: "/student", icon: Sun },
-  { title: "گام بعدی", url: "/student/next-step", icon: Footprints },
-  { title: "دفتر یادگیری", url: "/student/notebook", icon: BookOpenCheck },
-  { title: "برنامه هفتگی", url: "/student/schedule", icon: CalendarRange },
-  { title: "تکالیف", url: "/student/homework", icon: NotebookPen },
-  { title: "آزمون‌ها", url: "/student/exams", icon: GraduationCap },
-  { title: "منابع آموزشی", url: "/student/resources", icon: Library },
-  { title: "مسیر رشد", url: "/student/growth", icon: Sprout },
+const medicalItems: NavItem[] = [
+  { title: "خانه", url: "/student", icon: Home },
+  { title: "شرح حال", url: "/student/profile", icon: Stethoscope },
+  { title: "نبض دانش", url: "/student/progress", icon: HeartPulse },
+  { title: "اسکن ضعف", url: "/student/tracking", icon: ScanLine },
+  { title: "کلینیک یادگیری", url: "/student/notebook", icon: NotebookPen },
+  { title: "نسخه", url: "/student/planner", icon: ScrollText },
+  { title: "مراقبت", url: "/student/schedule", icon: ShieldCheck },
+  { title: "چکاپ", url: "/student/exams", icon: CalendarCheck2 },
+  { title: "کاوش", url: "/student/analytics", icon: Compass },
+  { title: "ماموریت", url: "/student/homework", icon: Target },
+  { title: "پرونده رشد", url: "/student/growth", icon: FolderHeart },
+  { title: "افتخارات", url: "/student/achievements", icon: Trophy },
 ];
 
 function StudentLayout() {
   const { studentItems } = useHealthGlossary();
-  const items: NavItem[] = studentItems ?? defaultItems;
+  const items: NavItem[] = studentItems ?? medicalItems;
   return (
     <StudentShell items={items}>
       <Outlet />
