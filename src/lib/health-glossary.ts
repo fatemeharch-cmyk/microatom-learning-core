@@ -47,19 +47,20 @@ export const HEALTH_STATUS_LABELS_FA: Record<HealthStatus, string> = {
 };
 
 const STUDENT_ITEMS: HealthNavItem[] = [
-  { title: "خانه", url: "/student", icon: Home },
+  { title: "کلینیک من", url: "/student", icon: Home },
   { title: "شرح حال", url: "/student/profile", icon: Stethoscope },
   { title: "نبض دانش", url: "/student/progress", icon: HeartPulse },
-  { title: "اسکن ضعف", url: "/student/tracking", icon: ScanLine },
+  { title: "اسکن", url: "/student/tracking", icon: ScanLine },
   { title: "کلینیک یادگیری", url: "/student/notebook", icon: NotebookPen },
   { title: "نسخه", url: "/student/planner", icon: ScrollText },
   { title: "مراقبت", url: "/student/schedule", icon: ShieldCheck },
-  { title: "چکاپ", url: "/student/exams", icon: CalendarCheck2 },
+  { title: "چکاب‌های من", url: "/student/exams", icon: CalendarCheck2 },
   { title: "کاوش", url: "/student/analytics", icon: Compass },
-  { title: "ماموریت", url: "/student/homework", icon: Target },
+  { title: "ماموریت‌های من", url: "/student/homework", icon: Target },
   { title: "پرونده رشد", url: "/student/growth", icon: FolderHeart },
-  { title: "افتخارات", url: "/student/achievements", icon: Trophy },
 ];
+
+void Trophy;
 
 const TEACHER_ITEMS: HealthNavItem[] = [
   { title: "یادداشت بالینی", url: "/teacher/log", icon: ClipboardList },
@@ -75,7 +76,7 @@ const SUPERVISOR_ITEMS: HealthNavItem[] = [
   { title: "شرح حال دانش‌آموزان", url: "/supervisor/student", icon: Stethoscope },
   { title: "کلینیک‌های فعال", url: "/supervisor/followups", icon: NotebookPen },
   { title: "نسخه‌ها", url: "/supervisor/sessions", icon: ScrollText },
-  { title: "چکاپ پایه", url: "/supervisor/grade", icon: CalendarCheck2 },
+  { title: "چکاب پایه", url: "/supervisor/grade", icon: CalendarCheck2 },
   { title: "اتاق مشاوره", url: "/supervisor/feedback", icon: MessageCircleHeart },
   { title: "اورژانس", url: "/supervisor/alerts", icon: Siren },
 ];

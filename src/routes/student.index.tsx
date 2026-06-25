@@ -73,8 +73,8 @@ const news = [
     iconTone: "bg-violet-100 text-violet-600",
   },
   {
-    title: "یادآوری چکاپ فیزیک",
-    sub: "چکاپ فصل ۲ فردا برگزار می‌شود",
+    title: "یادآوری چکاب فیزیک",
+    sub: "چکاب فصل ۲ فردا برگزار می‌شود",
     date: "۲۳ اردیبهشت",
     Icon: CalendarDays,
     iconTone: "bg-orange-100 text-orange-600",
@@ -91,7 +91,7 @@ const upcomingCheckups = [
 const completedPrescriptions = [
   { title: "تمرین فصل ۲ زیست", Icon: Leaf, tone: "bg-emerald-100 text-emerald-600" },
   { title: "مسئله‌های شیمی آلی ۱", Icon: FlaskConical, tone: "bg-violet-100 text-violet-600" },
-  { title: "آزمون آنلاین فیزیک", Icon: Atom, tone: "bg-sky-100 text-sky-600" },
+  { title: "چکاب آنلاین فیزیک", Icon: Atom, tone: "bg-sky-100 text-sky-600" },
   { title: "تمرین ریاضی دیفرانسیل", Icon: Sigma, tone: "bg-orange-100 text-orange-600" },
 ];
 
@@ -198,16 +198,16 @@ function TodayPage() {
         <MetricCard
           icon={<FlaskConical className="h-7 w-7 text-emerald-500 drop-shadow" />}
           iconBg="bg-gradient-to-br from-emerald-100 to-teal-100"
-          title="ساعات مطالعه"
+          title="دوز مطالعه"
           value="۳۲"
-          hint="ساعت این هفته"
+          hint="دوز این هفته"
         />
         <MetricCard
           icon={<ClipboardList className="h-7 w-7 text-violet-500 drop-shadow" />}
           iconBg="bg-gradient-to-br from-violet-100 to-indigo-100"
-          title="چکاپ‌های انجام شده"
+          title="چکاب‌های انجام شده"
           value="۴"
-          hint="آزمون"
+          hint="چکاب"
         />
         <MetricCard
           icon={<HeartPulse className="h-7 w-7 text-rose-500 drop-shadow" />}
@@ -370,7 +370,7 @@ function TodayPage() {
                 مشاهده همه
               </Link>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-slate-800">چکاپ‌های آینده</h3>
+                <h3 className="font-bold text-slate-800">چکاب‌های آینده</h3>
                 <span className="h-8 w-8 rounded-xl bg-sky-50 grid place-items-center text-sky-600">
                   <Stethoscope className="h-4 w-4" />
                 </span>
@@ -397,7 +397,7 @@ function TodayPage() {
               variant="ghost"
               className="w-full rounded-full bg-violet-50/70 hover:bg-violet-100 text-violet-700 font-semibold"
             >
-              <Link to="/student/exams">مشاهده همه چکاپ‌ها</Link>
+              <Link to="/student/exams">مشاهده همه چکاب‌ها</Link>
             </Button>
           </CardContent>
         </Card>
