@@ -9,9 +9,9 @@ export const Route = createFileRoute("/student/next-step")({
 });
 
 const steps = [
-  { icon: BookOpen, title: "مطالعه مبحث امروز", desc: "خواندن بخش تنفس سلولی از کتاب درسی", time: "۴۵–۶۰ دقیقه" },
-  { icon: ClipboardCheck, title: "۵ تست تثبیت", desc: "تمرین‌های کوتاه برای جا افتادن مفهوم", time: "۲۰–۳۰ دقیقه" },
-  { icon: Sparkles, title: "مرور هوشمند کوتاه", desc: "مرور توربو بر اساس نکات کلیدی", time: "۱۰–۱۵ دقیقه" },
+  { icon: BookOpen, title: "مطالعه مبحث امروز", desc: "خواندن بخش تنفس سلولی از کتاب درسی", time: "۴۵–۶۰ دوز" },
+  { icon: ClipboardCheck, title: "۵ تست تثبیت", desc: "تمرین‌های کوتاه برای جا افتادن مفهوم", time: "۲۰–۳۰ دوز" },
+  { icon: Sparkles, title: "مرور هوشمند کوتاه", desc: "مرور توربو بر اساس نکات کلیدی", time: "۱۰–۱۵ دوز" },
 ];
 
 function NextStepPage() {
@@ -26,7 +26,7 @@ function NextStepPage() {
           <p className="text-base opacity-90 mt-1">واحد یادگیری: تنفس سلولی — فصل ۲</p>
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15">
             <Clock className="h-4 w-4" />
-            <span className="font-semibold">بازه پیشنهادی: ۹۰ تا ۱۲۰ دقیقه</span>
+            <span className="font-semibold">بازه پیشنهادی: ۹۰ تا ۱۲۰ دوز</span>
           </div>
         </CardContent>
       </Card>

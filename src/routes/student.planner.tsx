@@ -127,7 +127,7 @@ function buildPlan(
     },
     {
       subject: fa ? "استراحت فعال" : "Active stretch",
-      activity: fa ? "۵ دقیقه راه رفتن و آب نوشیدن" : "5 min walk + hydrate",
+      activity: fa ? "۵ دوز راه رفتن و آب نوشیدن" : "5 min walk + hydrate",
       minutes: stretchMin,
       kind: "stretch",
     },
@@ -160,7 +160,7 @@ function buildPlan(
     recs.push({
       tone: "warn",
       text: fa
-        ? `«${growthFocus.subject}» فرصت رشد بعدی توست — روزی ۲۰ دقیقه برای پیشرفت در این درس وقت بگذار.`
+        ? `«${growthFocus.subject}» فرصت رشد بعدی توست — روزی ۲۰ دوز برای پیشرفت در این درس وقت بگذار.`
         : `"${growthFocus.subject}" is your next growth opportunity — spend 20 minutes on it daily.`,
     });
   }
@@ -177,14 +177,14 @@ function buildPlan(
     recs.push({
       tone: "warn",
       text: fa
-        ? "با رساندن زمان مطالعه به ۶۰ دقیقه، فرصت رشد بیشتری در برنامه‌ات می‌سازی."
+        ? "با رساندن دوز مطالعه به ۶۰ دوز، فرصت رشد بیشتری در برنامه‌ات می‌سازی."
         : "Aim for 60 minutes to create more room for growth in your plan.",
     });
   } else if (dailyMinutes >= 90) {
     recs.push({
       tone: "good",
       text: fa
-        ? "تعهد عالی! یادت باشه هر ۵۰ دقیقه ۱۰ دقیقه استراحت کنی."
+        ? "تعهد عالی! یادت باشه هر ۵۰ دوز ۱۰ دوز استراحت کنی."
         : "Great commitment! Take a 10-min break every 50 min.",
     });
   }
@@ -293,7 +293,7 @@ function PlannerPage() {
             </h1>
             <p className="text-sm opacity-90 mt-1">
               {fa
-                ? "آزمون‌ها، تکالیف، زمان مطالعه و سطح تسلطت را وارد کن تا موتور توربوی اتومیا یک برنامه کاملاً شخصی برای مسیر رشدت بسازد."
+                ? "آزمون‌ها، تکالیف، دوز مطالعه و سطح تسلطت را وارد کن تا موتور توربوی اتومیا یک برنامه کاملاً شخصی برای مسیر رشدت بسازد."
                 : "Enter your exams, homework, study time, and mastery so Atomia's proprietary Turbo Engine can build a plan for your unique growth journey."}
             </p>
           </div>
@@ -321,7 +321,7 @@ function PlannerPage() {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <Clock className="h-4 w-4 text-primary" />
-                {fa ? "زمان مطالعه روزانه" : "Daily study time"}
+                {fa ? "دوز مطالعه روزانه" : "Daily study time"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -330,7 +330,7 @@ function PlannerPage() {
                   {fa ? "هدف" : "Goal"}
                 </span>
                 <span className="text-lg font-bold">
-                  {num(dailyMin)} {fa ? "دقیقه" : "min"}
+                  {num(dailyMin)} {fa ? "دوز" : "min"}
                 </span>
               </div>
               <Slider
@@ -415,7 +415,7 @@ function PlannerPage() {
               </div>
               <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
                 <div className="space-y-1">
-                  <Label className="text-[11px] text-muted-foreground">{fa ? "دقیقه" : "Minutes"}</Label>
+                  <Label className="text-[11px] text-muted-foreground">{fa ? "دوز" : "Minutes"}</Label>
                   <Input type="number" min={5} value={hwMin} onChange={(e) => setHwMin(Math.max(5, Number(e.target.value) || 5))} dir="ltr" />
                 </div>
                 <div className="space-y-1">
@@ -481,7 +481,7 @@ function PlannerPage() {
                   <CardTitle className="text-base flex items-center justify-between">
                     <span>{fa ? "برنامه توربوی امروز" : "Today's Turbo Plan"}</span>
                     <Badge variant="secondary" className="bg-primary/15 text-primary border-0">
-                      {num(plan.daily.reduce((a, b) => a + b.minutes, 0))} {fa ? "دقیقه" : "min"}
+                      {num(plan.daily.reduce((a, b) => a + b.minutes, 0))} {fa ? "دوز" : "min"}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -533,7 +533,7 @@ function PlannerPage() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{d.title}</p>
                         <p className="text-[11px] text-muted-foreground">
-                          {num(d.minutes)} {fa ? "دقیقه" : "min"}
+                          {num(d.minutes)} {fa ? "دوز" : "min"}
                         </p>
                       </div>
                       {d.isExam && (

@@ -121,7 +121,7 @@ function PersonalAnalyticsPage() {
         <StatCard
           icon={Clock}
           label={t("stat_study_time")}
-          value="۱۴۵ دقیقه"
+          value="۱۴۵ دوز"
           delta={fa ? "میانگین روزانه" : "Daily average"}
           colorClass="text-info"
         />
@@ -159,9 +159,9 @@ function PersonalAnalyticsPage() {
               ]}
             />
             <LineChartCard
-              title={fa ? "زمان مطالعه (امروز)" : "Study Time (Today)"}
+              title={fa ? "دوز مطالعه (امروز)" : "Study Time (Today)"}
               data={studyData.daily}
-              lines={[{ key: "value", color: "var(--color-info)", name: fa ? "دقیقه" : "Minutes" }]}
+              lines={[{ key: "value", color: "var(--color-info)", name: fa ? "دوز" : "Minutes" }]}
               yUnit="'"
             />
             <LineChartCard
@@ -190,9 +190,9 @@ function PersonalAnalyticsPage() {
               ]}
             />
             <LineChartCard
-              title={fa ? "زمان مطالعه (هفتگی)" : "Study Time (Weekly)"}
+              title={fa ? "دوز مطالعه (هفتگی)" : "Study Time (Weekly)"}
               data={studyData.weekly}
-              lines={[{ key: "value", color: "var(--color-info)", name: fa ? "دقیقه" : "Minutes" }]}
+              lines={[{ key: "value", color: "var(--color-info)", name: fa ? "دوز" : "Minutes" }]}
               yUnit="'"
             />
             <LineChartCard
