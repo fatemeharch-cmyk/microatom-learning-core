@@ -31,10 +31,12 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     if (!isHydrated) return;
 
     if (PUBLIC_ROUTES.has(pathname)) {
-      // Already signed in? Send them to their workspace instead of /login.
-      if (pathname === "/login" && user) {
-        navigate({ to: ROLES[user.role].landing, replace: true });
-      }
+      // NOTE: do NOT auto-redirect signed-in users away from /login.
+      // The login page owns post-login routing because it must first
+      // call /auth/user/roles and (for multi-role users) show the role
+      // selector before navigating. Auto-redirecting here would race
+      // ahead and send everyone to their login-response role (often
+      // /student) before the selector ever appears.
       return;
     }
 
