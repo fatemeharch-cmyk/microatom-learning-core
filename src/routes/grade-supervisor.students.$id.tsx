@@ -12,8 +12,19 @@ import {
   Sparkles,
   TrendingUp,
   Phone,
+  Users,
+  Lightbulb,
+  ShieldAlert,
+  CheckCircle2,
 } from "lucide-react";
-import { getStudentProfile, STATUS_META, type StudentProfile } from "@/lib/mock/grade-students";
+import {
+  getStudentProfile,
+  getMonitoringExtras,
+  STATUS_META,
+  RISK_META,
+  type StudentProfile,
+  type RiskLevel,
+} from "@/lib/mock/grade-students";
 
 export const Route = createFileRoute("/grade-supervisor/students/$id")({
   loader: ({ params }) => {
