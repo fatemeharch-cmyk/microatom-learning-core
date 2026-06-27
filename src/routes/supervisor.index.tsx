@@ -110,7 +110,7 @@ function Metric({
   );
 }
 
-function SupervisorDashboard() {
+export function SupervisorDashboard() {
   return (
     <div className="space-y-5" dir="rtl">
       {/* Greeting */}

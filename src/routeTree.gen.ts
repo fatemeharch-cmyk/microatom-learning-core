@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as SupervisorRouteImport } from './routes/supervisor'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as PrincipalRouteImport } from './routes/principal'
 import { Route as ParentRouteImport } from './routes/parent'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as GradeSupervisorRouteImport } from './routes/grade-supervisor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
@@ -95,6 +97,11 @@ const StudentRoute = StudentRouteImport.update({
   path: '/student',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrincipalRoute = PrincipalRouteImport.update({
+  id: '/principal',
+  path: '/principal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParentRoute = ParentRouteImport.update({
   id: '/parent',
   path: '/parent',
@@ -103,6 +110,11 @@ const ParentRoute = ParentRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GradeSupervisorRoute = GradeSupervisorRouteImport.update({
+  id: '/grade-supervisor',
+  path: '/grade-supervisor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -434,8 +446,10 @@ const AdminCalendarRoute = AdminCalendarRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/grade-supervisor': typeof GradeSupervisorRoute
   '/login': typeof LoginRoute
   '/parent': typeof ParentRouteWithChildren
+  '/principal': typeof PrincipalRoute
   '/student': typeof StudentRouteWithChildren
   '/supervisor': typeof SupervisorRouteWithChildren
   '/teacher': typeof TeacherRouteWithChildren
@@ -505,7 +519,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/grade-supervisor': typeof GradeSupervisorRoute
   '/login': typeof LoginRoute
+  '/principal': typeof PrincipalRoute
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/classes': typeof AdminClassesRoute
   '/admin/content': typeof AdminContentRoute
@@ -574,8 +590,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/grade-supervisor': typeof GradeSupervisorRoute
   '/login': typeof LoginRoute
   '/parent': typeof ParentRouteWithChildren
+  '/principal': typeof PrincipalRoute
   '/student': typeof StudentRouteWithChildren
   '/supervisor': typeof SupervisorRouteWithChildren
   '/teacher': typeof TeacherRouteWithChildren
@@ -648,8 +666,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/grade-supervisor'
     | '/login'
     | '/parent'
+    | '/principal'
     | '/student'
     | '/supervisor'
     | '/teacher'
@@ -719,7 +739,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/grade-supervisor'
     | '/login'
+    | '/principal'
     | '/admin/calendar'
     | '/admin/classes'
     | '/admin/content'
@@ -787,8 +809,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/grade-supervisor'
     | '/login'
     | '/parent'
+    | '/principal'
     | '/student'
     | '/supervisor'
     | '/teacher'
@@ -860,8 +884,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  GradeSupervisorRoute: typeof GradeSupervisorRoute
   LoginRoute: typeof LoginRoute
   ParentRoute: typeof ParentRouteWithChildren
+  PrincipalRoute: typeof PrincipalRoute
   StudentRoute: typeof StudentRouteWithChildren
   SupervisorRoute: typeof SupervisorRouteWithChildren
   TeacherRoute: typeof TeacherRouteWithChildren
@@ -890,6 +916,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/principal': {
+      id: '/principal'
+      path: '/principal'
+      fullPath: '/principal'
+      preLoaderRoute: typeof PrincipalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parent': {
       id: '/parent'
       path: '/parent'
@@ -902,6 +935,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/grade-supervisor': {
+      id: '/grade-supervisor'
+      path: '/grade-supervisor'
+      fullPath: '/grade-supervisor'
+      preLoaderRoute: typeof GradeSupervisorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -1536,8 +1576,10 @@ const TeacherRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  GradeSupervisorRoute: GradeSupervisorRoute,
   LoginRoute: LoginRoute,
   ParentRoute: ParentRouteWithChildren,
+  PrincipalRoute: PrincipalRoute,
   StudentRoute: StudentRouteWithChildren,
   SupervisorRoute: SupervisorRouteWithChildren,
   TeacherRoute: TeacherRouteWithChildren,

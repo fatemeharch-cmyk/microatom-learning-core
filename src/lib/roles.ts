@@ -72,7 +72,7 @@ export const ROLES: Record<RoleId, RoleDefinition> = {
     labelEn: "Grade Supervisor",
     descriptionFa: "همراهی و راهبری پایه تحصیلی",
     descriptionEn: "Oversee grade-wide growth",
-    landing: "/supervisor",
+    landing: "/grade-supervisor",
     icon: ShieldCheck,
     accent: "from-purple-500 to-fuchsia-500",
     permissions: [
@@ -98,7 +98,7 @@ export const ROLES: Record<RoleId, RoleDefinition> = {
     labelEn: "School Admin",
     descriptionFa: "مدیریت پلتفرم، کاربران و سیستم",
     descriptionEn: "Manage platform, users & system",
-    landing: "/admin",
+    landing: "/principal",
     icon: Settings,
     accent: "from-amber-500 to-orange-500",
     permissions: [

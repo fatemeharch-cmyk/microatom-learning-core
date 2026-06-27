@@ -1,4 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { ArrowLeft, Bell, Building2, Languages } from "lucide-react";
 import {
@@ -27,7 +28,7 @@ export type NavItem = {
   icon: LucideIcon;
 };
 
-export function AdminShell({ items }: { items: NavItem[] }) {
+export function AdminShell({ items, children }: { items: NavItem[]; children?: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { t, dir, lang, toggle } = useI18n();
 
@@ -114,7 +115,7 @@ export function AdminShell({ items }: { items: NavItem[] }) {
               </Avatar>
             </header>
             <main className="flex-1 p-4 md:p-6">
-              <Outlet />
+              {children ?? <Outlet />}
             </main>
           </div>
         </div>
