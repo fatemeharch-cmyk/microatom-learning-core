@@ -136,12 +136,23 @@ function LoginPage() {
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [applyingRole, setApplyingRole] = useState<RoleId | null>(null);
 
-  // If already signed in (and no pending role choice), jump to the workspace.
+  // If already signed in (and no pending role decision/in-flight login),
+  // jump to the workspace. We intentionally block this redirect while a
+  // login is in flight or while we're about to show the multi-role
+  // selector — otherwise the role returned by `/auth/login` would race
+  // ahead of `/auth/user/roles` and skip the selector.
   useEffect(() => {
-    if (isHydrated && user && !roleChoices) {
+    if (
+      isHydrated &&
+      user &&
+      !roleChoices &&
+      !pending &&
+      !pendingUserId &&
+      !applyingRole
+    ) {
       navigate({ to: ROLES[user.role].landing, replace: true });
     }
-  }, [isHydrated, user, navigate, roleChoices]);
+  }, [isHydrated, user, navigate, roleChoices, pending, pendingUserId, applyingRole]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
