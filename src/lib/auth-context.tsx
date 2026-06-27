@@ -165,6 +165,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const setUserRole = useCallback((role: RoleId) => {
+    if (!ROLES[role]) return;
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, role };
+      persistUser(next);
+      return next;
+    });
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -172,8 +182,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isHydrated,
       login,
       logout,
+      setUserRole,
     }),
-    [user, isHydrated, login, logout],
+    [user, isHydrated, login, logout, setUserRole],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
