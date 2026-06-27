@@ -30,7 +30,8 @@ export const Route = createFileRoute("/grade-supervisor/students/$id")({
   loader: ({ params }) => {
     const profile = getStudentProfile(params.id);
     if (!profile) throw notFound();
-    return profile;
+    const extras = getMonitoringExtras(params.id);
+    return { profile, extras };
   },
   component: StudentProfilePage,
   notFoundComponent: () => (
