@@ -28,7 +28,7 @@ export type NavItem = {
   icon: LucideIcon;
 };
 
-export function AdminShell({ items }: { items: NavItem[] }) {
+export function AdminShell({ items, children }: { items: NavItem[]; children?: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { t, dir, lang, toggle } = useI18n();
 
