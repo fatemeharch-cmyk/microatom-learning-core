@@ -363,36 +363,16 @@ function StudentProfilePage() {
         </Card>
       </div>
 
-      {/* Timeline */}
-      <Card className="p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <TrendingUp className="h-4 w-4 text-emerald-600" />
-          <h2 className="text-sm font-bold text-slate-800">جدول زمانی رشد</h2>
-        </div>
-        <div className="relative pr-5">
-          <div className="absolute right-[10px] top-1 bottom-1 w-px bg-slate-200" />
-          <div className="space-y-5">
-            {p.timeline.map((t, i) => {
-              const tm = TIMELINE_META[t.kind];
-              const Icon = tm.icon;
-              return (
-                <div key={i} className="relative flex items-start gap-4">
-                  <div className={`absolute right-[-13px] h-6 w-6 rounded-full ${tm.color} grid place-items-center border-4 border-white`}>
-                    <Icon className="h-3 w-3" />
-                  </div>
-                  <div className="mr-6 flex-1 flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/60">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-800">{t.label}</p>
-                      <p className="text-[11px] text-slate-500">{tm.label}</p>
-                    </div>
-                    <span className="text-xs font-bold text-slate-600">{t.date}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </Card>
     </div>
   );
 }
+
+function MiniStat({ label, value, tone }: { label: string; value: string; tone: string }) {
+  return (
+    <div className={`rounded-2xl px-3 py-2 ${tone}`}>
+      <p className="text-[10px] opacity-80">{label}</p>
+      <p className="text-xs font-extrabold mt-0.5 truncate">{value}</p>
+    </div>
+  );
+}
+
