@@ -27,6 +27,12 @@ export type Theme = {
   colors?: ThemeColors;
   terminology?: ThemeTerminology;
   menus?: ThemeMenus;
+  /** Optional override for the post-login landing route (e.g. "/student"). */
+  dashboard_route?: string;
+  /** Optional welcome text shown on the login / role-selection screen. */
+  login_welcome?: string;
+  /** Optional human-readable theme/brand name. */
+  name?: string;
 };
 
 export type ThemeResponse = {
