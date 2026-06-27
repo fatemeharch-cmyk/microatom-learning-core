@@ -96,9 +96,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       }
     }
 
-      setTheme(null);
-      return;
-    }
+
     let cancelled = false;
     const controller = new AbortController();
 
