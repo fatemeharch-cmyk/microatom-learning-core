@@ -59,9 +59,24 @@ function applyColorVars(colors?: Theme["colors"]) {
   }
 }
 
+function readCachedTheme(): Theme | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem("atomia_theme");
+    if (!raw) return null;
+    return normalize(JSON.parse(raw) as ThemeResponse);
+  } catch {
+    return null;
+  }
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [theme, setTheme] = useState<Theme | null>(null);
+  const [theme, setTheme] = useState<Theme | null>(() => {
+    const cached = readCachedTheme();
+    if (cached) applyColorVars(cached.colors);
+    return cached;
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
