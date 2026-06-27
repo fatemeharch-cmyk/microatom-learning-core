@@ -9,6 +9,7 @@ export const endpoints = {
     logout: "/auth/logout",
     refresh: "/auth/refresh",
     me: "/auth/me",
+    userRoles: "/auth/user/roles",
   },
   student: {
     dashboard: "/student/dashboard",
