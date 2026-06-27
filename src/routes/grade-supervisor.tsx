@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Users,
@@ -18,12 +18,10 @@ import {
   SupervisorShell,
   type NavItem,
 } from "@/components/supervisor/supervisor-shell";
-import { SupervisorDashboard } from "./supervisor.index";
-import { useTheme, resolveIcon } from "@/lib/theme";
 
-const defaultItems: NavItem[] = [
+const items: NavItem[] = [
   { title: "داشبورد پایه", url: "/grade-supervisor", icon: LayoutDashboard },
-  { title: "دانش‌آموزان", url: "/supervisor/student", icon: Users },
+  { title: "دانش‌آموزان", url: "/grade-supervisor/students", icon: Users },
   { title: "سلامت آموزشی", url: "/supervisor/grade", icon: HeartPulse },
   { title: "چکاب‌ها", url: "/supervisor/sessions", icon: Stethoscope },
   { title: "کلینیک یادگیری", url: "/supervisor/followups", icon: NotebookPen },
@@ -34,23 +32,17 @@ const defaultItems: NavItem[] = [
   { title: "اولیا", url: "/supervisor/parents", icon: UserCircle2 },
   { title: "دبیران", url: "/supervisor/teachers", icon: GraduationCap },
   { title: "گزارش‌ها", url: "/supervisor/analytics", icon: BarChart3 },
-  { title: "هوش مصنوعی", url: "/supervisor/turbo", icon: Sparkles },
+  { title: "توربو همراه", url: "/supervisor/turbo", icon: Sparkles },
 ];
 
-function GradeSupervisorLanding() {
-  const { theme } = useTheme();
-  const sidebar = theme?.menus?.sidebar;
-  const items: NavItem[] =
-    sidebar && sidebar.length > 0
-      ? sidebar.map((m) => ({ title: m.title, url: m.url, icon: resolveIcon(m.icon) }))
-      : defaultItems;
+function GradeSupervisorLayout() {
   return (
     <SupervisorShell items={items}>
-      <SupervisorDashboard />
+      <Outlet />
     </SupervisorShell>
   );
 }
 
 export const Route = createFileRoute("/grade-supervisor")({
-  component: GradeSupervisorLanding,
+  component: GradeSupervisorLayout,
 });
