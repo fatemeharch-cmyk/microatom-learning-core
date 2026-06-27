@@ -1,4 +1,4 @@
-import { GraduationCap, BookOpen, Users, ShieldCheck, Settings, type LucideIcon } from "lucide-react";
+import { GraduationCap, BookOpen, Users, Layers, Settings, type LucideIcon } from "lucide-react";
 
 /**
  * Atomia Role Framework
@@ -70,10 +70,10 @@ export const ROLES: Record<RoleId, RoleDefinition> = {
     id: "supervisor",
     labelFa: "مسئول پایه",
     labelEn: "Grade Supervisor",
-    descriptionFa: "همراهی و راهبری پایه تحصیلی",
+    descriptionFa: "مشاهده وضعیت پایه، کلاس‌ها و دبیرها",
     descriptionEn: "Oversee grade-wide growth",
     landing: "/grade-supervisor",
-    icon: ShieldCheck,
+    icon: Layers,
     accent: "from-purple-500 to-fuchsia-500",
     permissions: [
       "view:grade_progress",
