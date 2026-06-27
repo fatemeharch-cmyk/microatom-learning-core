@@ -68,18 +68,24 @@ const TIMELINE_META: Record<string, { color: string; icon: any; label: string }>
 };
 
 function StudentProfilePage() {
-  const p = Route.useLoaderData() as StudentProfile;
+  const { profile: p, extras } = Route.useLoaderData() as {
+    profile: StudentProfile;
+    extras: ReturnType<typeof getMonitoringExtras>;
+  };
   const meta = STATUS_META[p.status];
 
   return (
     <div dir="rtl" className="font-vazir space-y-6">
-      <Link
-        to="/grade-supervisor/students"
-        className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-600 transition"
-      >
-        <ArrowRight className="h-3.5 w-3.5" />
-        بازگشت به فهرست دانش‌آموزان
-      </Link>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <Link
+          to="/grade-supervisor/students"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-600 transition"
+        >
+          <ArrowRight className="h-3.5 w-3.5" />
+          بازگشت به مرکز پایش
+        </Link>
+        <h1 className="text-2xl font-extrabold text-slate-800">پرونده رشد دانش‌آموز</h1>
+      </div>
 
       {/* Identity + Health score */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -90,35 +96,124 @@ function StudentProfilePage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl font-extrabold text-slate-800">{p.name}</h1>
+                <h2 className="text-xl font-extrabold text-slate-800">{p.name}</h2>
                 <span className={`text-[10px] px-2.5 py-1 rounded-full border ${meta.pill}`}>{meta.label}</span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">{p.className} • از {p.joined}</p>
-              <div className="flex items-center gap-4 mt-3 text-[11px] text-slate-500 flex-wrap">
+              <p className="text-xs text-slate-500 mt-1">{p.className} • پایه یازدهم — رشته تجربی</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+                <MiniStat label="نبض یادگیری" value={`${toFa(p.healthScore)}٪`} tone="bg-violet-50 text-violet-700" />
+                <MiniStat label="سلامت آموزشی" value={`${toFa(p.healthScore)}٪`} tone="bg-pink-50 text-pink-700" />
+                <MiniStat label="سطح ریسک" value={STATUS_META[p.status].label} tone="bg-rose-50 text-rose-700" />
+                <MiniStat label="ارتباط با اولیا" value={extras.guardianRelation} tone="bg-emerald-50 text-emerald-700" />
+              </div>
+              <div className="flex items-center gap-4 mt-4 text-[11px] text-slate-500 flex-wrap">
                 <span className="inline-flex items-center gap-1.5"><Phone className="h-3 w-3" /> {p.guardian} — {p.phone}</span>
+                <span className="inline-flex items-center gap-1.5"><Users className="h-3 w-3" /> از {p.joined}</span>
               </div>
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
+        {/* Next action */}
+        <Card className="p-6 bg-gradient-to-br from-violet-50/70 to-pink-50/40">
           <div className="flex items-center gap-2 mb-3">
-            <HeartPulse className="h-4 w-4 text-rose-600" />
-            <h2 className="text-sm font-bold text-slate-800">نمره سلامت یادگیری</h2>
+            <Lightbulb className="h-4 w-4 text-violet-600" />
+            <h2 className="text-sm font-bold text-slate-800">اقدام پیشنهادی امروز</h2>
           </div>
-          <div className="flex items-end gap-2">
-            <p className="text-4xl font-extrabold text-slate-800">{toFa(p.healthScore)}</p>
-            <span className="text-xs text-emerald-600 font-bold pb-1">+{toFa(p.trend)}٪</span>
-          </div>
-          <div className="mt-3 h-2 rounded-full bg-slate-100 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-l from-violet-500 to-pink-400"
-              style={{ width: `${p.healthScore}%` }}
-            />
-          </div>
-          <p className="text-[11px] text-slate-400 mt-2">روند رشد ۳۰ روز اخیر</p>
+          <p className="text-sm text-slate-700 leading-7">{extras.nextAction}</p>
+          <button className="mt-4 w-full inline-flex items-center justify-center gap-1.5 h-10 rounded-2xl bg-violet-600 text-white text-xs font-semibold shadow-sm hover:bg-violet-700 transition">
+            <CheckCircle2 className="h-4 w-4" />
+            ثبت اقدام
+          </button>
         </Card>
       </div>
+
+      {/* Smart Alerts + Risk Prediction */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="h-4 w-4 text-rose-600" />
+            <h2 className="text-sm font-bold text-slate-800">هشدارهای هوشمند</h2>
+          </div>
+          <ul className="space-y-2">
+            {extras.smartAlerts.map((a, i) => (
+              <li key={i} className="flex items-start gap-3 p-3 rounded-2xl bg-rose-50/50 border border-rose-100/60">
+                <span className="mt-1 h-2 w-2 rounded-full bg-rose-500" />
+                <span className="text-sm text-slate-700">{a}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <ShieldAlert className="h-4 w-4 text-amber-600" />
+            <h2 className="text-sm font-bold text-slate-800">پیش‌بینی ریسک</h2>
+          </div>
+          <div className="space-y-3">
+            {extras.riskPredictions.map((r) => {
+              const rm = RISK_META[r.level as RiskLevel];
+              return (
+                <div key={r.subject} className="p-3 rounded-2xl border border-slate-100">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-slate-800">احتمال افت {r.subject}</p>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border ${rm.pill}`}>
+                      {rm.label}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className={`h-full ${
+                          r.level === "high"
+                            ? "bg-gradient-to-l from-rose-500 to-pink-400"
+                            : r.level === "mid"
+                            ? "bg-gradient-to-l from-amber-500 to-yellow-400"
+                            : "bg-gradient-to-l from-emerald-500 to-teal-400"
+                        }`}
+                        style={{ width: `${r.probability}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-extrabold text-slate-700">{toFa(r.probability)}٪</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
+
+      {/* Timeline (moved up — most important visual) */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <TrendingUp className="h-4 w-4 text-emerald-600" />
+          <h2 className="text-sm font-bold text-slate-800">خط رشد</h2>
+        </div>
+        <div className="relative pr-5">
+          <div className="absolute right-[10px] top-1 bottom-1 w-px bg-slate-200" />
+          <div className="space-y-5">
+            {p.timeline.map((t, i) => {
+              const tm = TIMELINE_META[t.kind];
+              const Icon = tm.icon;
+              return (
+                <div key={i} className="relative flex items-start gap-4">
+                  <div className={`absolute right-[-13px] h-6 w-6 rounded-full ${tm.color} grid place-items-center border-4 border-white`}>
+                    <Icon className="h-3 w-3" />
+                  </div>
+                  <div className="mr-6 flex-1 flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/60">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{t.label}</p>
+                      <p className="text-[11px] text-slate-500">{tm.label}</p>
+                    </div>
+                    <span className="text-xs font-bold text-slate-600">{t.date}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </Card>
+
 
       {/* Checkups + Weak concepts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
