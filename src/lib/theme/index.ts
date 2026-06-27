@@ -5,7 +5,9 @@ export type {
   ThemeColors,
   ThemeMenuItem,
   ThemeMenus,
+  ThemeDashboardConfig,
   ThemeRequest,
   ThemeResponse,
   ThemeTerminology,
 } from "./theme-types";
+
