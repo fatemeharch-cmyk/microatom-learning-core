@@ -167,6 +167,10 @@ function LoginPage() {
     }
 
     const userId = result.user.id;
+    // Block the auto-redirect effect immediately — we must always consult
+    // /auth/user/roles before deciding where to send the user.
+    setPendingUserId(userId);
+
     let roles: RoleId[] = [];
     try {
       roles = await fetchUserRoles(userId);
@@ -186,8 +190,7 @@ function LoginPage() {
       return;
     }
 
-    // Multi-role: show the selector.
-    setPendingUserId(userId);
+    // Multi-role: show the selector. Never auto-pick (no student default).
     setRoleChoices(roles);
   }
 
