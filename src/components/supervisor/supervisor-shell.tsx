@@ -46,7 +46,7 @@ function SidebarBody({
       </div>
 
       {/* Menu */}
-      {(() => null)()}
+
       <nav className="flex-1 flex flex-col overflow-y-auto gap-2">
         {(() => {
           const isActiveRoute = (currentPath: string, route: string) =>
