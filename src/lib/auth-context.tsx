@@ -46,6 +46,8 @@ type AuthContextValue = {
   isHydrated: boolean;
   login: (username: string, password: string) => Promise<LoginResult>;
   logout: () => void;
+  /** Switch the active role for an already-signed-in user (multi-role users). */
+  setUserRole: (role: RoleId) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -163,6 +165,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const setUserRole = useCallback((role: RoleId) => {
+    if (!ROLES[role]) return;
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, role };
+      persistUser(next);
+      return next;
+    });
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -170,8 +182,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isHydrated,
       login,
       logout,
+      setUserRole,
     }),
-    [user, isHydrated, login, logout],
+    [user, isHydrated, login, logout, setUserRole],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
