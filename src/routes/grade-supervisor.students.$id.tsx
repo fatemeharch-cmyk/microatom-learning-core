@@ -56,7 +56,7 @@ const TIMELINE_META: Record<string, { color: string; icon: any; label: string }>
 };
 
 function StudentProfilePage() {
-  const p = Route.useLoaderData();
+  const p = Route.useLoaderData() as StudentProfile;
   const meta = STATUS_META[p.status];
 
   return (
