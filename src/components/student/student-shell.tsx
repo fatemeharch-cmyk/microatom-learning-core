@@ -107,6 +107,8 @@ export function StudentShell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
   const { logout } = useAuth();
+  const { t } = useTheme();
+  const examLabel = t("exam", "چکاب");
   const today = "شنبه ۲۵ اردیبهشت ۱۴۰۴";
 
   return (
@@ -118,7 +120,7 @@ export function StudentShell({
       <div className="flex min-h-dvh">
         {/* Desktop sidebar (right in RTL, left visually — order-2) */}
         <div className="hidden lg:flex order-2 w-[var(--sidebar-width)] shrink-0 border-l border-slate-100">
-          <SidebarBody items={items} pathname={pathname} />
+          <SidebarBody items={items} pathname={pathname} examLabel={examLabel} />
         </div>
 
         {/* Main — right-aligned Persian dashboard, full remaining width */}
@@ -144,6 +146,7 @@ export function StudentShell({
                 <SidebarBody
                   items={items}
                   pathname={pathname}
+                  examLabel={examLabel}
                   onNavigate={() => setMobileOpen(false)}
                 />
               </SheetContent>
