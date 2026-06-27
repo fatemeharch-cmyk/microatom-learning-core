@@ -81,8 +81,10 @@ function SidebarBody({
               <span className="flex-1 truncate text-right">{item.title}</span>
             </Link>
           );
-        })}
+        });
+        })()}
       </nav>
+
     </aside>
   );
 }
