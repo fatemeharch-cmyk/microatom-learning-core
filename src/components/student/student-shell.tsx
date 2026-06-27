@@ -25,10 +25,12 @@ function SidebarBody({
   items,
   pathname,
   onNavigate,
+  examLabel,
 }: {
   items: NavItem[];
   pathname: string;
   onNavigate?: () => void;
+  examLabel: string;
 }) {
   return (
     <aside className="h-full w-full bg-white flex flex-col py-6 px-5 gap-4" dir="rtl">
@@ -80,7 +82,7 @@ function SidebarBody({
       <div className="rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-pink-50 text-slate-700 text-right">
         <p className="text-sm font-bold text-slate-800">هدف تو روشنه</p>
         <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-          با هر چکاب، مسیر یادگیریت دقیق‌تر میشه.
+          با هر {examLabel}، مسیر یادگیریت دقیق‌تر میشه.
         </p>
         <Button
           asChild
