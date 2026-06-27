@@ -153,12 +153,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<ThemeContextValue>(() => {
     const terminology = theme?.terminology ?? {};
+    const dashboard = theme?.dashboard_config ?? {};
     return {
       theme,
       loading,
       error,
       t: (key, fallback) => {
         const v = terminology[key];
+        return typeof v === "string" && v.length ? v : fallback;
+      },
+      d: (key, fallback) => {
+        const v = dashboard[key];
         return typeof v === "string" && v.length ? v : fallback;
       },
     };
