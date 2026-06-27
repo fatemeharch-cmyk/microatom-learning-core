@@ -35,8 +35,22 @@ const DEMO_ACCOUNTS: Array<{ user: string; labelFa: string }> = [
 ];
 
 const THEME_ENDPOINT = "https://x8ki-letl-twmt.n7.xano.io/api:theme/current";
+const THEME_CACHE_KEY = "atomia_theme";
 
-/** Persist the user's chosen role + cached theme, then route to the right workspace. */
+/** Read cached theme (if any) so the login screen can show themed welcome text. */
+function readCachedTheme(): { login_welcome?: string; name?: string } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(THEME_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return (parsed?.theme ?? parsed) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Persist the user's chosen role, fetch + cache theme, then route. */
 async function applyRoleAndRoute(
   userId: string,
   role: RoleId,
@@ -52,7 +66,9 @@ async function applyRoleAndRoute(
     /* ignore */
   }
 
-  // Best-effort theme fetch — never block routing on it.
+  // Best-effort theme fetch — drives sidebar/colors/terminology and may
+  // override the post-login landing route via `dashboard_route`.
+  let themeRoute: string | null = null;
   try {
     const numeric = Number(userId);
     const res = await fetch(THEME_ENDPOINT, {
@@ -69,9 +85,13 @@ async function applyRoleAndRoute(
     if (res.ok) {
       const json = await res.json();
       try {
-        window.localStorage.setItem("atomia_theme", JSON.stringify(json));
+        window.localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(json));
       } catch {
         /* ignore */
+      }
+      const inner = (json?.theme ?? json) as { dashboard_route?: string };
+      if (typeof inner?.dashboard_route === "string" && inner.dashboard_route) {
+        themeRoute = inner.dashboard_route;
       }
     }
   } catch {
@@ -79,7 +99,7 @@ async function applyRoleAndRoute(
   }
 
   setUserRole(role);
-  go(ROLES[role].landing);
+  go(themeRoute ?? ROLES[role].landing);
 }
 
 function LoginPage() {
