@@ -19,15 +19,9 @@ import {
   type NavItem,
 } from "@/components/supervisor/supervisor-shell";
 import { SupervisorDashboard } from "./supervisor.index";
+import { useTheme, resolveIcon } from "@/lib/theme";
 
-/**
- * Landing route for the grade_supervisor role.
- *
- * Renders the same SupervisorShell + dashboard as `/supervisor`, but the
- * URL stays `/grade-supervisor` per the canonical role→route mapping.
- * Sub-pages (students, sessions, etc.) continue to live under `/supervisor/*`.
- */
-const items: NavItem[] = [
+const defaultItems: NavItem[] = [
   { title: "داشبورد پایه", url: "/grade-supervisor", icon: LayoutDashboard },
   { title: "دانش‌آموزان", url: "/supervisor/student", icon: Users },
   { title: "سلامت آموزشی", url: "/supervisor/grade", icon: HeartPulse },
@@ -43,12 +37,20 @@ const items: NavItem[] = [
   { title: "هوش مصنوعی", url: "/supervisor/turbo", icon: Sparkles },
 ];
 
+function GradeSupervisorLanding() {
+  const { theme } = useTheme();
+  const sidebar = theme?.menus?.sidebar;
+  const items: NavItem[] =
+    sidebar && sidebar.length > 0
+      ? sidebar.map((m) => ({ title: m.title, url: m.url, icon: resolveIcon(m.icon) }))
+      : defaultItems;
+  return (
+    <SupervisorShell items={items}>
+      <SupervisorDashboard />
+    </SupervisorShell>
+  );
+}
+
 export const Route = createFileRoute("/grade-supervisor")({
-  component: function GradeSupervisorLanding() {
-    return (
-      <SupervisorShell items={items}>
-        <SupervisorDashboard />
-      </SupervisorShell>
-    );
-  },
+  component: GradeSupervisorLanding,
 });

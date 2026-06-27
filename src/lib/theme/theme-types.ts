@@ -23,10 +23,19 @@ export type ThemeMenus = {
   sidebar?: ThemeMenuItem[];
 };
 
+export type ThemeDashboardConfig = {
+  title?: string;
+  greeting?: string;
+  summary_title?: string;
+  [key: string]: string | undefined;
+};
+
 export type Theme = {
   colors?: ThemeColors;
   terminology?: ThemeTerminology;
   menus?: ThemeMenus;
+  /** Dashboard-level copy (title, greeting, summary heading). */
+  dashboard_config?: ThemeDashboardConfig;
   /** Optional override for the post-login landing route (e.g. "/student"). */
   dashboard_route?: string;
   /** Optional welcome text shown on the login / role-selection screen. */

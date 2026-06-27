@@ -31,6 +31,8 @@ type ThemeContextValue = {
   error: string | null;
   /** Lookup helper: `t("exam", "چکاب")` returns theme value or fallback. */
   t: (key: string, fallback: string) => string;
+  /** Dashboard copy helper: `d("title", "...")`. */
+  d: (key: string, fallback: string) => string;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -85,6 +87,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setTheme(null);
       return;
     }
+    // Per spec: avoid a network call on every render — only fetch when no
+    // cached theme exists in localStorage.
+    if (typeof window !== "undefined" && window.localStorage.getItem("atomia_theme")) {
+      const cached = readCachedTheme();
+      if (cached) {
+        setTheme(cached);
+        applyColorVars(cached.colors);
+        return;
+      }
+    }
+
+
     let cancelled = false;
     const controller = new AbortController();
 
@@ -139,12 +153,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<ThemeContextValue>(() => {
     const terminology = theme?.terminology ?? {};
+    const dashboard = theme?.dashboard_config ?? {};
     return {
       theme,
       loading,
       error,
       t: (key, fallback) => {
         const v = terminology[key];
+        return typeof v === "string" && v.length ? v : fallback;
+      },
+      d: (key, fallback) => {
+        const v = dashboard[key];
         return typeof v === "string" && v.length ? v : fallback;
       },
     };

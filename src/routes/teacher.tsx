@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { TeacherShell, type NavItem } from "@/components/teacher/teacher-shell";
 import { useHealthGlossary } from "@/lib/health-glossary";
+import { useTheme, resolveIcon } from "@/lib/theme";
 
 const defaultItems: NavItem[] = [
   { title: "داشبورد", url: "/teacher", icon: LayoutDashboard },
@@ -25,7 +26,12 @@ const defaultItems: NavItem[] = [
 
 function TeacherLayout() {
   const { teacherItems } = useHealthGlossary();
-  const items: NavItem[] = teacherItems ?? defaultItems;
+  const { theme } = useTheme();
+  const sidebar = theme?.menus?.sidebar;
+  const items: NavItem[] =
+    sidebar && sidebar.length > 0
+      ? sidebar.map((m) => ({ title: m.title, url: m.url, icon: resolveIcon(m.icon) }))
+      : (teacherItems ?? defaultItems);
   return (
     <TeacherShell items={items}>
       <Outlet />
