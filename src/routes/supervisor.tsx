@@ -29,7 +29,7 @@ const items: NavItem[] = [
   { title: "اولیا", url: "/supervisor/parents", icon: UserCircle2 },
   { title: "دبیران", url: "/supervisor/teachers", icon: GraduationCap },
   { title: "گزارش‌ها", url: "/supervisor/analytics", icon: BarChart3 },
-  { title: "هوش مصنوعی", url: "/supervisor/turbo", icon: Sparkles },
+  { title: "توربو همراه", url: "/supervisor/turbo", icon: Sparkles },
 ];
 
 function SupervisorLayout() {

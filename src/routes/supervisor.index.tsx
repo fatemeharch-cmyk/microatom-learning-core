@@ -145,7 +145,7 @@ export function SupervisorDashboard() {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-violet-500" />
-            اولویت‌های پیگیری با پیشنهاد هوش مصنوعی
+            اولویت‌های پیگیری با پیشنهاد توربو همراه
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
