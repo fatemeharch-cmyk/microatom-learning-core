@@ -1,31 +1,38 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import {
   LayoutDashboard,
-  CalendarRange,
-  HeartHandshake,
-  UserCircle,
-  ListChecks,
-  Sparkles,
-  MessageSquareHeart,
   Users,
+  HeartPulse,
+  Stethoscope,
+  NotebookPen,
+  ScrollText,
+  Target,
+  CalendarDays,
+  ClipboardCheck,
+  UserCircle2,
+  GraduationCap,
+  BarChart3,
+  Sparkles,
 } from "lucide-react";
 import { SupervisorShell, type NavItem } from "@/components/supervisor/supervisor-shell";
-import { useHealthGlossary } from "@/lib/health-glossary";
 
-const defaultItems: NavItem[] = [
-  { title: "داشبورد", url: "/supervisor", icon: LayoutDashboard },
-  { title: "تقویم آموزشی", url: "/supervisor/calendar", icon: CalendarRange },
-  { title: "جلسات همراهی", url: "/supervisor/sessions", icon: HeartHandshake },
-  { title: "پروفایل دانش‌آموز", url: "/supervisor/student", icon: UserCircle },
-  { title: "پیگیری‌ها", url: "/supervisor/followups", icon: ListChecks },
-  { title: "خلاصه هوشمند توربو", url: "/supervisor/turbo", icon: Sparkles },
-  { title: "بازخوردهای هفتگی", url: "/supervisor/feedback", icon: MessageSquareHeart },
-  { title: "ارتباط با دبیران", url: "/supervisor/teachers-hub", icon: Users },
+const items: NavItem[] = [
+  { title: "داشبورد پایه", url: "/supervisor", icon: LayoutDashboard },
+  { title: "دانش‌آموزان", url: "/supervisor/student", icon: Users },
+  { title: "سلامت آموزشی", url: "/supervisor/grade", icon: HeartPulse },
+  { title: "چکاب‌ها", url: "/supervisor/sessions", icon: Stethoscope },
+  { title: "کلینیک یادگیری", url: "/supervisor/followups", icon: NotebookPen },
+  { title: "نسخه‌ها", url: "/supervisor/alerts", icon: ScrollText },
+  { title: "ماموریت‌ها", url: "/supervisor/teachers-hub", icon: Target },
+  { title: "قرار ملاقات‌ها", url: "/supervisor/calendar", icon: CalendarDays },
+  { title: "ویزیت هفتگی", url: "/supervisor/feedback", icon: ClipboardCheck },
+  { title: "اولیا", url: "/supervisor/parents", icon: UserCircle2 },
+  { title: "دبیران", url: "/supervisor/teachers", icon: GraduationCap },
+  { title: "گزارش‌ها", url: "/supervisor/analytics", icon: BarChart3 },
+  { title: "هوش مصنوعی", url: "/supervisor/turbo", icon: Sparkles },
 ];
 
 function SupervisorLayout() {
-  const { supervisorItems } = useHealthGlossary();
-  const items: NavItem[] = supervisorItems ?? defaultItems;
   return (
     <SupervisorShell items={items}>
       <Outlet />
