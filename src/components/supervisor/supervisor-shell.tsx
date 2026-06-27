@@ -46,11 +46,17 @@ function SidebarBody({
       </div>
 
       {/* Menu */}
+
       <nav className="flex-1 flex flex-col overflow-y-auto gap-2">
-        {items.map((item) => {
-          const active =
-            pathname === item.url ||
-            (item.url !== "/supervisor" && pathname.startsWith(item.url));
+        {(() => {
+          const isActiveRoute = (currentPath: string, route: string) =>
+            currentPath === route || currentPath.startsWith(route + "/");
+          const matching = items
+            .filter((it) => isActiveRoute(pathname, it.url))
+            .sort((a, b) => b.url.length - a.url.length);
+          const activeUrl = matching[0]?.url ?? null;
+          return items.map((item) => {
+          const active = item.url === activeUrl;
           return (
             <Link
               key={item.url}
@@ -75,8 +81,10 @@ function SidebarBody({
               <span className="flex-1 truncate text-right">{item.title}</span>
             </Link>
           );
-        })}
+        });
+        })()}
       </nav>
+
     </aside>
   );
 }
