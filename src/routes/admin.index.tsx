@@ -33,7 +33,7 @@ const eventTone: Record<string, string> = {
   holiday: "bg-warning/15 text-warning",
 };
 
-function AdminDashboard() {
+export function AdminDashboard() {
   return (
     <div className="space-y-6" dir="rtl">
       <Card className="overflow-hidden border-0 bg-[image:var(--gradient-primary)] text-primary-foreground">
