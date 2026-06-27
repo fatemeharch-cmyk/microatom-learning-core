@@ -115,7 +115,7 @@ export function AdminShell({ items, children }: { items: NavItem[]; children?: R
               </Avatar>
             </header>
             <main className="flex-1 p-4 md:p-6">
-              <Outlet />
+              {children ?? <Outlet />}
             </main>
           </div>
         </div>
