@@ -1,4 +1,4 @@
-import { GraduationCap, BookOpen, Users, ShieldCheck, Settings, type LucideIcon } from "lucide-react";
+import { GraduationCap, BookOpen, Users, Layers, Settings, type LucideIcon } from "lucide-react";
 
 /**
  * Atomia Role Framework
