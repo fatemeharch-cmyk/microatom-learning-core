@@ -22,6 +22,7 @@ import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
 import { Route as SupervisorIndexRouteImport } from './routes/supervisor.index'
 import { Route as StudentIndexRouteImport } from './routes/student.index'
 import { Route as ParentIndexRouteImport } from './routes/parent.index'
+import { Route as GradeSupervisorIndexRouteImport } from './routes/grade-supervisor.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
 import { Route as TeacherScheduleRouteImport } from './routes/teacher.schedule'
@@ -146,6 +147,11 @@ const ParentIndexRoute = ParentIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ParentRoute,
+} as any)
+const GradeSupervisorIndexRoute = GradeSupervisorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GradeSupervisorRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -446,7 +452,7 @@ const AdminCalendarRoute = AdminCalendarRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/grade-supervisor': typeof GradeSupervisorRoute
+  '/grade-supervisor': typeof GradeSupervisorRouteWithChildren
   '/login': typeof LoginRoute
   '/parent': typeof ParentRouteWithChildren
   '/principal': typeof PrincipalRoute
@@ -512,6 +518,7 @@ export interface FileRoutesByFullPath {
   '/teacher/schedule': typeof TeacherScheduleRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin/': typeof AdminIndexRoute
+  '/grade-supervisor/': typeof GradeSupervisorIndexRoute
   '/parent/': typeof ParentIndexRoute
   '/student/': typeof StudentIndexRoute
   '/supervisor/': typeof SupervisorIndexRoute
@@ -519,7 +526,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/grade-supervisor': typeof GradeSupervisorRoute
   '/login': typeof LoginRoute
   '/principal': typeof PrincipalRoute
   '/admin/calendar': typeof AdminCalendarRoute
@@ -581,6 +587,7 @@ export interface FileRoutesByTo {
   '/teacher/schedule': typeof TeacherScheduleRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin': typeof AdminIndexRoute
+  '/grade-supervisor': typeof GradeSupervisorIndexRoute
   '/parent': typeof ParentIndexRoute
   '/student': typeof StudentIndexRoute
   '/supervisor': typeof SupervisorIndexRoute
@@ -590,7 +597,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/grade-supervisor': typeof GradeSupervisorRoute
+  '/grade-supervisor': typeof GradeSupervisorRouteWithChildren
   '/login': typeof LoginRoute
   '/parent': typeof ParentRouteWithChildren
   '/principal': typeof PrincipalRoute
@@ -656,6 +663,7 @@ export interface FileRoutesById {
   '/teacher/schedule': typeof TeacherScheduleRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/admin/': typeof AdminIndexRoute
+  '/grade-supervisor/': typeof GradeSupervisorIndexRoute
   '/parent/': typeof ParentIndexRoute
   '/student/': typeof StudentIndexRoute
   '/supervisor/': typeof SupervisorIndexRoute
@@ -732,6 +740,7 @@ export interface FileRouteTypes {
     | '/teacher/schedule'
     | '/teacher/students'
     | '/admin/'
+    | '/grade-supervisor/'
     | '/parent/'
     | '/student/'
     | '/supervisor/'
@@ -739,7 +748,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/grade-supervisor'
     | '/login'
     | '/principal'
     | '/admin/calendar'
@@ -801,6 +809,7 @@ export interface FileRouteTypes {
     | '/teacher/schedule'
     | '/teacher/students'
     | '/admin'
+    | '/grade-supervisor'
     | '/parent'
     | '/student'
     | '/supervisor'
@@ -875,6 +884,7 @@ export interface FileRouteTypes {
     | '/teacher/schedule'
     | '/teacher/students'
     | '/admin/'
+    | '/grade-supervisor/'
     | '/parent/'
     | '/student/'
     | '/supervisor/'
@@ -884,7 +894,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  GradeSupervisorRoute: typeof GradeSupervisorRoute
+  GradeSupervisorRoute: typeof GradeSupervisorRouteWithChildren
   LoginRoute: typeof LoginRoute
   ParentRoute: typeof ParentRouteWithChildren
   PrincipalRoute: typeof PrincipalRoute
@@ -985,6 +995,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/parent/'
       preLoaderRoute: typeof ParentIndexRouteImport
       parentRoute: typeof ParentRoute
+    }
+    '/grade-supervisor/': {
+      id: '/grade-supervisor/'
+      path: '/'
+      fullPath: '/grade-supervisor/'
+      preLoaderRoute: typeof GradeSupervisorIndexRouteImport
+      parentRoute: typeof GradeSupervisorRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -1434,6 +1451,18 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface GradeSupervisorRouteChildren {
+  GradeSupervisorIndexRoute: typeof GradeSupervisorIndexRoute
+}
+
+const GradeSupervisorRouteChildren: GradeSupervisorRouteChildren = {
+  GradeSupervisorIndexRoute: GradeSupervisorIndexRoute,
+}
+
+const GradeSupervisorRouteWithChildren = GradeSupervisorRoute._addFileChildren(
+  GradeSupervisorRouteChildren,
+)
+
 interface ParentRouteChildren {
   ParentAnnouncementsRoute: typeof ParentAnnouncementsRoute
   ParentCalendarRoute: typeof ParentCalendarRoute
@@ -1576,7 +1605,7 @@ const TeacherRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  GradeSupervisorRoute: GradeSupervisorRoute,
+  GradeSupervisorRoute: GradeSupervisorRouteWithChildren,
   LoginRoute: LoginRoute,
   ParentRoute: ParentRouteWithChildren,
   PrincipalRoute: PrincipalRoute,
