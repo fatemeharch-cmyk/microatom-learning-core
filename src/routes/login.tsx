@@ -194,7 +194,7 @@ function LoginPage() {
             <span>آتومیا</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mt-4">
-            خوش آمدید
+            {readCachedTheme()?.login_welcome ?? "خوش آمدید"}
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
             لطفاً اطلاعات ورود خود را وارد کنید.
