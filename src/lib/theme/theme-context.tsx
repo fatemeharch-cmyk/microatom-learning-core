@@ -31,6 +31,8 @@ type ThemeContextValue = {
   error: string | null;
   /** Lookup helper: `t("exam", "چکاب")` returns theme value or fallback. */
   t: (key: string, fallback: string) => string;
+  /** Dashboard copy helper: `d("title", "...")`. */
+  d: (key: string, fallback: string) => string;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
