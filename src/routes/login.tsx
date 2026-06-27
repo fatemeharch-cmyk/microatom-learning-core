@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Sparkles, LogIn, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,11 +75,18 @@ async function applyRoleAndRoute(
   go: (to: string) => void,
 ) {
   const selectedRole = toCanonicalRole(role);
-  let themeRoute: string | null = null;
   let themePayload: unknown = null;
 
-  // Best-effort theme fetch — drives sidebar/colors/terminology and may
-  // override the post-login landing route via `dashboard_route`.
+  try {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("atomia_selected_role", selectedRole);
+      window.localStorage.setItem("atomia_user_id", String(userId));
+    }
+  } catch {
+    /* ignore */
+  }
+
+  // Best-effort theme fetch — drives sidebar/colors/terminology.
   try {
     const numeric = Number(userId);
     const res = await fetch(THEME_ENDPOINT, {
@@ -95,23 +102,15 @@ async function applyRoleAndRoute(
     });
     if (res.ok) {
       const json = await res.json();
-      const themeObj = json?.theme ?? json;
-      themePayload = themeObj;
-      const inner = themeObj as { dashboard_route?: string };
-      if (typeof inner?.dashboard_route === "string" && inner.dashboard_route) {
-        themeRoute = inner.dashboard_route;
-      }
+      themePayload = json?.theme ?? json;
     }
   } catch {
     /* ignore */
   }
 
-  // Save role, user id, and theme response to localStorage exactly after
-  // POST /theme/current returns (successfully or not).
+  // Save theme response after POST /theme/current returns.
   try {
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("atomia_selected_role", selectedRole);
-      window.localStorage.setItem("atomia_user_id", String(userId));
       if (themePayload) {
         window.localStorage.setItem("atomia_theme", JSON.stringify(themePayload));
       }
@@ -121,11 +120,11 @@ async function applyRoleAndRoute(
   }
 
   setUserRole(role);
-  go(themeRoute ?? routeForRole(selectedRole));
+  go(routeForRole(selectedRole));
 }
 
 function LoginPage() {
-  const { login, user, isHydrated, setUserRole } = useAuth();
+  const { login, setUserRole } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -136,39 +135,19 @@ function LoginPage() {
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [applyingRole, setApplyingRole] = useState<RoleId | null>(null);
 
-  // If already signed in (and no pending role decision/in-flight login),
-  // jump to the workspace. We intentionally block this redirect while a
-  // login is in flight or while we're about to show the multi-role
-  // selector — otherwise the role returned by `/auth/login` would race
-  // ahead of `/auth/user/roles` and skip the selector.
-  useEffect(() => {
-    if (
-      isHydrated &&
-      user &&
-      !roleChoices &&
-      !pending &&
-      !pendingUserId &&
-      !applyingRole
-    ) {
-      navigate({ to: ROLES[user.role].landing, replace: true });
-    }
-  }, [isHydrated, user, navigate, roleChoices, pending, pendingUserId, applyingRole]);
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setMessage(null);
     setPending(true);
     const result = await login(username, password);
     setDebug(lastLoginDebug);
-    setPending(false);
     if (!result.ok) {
+      setPending(false);
       setMessage(result.message);
       return;
     }
 
     const userId = result.user.id;
-    // Block the auto-redirect effect immediately — we must always consult
-    // /auth/user/roles before deciding where to send the user.
     setPendingUserId(userId);
 
     let roles: RoleId[] = [];
@@ -184,6 +163,7 @@ function LoginPage() {
     if (roles.length === 0) roles = [result.user.role];
 
     if (roles.length === 1) {
+      setPending(false);
       await applyRoleAndRoute(userId, roles[0], setUserRole, (to) =>
         navigate({ to, replace: true }),
       );
@@ -192,6 +172,7 @@ function LoginPage() {
 
     // Multi-role: show the selector. Never auto-pick (no student default).
     setRoleChoices(roles);
+    setPending(false);
   }
 
   async function handleRoleSelect(role: RoleId) {

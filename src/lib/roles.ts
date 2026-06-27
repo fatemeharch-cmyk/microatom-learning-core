@@ -94,7 +94,7 @@ export const ROLES: Record<RoleId, RoleDefinition> = {
   },
   admin: {
     id: "admin",
-    labelFa: "مدیر مدرسه",
+    labelFa: "مدیر",
     labelEn: "School Admin",
     descriptionFa: "مدیریت پلتفرم، کاربران و سیستم",
     descriptionEn: "Manage platform, users & system",
