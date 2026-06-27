@@ -57,6 +57,8 @@ function toJalaliShort(iso: string): string {
 
 function StudyTracking() {
   const { t, lang, dir } = useI18n();
+  const { t: themeT } = useTheme();
+  const studyTimeLabel = themeT("study_time", "دوز مطالعه");
   const fa = lang === "fa";
   const SUBJECTS = fa ? SUBJECTS_FA : SUBJECTS_EN;
 
@@ -173,7 +175,7 @@ function StudyTracking() {
           {fa ? "ردیابی مطالعه" : "Study Tracking"}
         </Badge>
         <h1 className="text-2xl font-bold tracking-tight">
-          {fa ? "دوز مطالعه‌ی تو" : "Your study time"}
+          {fa ? `${studyTimeLabel}‌ی تو` : "Your study time"}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {fa
