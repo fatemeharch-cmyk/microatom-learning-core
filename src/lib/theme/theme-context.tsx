@@ -114,6 +114,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         const t = normalize(json);
         setTheme(t);
         applyColorVars(t?.colors);
+        try {
+          window.localStorage.setItem("atomia_theme", JSON.stringify(json));
+        } catch {
+          /* ignore */
+        }
       })
       .catch((err) => {
         if (cancelled || err?.name === "AbortError") return;
