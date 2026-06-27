@@ -50,6 +50,31 @@ function readCachedTheme(): { login_welcome?: string; name?: string } | null {
   }
 }
 
+/** Map internal RoleId to the canonical role string used by Xano Theme Engine. */
+function toCanonicalRole(role: RoleId): string {
+  if (role === "supervisor") return "grade_supervisor";
+  if (role === "admin") return "principal";
+  return role;
+}
+
+/** Exact route mapping required by the role-selection flow. */
+function routeForRole(role: string): string {
+  switch (role) {
+    case "student":
+      return "/student";
+    case "parent":
+      return "/parent";
+    case "teacher":
+      return "/teacher";
+    case "grade_supervisor":
+      return "/grade-supervisor";
+    case "principal":
+      return "/principal";
+    default:
+      return "/";
+  }
+}
+
 /** Persist the user's chosen role, fetch + cache theme, then route. */
 async function applyRoleAndRoute(
   userId: string,
@@ -57,18 +82,12 @@ async function applyRoleAndRoute(
   setUserRole: (r: RoleId) => void,
   go: (to: string) => void,
 ) {
-  try {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("atomia_selected_role", role);
-      window.localStorage.setItem("atomia_user_id", String(userId));
-    }
-  } catch {
-    /* ignore */
-  }
+  const selectedRole = toCanonicalRole(role);
+  let themeRoute: string | null = null;
+  let themePayload: unknown = null;
 
   // Best-effort theme fetch — drives sidebar/colors/terminology and may
   // override the post-login landing route via `dashboard_route`.
-  let themeRoute: string | null = null;
   try {
     const numeric = Number(userId);
     const res = await fetch(THEME_ENDPOINT, {
@@ -79,17 +98,14 @@ async function applyRoleAndRoute(
       },
       body: JSON.stringify({
         user_id: Number.isFinite(numeric) ? numeric : userId,
-        role,
+        role: selectedRole,
       }),
     });
     if (res.ok) {
       const json = await res.json();
-      try {
-        window.localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(json));
-      } catch {
-        /* ignore */
-      }
-      const inner = (json?.theme ?? json) as { dashboard_route?: string };
+      const themeObj = json?.theme ?? json;
+      themePayload = themeObj;
+      const inner = themeObj as { dashboard_route?: string };
       if (typeof inner?.dashboard_route === "string" && inner.dashboard_route) {
         themeRoute = inner.dashboard_route;
       }
@@ -98,8 +114,22 @@ async function applyRoleAndRoute(
     /* ignore */
   }
 
+  // Save role, user id, and theme response to localStorage exactly after
+  // POST /theme/current returns (successfully or not).
+  try {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("atomia_selected_role", selectedRole);
+      window.localStorage.setItem("atomia_user_id", String(userId));
+      if (themePayload) {
+        window.localStorage.setItem("atomia_theme", JSON.stringify(themePayload));
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+
   setUserRole(role);
-  go(themeRoute ?? ROLES[role].landing);
+  go(themeRoute ?? routeForRole(selectedRole));
 }
 
 function LoginPage() {
