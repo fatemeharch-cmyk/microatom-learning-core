@@ -15,6 +15,7 @@ import { I18nProvider } from "../lib/i18n";
 import { ScopeProvider } from "../lib/scope";
 import { RoleProvider } from "../lib/role-context";
 import { AuthProvider } from "../lib/auth-context";
+import { ThemeProvider } from "../lib/theme";
 import { AuthGuard } from "../components/auth-guard";
 
 function NotFoundComponent() {
@@ -128,12 +129,14 @@ function RootComponent() {
       <I18nProvider>
         <ScopeProvider>
           <AuthProvider>
-            <RoleProvider>
-              <AuthGuard>
-                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                <Outlet />
-              </AuthGuard>
-            </RoleProvider>
+            <ThemeProvider>
+              <RoleProvider>
+                <AuthGuard>
+                  {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                  <Outlet />
+                </AuthGuard>
+              </RoleProvider>
+            </ThemeProvider>
           </AuthProvider>
         </ScopeProvider>
       </I18nProvider>

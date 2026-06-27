@@ -23,6 +23,7 @@ import {
   Image as ImageIcon,
   CalendarDays,
 } from "lucide-react";
+import { useTheme as useThemeHook } from "@/lib/theme";
 import {
   LineChart,
   Line,
@@ -96,6 +97,9 @@ const completedPrescriptions = [
 ];
 
 function TodayPage() {
+  const { t } = useThemeHook();
+  const examLabel = t("exam", "چکاب");
+  const studyTimeLabel = t("study_time", "دوز مطالعه");
   return (
     <div className="space-y-5">
       {/* Greeting */}
@@ -198,16 +202,16 @@ function TodayPage() {
         <MetricCard
           icon={<FlaskConical className="h-7 w-7 text-emerald-500 drop-shadow" />}
           iconBg="bg-gradient-to-br from-emerald-100 to-teal-100"
-          title="دوز مطالعه"
+          title={studyTimeLabel}
           value="۳۲"
-          hint="دوز این هفته"
+          hint={`${studyTimeLabel} این هفته`}
         />
         <MetricCard
           icon={<ClipboardList className="h-7 w-7 text-violet-500 drop-shadow" />}
           iconBg="bg-gradient-to-br from-violet-100 to-indigo-100"
-          title="چکاب‌های انجام شده"
+          title={`${examLabel}‌های انجام شده`}
           value="۴"
-          hint="چکاب"
+          hint={examLabel}
         />
         <MetricCard
           icon={<HeartPulse className="h-7 w-7 text-rose-500 drop-shadow" />}

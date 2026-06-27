@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
@@ -56,6 +57,8 @@ function toJalaliShort(iso: string): string {
 
 function StudyTracking() {
   const { t, lang, dir } = useI18n();
+  const { t: themeT } = useTheme();
+  const studyTimeLabel = themeT("study_time", "دوز مطالعه");
   const fa = lang === "fa";
   const SUBJECTS = fa ? SUBJECTS_FA : SUBJECTS_EN;
 
@@ -172,7 +175,7 @@ function StudyTracking() {
           {fa ? "ردیابی مطالعه" : "Study Tracking"}
         </Badge>
         <h1 className="text-2xl font-bold tracking-tight">
-          {fa ? "دوز مطالعه‌ی تو" : "Your study time"}
+          {fa ? `${studyTimeLabel}‌ی تو` : "Your study time"}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {fa

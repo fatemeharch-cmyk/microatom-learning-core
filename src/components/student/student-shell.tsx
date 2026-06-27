@@ -8,6 +8,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useTheme } from "@/lib/theme";
 import { Bell, Menu, LogOut, HeartPulse } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -24,10 +25,12 @@ function SidebarBody({
   items,
   pathname,
   onNavigate,
+  examLabel,
 }: {
   items: NavItem[];
   pathname: string;
   onNavigate?: () => void;
+  examLabel: string;
 }) {
   return (
     <aside className="h-full w-full bg-white flex flex-col py-6 px-5 gap-4" dir="rtl">
@@ -79,7 +82,7 @@ function SidebarBody({
       <div className="rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-pink-50 text-slate-700 text-right">
         <p className="text-sm font-bold text-slate-800">هدف تو روشنه</p>
         <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-          با هر چکاب، مسیر یادگیریت دقیق‌تر میشه.
+          با هر {examLabel}، مسیر یادگیریت دقیق‌تر میشه.
         </p>
         <Button
           asChild
@@ -104,6 +107,8 @@ export function StudentShell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
   const { logout } = useAuth();
+  const { t } = useTheme();
+  const examLabel = t("exam", "چکاب");
   const today = "شنبه ۲۵ اردیبهشت ۱۴۰۴";
 
   return (
@@ -115,7 +120,7 @@ export function StudentShell({
       <div className="flex min-h-dvh">
         {/* Desktop sidebar (right in RTL, left visually — order-2) */}
         <div className="hidden lg:flex order-2 w-[var(--sidebar-width)] shrink-0 border-l border-slate-100">
-          <SidebarBody items={items} pathname={pathname} />
+          <SidebarBody items={items} pathname={pathname} examLabel={examLabel} />
         </div>
 
         {/* Main — right-aligned Persian dashboard, full remaining width */}
@@ -141,6 +146,7 @@ export function StudentShell({
                 <SidebarBody
                   items={items}
                   pathname={pathname}
+                  examLabel={examLabel}
                   onNavigate={() => setMobileOpen(false)}
                 />
               </SheetContent>

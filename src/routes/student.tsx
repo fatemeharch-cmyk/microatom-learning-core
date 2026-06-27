@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
 import { useHealthGlossary } from "@/lib/health-glossary";
+import { useTheme, resolveIcon } from "@/lib/theme";
 
 const medicalItems: NavItem[] = [
   { title: "کلینیک من", url: "/student", icon: Home },
@@ -32,7 +33,21 @@ void Trophy;
 
 function StudentLayout() {
   const { studentItems } = useHealthGlossary();
-  const items: NavItem[] = studentItems ?? medicalItems;
+  const { theme } = useTheme();
+
+  // Priority: Atomia Theme Engine menus → Health glossary → defaults.
+  let items: NavItem[];
+  const sidebar = theme?.menus?.sidebar;
+  if (sidebar && sidebar.length > 0) {
+    items = sidebar.map((m) => ({
+      title: m.title,
+      url: m.url,
+      icon: resolveIcon(m.icon),
+    }));
+  } else {
+    items = studentItems ?? medicalItems;
+  }
+
   return (
     <StudentShell items={items}>
       <Outlet />
