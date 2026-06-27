@@ -13,7 +13,7 @@ import {
   TrendingUp,
   Phone,
 } from "lucide-react";
-import { getStudentProfile, STATUS_META } from "@/lib/mock/grade-students";
+import { getStudentProfile, STATUS_META, type StudentProfile } from "@/lib/mock/grade-students";
 
 export const Route = createFileRoute("/grade-supervisor/students/$id")({
   loader: ({ params }) => {
