@@ -85,6 +85,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setTheme(null);
       return;
     }
+    // Per spec: avoid a network call on every render — only fetch when no
+    // cached theme exists in localStorage.
+    if (typeof window !== "undefined" && window.localStorage.getItem("atomia_theme")) {
+      const cached = readCachedTheme();
+      if (cached) {
+        setTheme(cached);
+        applyColorVars(cached.colors);
+        return;
+      }
+    }
+
+      setTheme(null);
+      return;
+    }
     let cancelled = false;
     const controller = new AbortController();
 
