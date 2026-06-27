@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
-import { ROLES } from "@/lib/roles";
-import { lastLoginDebug, type LoginDebugInfo } from "@/lib/api/auth";
+import { ROLES, type RoleId } from "@/lib/roles";
+import {
+  lastLoginDebug,
+  fetchUserRoles,
+  type LoginDebugInfo,
+} from "@/lib/api/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -30,21 +34,72 @@ const DEMO_ACCOUNTS: Array<{ user: string; labelFa: string }> = [
   { user: "admin", labelFa: "مدیر مدرسه" },
 ];
 
+const THEME_ENDPOINT = "https://x8ki-letl-twmt.n7.xano.io/api:theme/current";
+
+/** Persist the user's chosen role + cached theme, then route to the right workspace. */
+async function applyRoleAndRoute(
+  userId: string,
+  role: RoleId,
+  setUserRole: (r: RoleId) => void,
+  go: (to: string) => void,
+) {
+  try {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("atomia_selected_role", role);
+      window.localStorage.setItem("atomia_user_id", String(userId));
+    }
+  } catch {
+    /* ignore */
+  }
+
+  // Best-effort theme fetch — never block routing on it.
+  try {
+    const numeric = Number(userId);
+    const res = await fetch(THEME_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        user_id: Number.isFinite(numeric) ? numeric : userId,
+        role,
+      }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      try {
+        window.localStorage.setItem("atomia_theme", JSON.stringify(json));
+      } catch {
+        /* ignore */
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+
+  setUserRole(role);
+  go(ROLES[role].landing);
+}
+
 function LoginPage() {
-  const { login, user, isHydrated } = useAuth();
+  const { login, user, isHydrated, setUserRole } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [debug, setDebug] = useState<LoginDebugInfo | null>(null);
+  const [roleChoices, setRoleChoices] = useState<RoleId[] | null>(null);
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [applyingRole, setApplyingRole] = useState<RoleId | null>(null);
 
-  // If already signed in, jump straight to the right workspace.
+  // If already signed in (and no pending role choice), jump to the workspace.
   useEffect(() => {
-    if (isHydrated && user) {
+    if (isHydrated && user && !roleChoices) {
       navigate({ to: ROLES[user.role].landing, replace: true });
     }
-  }, [isHydrated, user, navigate]);
+  }, [isHydrated, user, navigate, roleChoices]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -53,17 +108,58 @@ function LoginPage() {
     const result = await login(username, password);
     setDebug(lastLoginDebug);
     setPending(false);
-    if (result.ok) {
-      navigate({ to: ROLES[result.user.role].landing, replace: true });
-    } else {
+    if (!result.ok) {
       setMessage(result.message);
+      return;
     }
+
+    const userId = result.user.id;
+    let roles: RoleId[] = [];
+    try {
+      roles = await fetchUserRoles(userId);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn("[auth] fetchUserRoles failed, falling back to login role:", err);
+    }
+
+    // Fallback: if the roles endpoint failed or returned nothing, use the role
+    // that came back on the login response.
+    if (roles.length === 0) roles = [result.user.role];
+
+    if (roles.length === 1) {
+      await applyRoleAndRoute(userId, roles[0], setUserRole, (to) =>
+        navigate({ to, replace: true }),
+      );
+      return;
+    }
+
+    // Multi-role: show the selector.
+    setPendingUserId(userId);
+    setRoleChoices(roles);
+  }
+
+  async function handleRoleSelect(role: RoleId) {
+    if (!pendingUserId) return;
+    setApplyingRole(role);
+    await applyRoleAndRoute(pendingUserId, role, setUserRole, (to) =>
+      navigate({ to, replace: true }),
+    );
   }
 
   function quickFill(u: string) {
     setUsername(u);
     setPassword("atomia");
     setMessage(null);
+  }
+
+  if (roleChoices) {
+    return (
+      <RoleSelector
+        roles={roleChoices}
+        applying={applyingRole}
+        onSelect={handleRoleSelect}
+      />
+    );
   }
 
   return (
@@ -125,11 +221,7 @@ function LoginPage() {
               </div>
             ) : null}
 
-            <Button
-              type="submit"
-              className="w-full gap-2"
-              disabled={pending}
-            >
+            <Button type="submit" className="w-full gap-2" disabled={pending}>
               {pending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -168,7 +260,9 @@ function LoginPage() {
               <div>Keys: {debug.responseKeys.join(", ") || "—"}</div>
               <div>Token: {debug.authTokenExists ? "true" : "false"}</div>
               <div>Role: {debug.role ?? "—"}</div>
-              <div>Redirect: {debug.role ? ROLES[debug.role].landing : "—"}</div>
+              <div>
+                Redirect: {debug.role ? ROLES[debug.role].landing : "—"}
+              </div>
               <div>Error: {message ?? "—"}</div>
             </div>
           ) : null}
@@ -181,6 +275,71 @@ function LoginPage() {
           >
             بازگشت به صفحه اصلی
           </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────────── Role Selector ───────────────────────────── */
+
+function RoleSelector({
+  roles,
+  applying,
+  onSelect,
+}: {
+  roles: RoleId[];
+  applying: RoleId | null;
+  onSelect: (role: RoleId) => void;
+}) {
+  return (
+    <div
+      dir="rtl"
+      className="font-vazir min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4"
+    >
+      <div className="w-full max-w-3xl">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>آتومیا</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mt-4">
+            با کدام نقش وارد می‌شوی؟
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            برای ورود به فضای کاری مناسب، یکی از نقش‌های فعال خود را انتخاب کنید.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {roles.map((id) => {
+            const r = ROLES[id];
+            const Icon = r.icon;
+            const isApplying = applying === id;
+            const disabled = applying !== null;
+            return (
+              <button
+                key={id}
+                onClick={() => onSelect(id)}
+                disabled={disabled}
+                className="group text-start rounded-2xl border bg-card shadow-sm p-5 transition hover:border-primary hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <div
+                  className={`h-10 w-10 rounded-xl grid place-items-center text-white bg-gradient-to-br ${r.accent}`}
+                >
+                  {isApplying ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Icon className="h-5 w-5" />
+                  )}
+                </div>
+                <h2 className="mt-3 font-semibold">{r.labelFa}</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {r.descriptionFa}
+                </p>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
