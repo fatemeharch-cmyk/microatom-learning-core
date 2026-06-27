@@ -8,6 +8,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useTheme } from "@/lib/theme";
 import { Bell, Menu, LogOut, HeartPulse } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
