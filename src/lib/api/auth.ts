@@ -53,9 +53,32 @@ export function normalizeRole(raw: string): RoleId | null {
   if (r === "student") return "student";
   if (r === "teacher") return "teacher";
   if (r === "parent") return "parent";
-  if (r === "admin") return "admin";
+  if (r === "admin" || r === "principal" || r === "school_admin") return "admin";
   if (r === "supervisor" || r === "grade_supervisor") return "supervisor";
   return null;
+}
+
+/**
+ * Fetch the active roles for a user from Xano.
+ *   POST /auth/user/roles  { user_id }  →  { roles: string[] }
+ *
+ * Returns normalized RoleIds. Unknown roles are silently dropped.
+ */
+export async function fetchUserRoles(
+  userId: string | number,
+): Promise<RoleId[]> {
+  const numeric = Number(userId);
+  const body = { user_id: Number.isFinite(numeric) ? numeric : userId };
+  const res = await apiClient.post<{ roles?: string[] }>(
+    endpoints.auth.userRoles,
+    body,
+  );
+  const list = Array.isArray(res.data?.roles) ? res.data!.roles! : [];
+  const normalized = list
+    .map((r) => normalizeRole(r))
+    .filter((r): r is RoleId => !!r);
+  // De-duplicate while preserving order.
+  return Array.from(new Set(normalized));
 }
 
 function pickName(payload: Record<string, unknown>): string {
