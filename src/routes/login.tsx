@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Sparkles, LogIn, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,14 +25,6 @@ export const Route = createFileRoute("/login")({
   }),
   component: LoginPage,
 });
-
-const DEMO_ACCOUNTS: Array<{ user: string; labelFa: string }> = [
-  { user: "student", labelFa: "دانش‌آموز" },
-  { user: "teacher", labelFa: "دبیر" },
-  { user: "supervisor", labelFa: "مسئول پایه" },
-  { user: "parent", labelFa: "والدین" },
-  { user: "admin", labelFa: "مدیر مدرسه" },
-];
 
 const THEME_ENDPOINT = "https://x8ki-letl-twmt.n7.xano.io/api:theme/current";
 const THEME_CACHE_KEY = "atomia_theme";
@@ -196,12 +188,6 @@ function LoginPage() {
     );
   }
 
-  function quickFill(u: string) {
-    setUsername(u);
-    setPassword("atomia");
-    setMessage(null);
-  }
-
   if (roleChoices) {
     return (
       <RoleSelector
@@ -281,27 +267,6 @@ function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground text-center mb-2">
-              ورود سریع برای دمو
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {DEMO_ACCOUNTS.map((a) => (
-                <button
-                  key={a.user}
-                  type="button"
-                  onClick={() => quickFill(a.user)}
-                  className="rounded-lg border bg-background hover:bg-accent transition-colors px-2 py-2 text-xs font-medium"
-                >
-                  {a.labelFa}
-                </button>
-              ))}
-            </div>
-            <p className="text-[11px] text-muted-foreground text-center mt-3">
-              در حالت دمو، رمز دلخواه پذیرفته می‌شود.
-            </p>
-          </div>
-
           {debug ? (
             <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-900 font-mono space-y-1 break-all">
               <div className="font-bold text-amber-700 mb-1">Debug</div>
@@ -316,15 +281,6 @@ function LoginPage() {
               <div>Error: {message ?? "—"}</div>
             </div>
           ) : null}
-        </div>
-
-        <div className="text-center mt-5">
-          <Link
-            to="/"
-            className="text-xs text-muted-foreground hover:text-foreground"
-          >
-            بازگشت به صفحه اصلی
-          </Link>
         </div>
       </div>
     </div>
@@ -395,3 +351,4 @@ function RoleSelector({
     </div>
   );
 }
+
