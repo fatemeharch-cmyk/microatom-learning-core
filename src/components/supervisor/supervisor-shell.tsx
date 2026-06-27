@@ -1,27 +1,85 @@
+/**
+ * Supervisor shell — Medical Learning style for Grade 11 Experimental.
+ *
+ * Right-fixed white sidebar, soft lavender background, header pills,
+ * Persian RTL. Mirrors the Student dashboard look.
+ */
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { ArrowLeft, Bell, Layers, Languages } from "lucide-react";
-import type { ReactNode } from "react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/lib/auth-context";
+import { Bell, Menu, LogOut, HeartPulse } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { useI18n, type TKey } from "@/lib/i18n";
-import { RoleSwitcher } from "@/components/role-switcher";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-export type NavItem = { titleKey?: TKey; title?: string; url: string; icon: LucideIcon };
+export type NavItem = {
+  title?: string;
+  titleKey?: string;
+  url: string;
+  icon: LucideIcon;
+};
+
+function SidebarBody({
+  items,
+  pathname,
+  onNavigate,
+}: {
+  items: NavItem[];
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  return (
+    <aside className="h-full w-full bg-white flex flex-col py-6 px-5 gap-4" dir="rtl">
+      {/* Brand */}
+      <div dir="rtl" className="flex flex-row items-center gap-3 pb-4 w-full">
+        <div className="relative h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 grid place-items-center shrink-0">
+          <HeartPulse className="h-5 w-5 text-violet-600" />
+        </div>
+        <div className="flex-1 text-right">
+          <p className="text-base font-extrabold text-slate-800 leading-tight">Atomia</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">کلینیک هوشمند یادگیری</p>
+        </div>
+      </div>
+
+      <div className="rounded-xl bg-violet-50/70 px-3 py-2 text-right">
+        <p className="text-[11px] text-violet-700 font-semibold">مسئول پایه یازدهم تجربی</p>
+      </div>
+
+      {/* Menu */}
+      <nav className="flex-1 flex flex-col overflow-y-auto gap-2">
+        {items.map((item) => {
+          const active =
+            pathname === item.url ||
+            (item.url !== "/supervisor" && pathname.startsWith(item.url));
+          return (
+            <Link
+              key={item.url}
+              to={item.url}
+              onClick={onNavigate}
+              dir="rtl"
+              className={`group flex flex-row items-center gap-3 px-3 py-1.5 rounded-xl text-sm font-medium transition w-full ${
+                active
+                  ? "bg-violet-50 text-violet-700"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+              }`}
+            >
+              <span
+                className={`h-8 w-8 rounded-xl grid place-items-center shrink-0 transition ${
+                  active
+                    ? "bg-gradient-to-br from-violet-100 to-pink-100 text-violet-600"
+                    : "bg-slate-50 text-slate-400 group-hover:text-violet-500"
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+              </span>
+              <span className="flex-1 truncate text-right">{item.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
+    </aside>
+  );
+}
 
 export function SupervisorShell({
   items,
@@ -31,92 +89,67 @@ export function SupervisorShell({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { t, dir, lang, toggle } = useI18n();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { logout } = useAuth();
+  const today = "شنبه ۲۵ اردیبهشت ۱۴۰۴";
 
   return (
-    <div dir={dir} className={dir === "rtl" ? "font-vazir" : ""}>
-      <SidebarProvider>
-        <div className="min-h-dvh flex w-full bg-background">
-          <Sidebar collapsible="icon" side={dir === "rtl" ? "right" : "left"}>
-            <SidebarHeader>
-              <div className="px-2 py-3 flex items-center gap-2">
-                <div className="h-9 w-9 shrink-0 rounded-lg bg-[image:var(--gradient-primary)] grid place-items-center text-primary-foreground">
-                  <Layers className="h-4 w-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground truncate">{t("brand")}</p>
-                  <p className="text-sm font-semibold text-sidebar-foreground truncate">
-                    {t("role_supervisor")}
-                  </p>
-                </div>
-              </div>
-            </SidebarHeader>
-            <SidebarContent>
-              <SidebarGroup>
-                <SidebarGroupLabel>{t("main_menu")}</SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {items.map((item) => {
-                      const active =
-                        pathname === item.url ||
-                        (item.url !== "/supervisor" && pathname.startsWith(item.url));
-                      return (
-                        <SidebarMenuItem key={item.url}>
-                          <SidebarMenuButton asChild isActive={active}>
-                            <Link to={item.url} className="flex items-center gap-2">
-                              <item.icon className="h-4 w-4 shrink-0" />
-                              <span className="truncate">{item.title ?? (item.titleKey ? t(item.titleKey) : "")}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      );
-                    })}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/" className="flex items-center gap-2">
-                      <ArrowLeft className={`h-4 w-4 shrink-0 ${dir === "rtl" ? "rotate-180" : ""}`} />
-                      <span className="truncate">{t("switch_role")}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarFooter>
-          </Sidebar>
-
-          <div className="flex-1 flex flex-col min-w-0">
-            <header className="h-16 border-b flex items-center gap-2 sm:gap-3 px-3 sm:px-6 bg-card/60 backdrop-blur sticky top-0 z-30">
-              <SidebarTrigger />
-              <div className="flex-1 min-w-0" />
-              <RoleSwitcher compact />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggle}
-                aria-label={t("language")}
-                className="rounded-full h-9 px-3 gap-1.5"
-              >
-                <Languages className="h-4 w-4" />
-                <span className="font-semibold text-xs">{lang === "fa" ? "EN" : "فا"}</span>
-              </Button>
-              <Button variant="ghost" size="icon" aria-label={t("notifications")} className="rounded-full">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                  {lang === "fa" ? "ن" : "S"}
-                </AvatarFallback>
-              </Avatar>
-            </header>
-            <main className="flex-1 p-4 md:p-6">{children}</main>
-          </div>
+    <div
+      dir="rtl"
+      className="font-vazir min-h-dvh"
+      style={{ background: "#f7f8ff", "--sidebar-width": "240px" } as React.CSSProperties}
+    >
+      <div className="flex min-h-dvh">
+        <div className="hidden lg:flex order-2 w-[var(--sidebar-width)] shrink-0 border-l border-slate-100">
+          <SidebarBody items={items} pathname={pathname} />
         </div>
-      </SidebarProvider>
+
+        <div
+          className="flex-1 lg:flex-none lg:w-[calc(100%-var(--sidebar-width))] lg:max-w-none min-w-0 flex flex-col px-4 md:px-8 lg:px-8"
+          style={{ marginRight: 0, marginLeft: "auto" }}
+        >
+          <header className="pt-6 pb-2 flex items-center gap-3">
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="lg:hidden rounded-full bg-white border-slate-200"
+                >
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="p-0 w-[260px] bg-white">
+                <SidebarBody
+                  items={items}
+                  pathname={pathname}
+                  onNavigate={() => setMobileOpen(false)}
+                />
+              </SheetContent>
+            </Sheet>
+
+            <button
+              className="h-10 w-10 rounded-2xl bg-white grid place-items-center shadow-sm border border-slate-100 text-slate-500 hover:text-violet-600 transition"
+              aria-label="اعلان‌ها"
+            >
+              <Bell className="h-4 w-4" />
+            </button>
+            <div className="hidden sm:flex items-center gap-2 px-4 h-10 rounded-full bg-white shadow-sm border border-slate-100 text-xs font-medium text-slate-600">
+              {today}
+            </div>
+            <div className="flex-1" />
+            <button
+              onClick={() => logout()}
+              className="h-10 px-3 sm:px-4 rounded-2xl bg-white inline-flex items-center gap-1.5 shadow-sm border border-slate-100 text-slate-500 hover:text-rose-600 transition text-xs font-medium"
+              aria-label="خروج"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>خروج</span>
+            </button>
+          </header>
+          <main className="flex-1 pt-2 pb-10">{children}</main>
+        </div>
+      </div>
     </div>
   );
 }
