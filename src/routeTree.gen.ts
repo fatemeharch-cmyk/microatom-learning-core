@@ -35,6 +35,7 @@ import { Route as SupervisorTeachersHubRouteImport } from './routes/supervisor.t
 import { Route as SupervisorTeachersRouteImport } from './routes/supervisor.teachers'
 import { Route as SupervisorStudentRouteImport } from './routes/supervisor.student'
 import { Route as SupervisorSessionsRouteImport } from './routes/supervisor.sessions'
+import { Route as SupervisorParentsRouteImport } from './routes/supervisor.parents'
 import { Route as SupervisorGradeRouteImport } from './routes/supervisor.grade'
 import { Route as SupervisorFollowupsRouteImport } from './routes/supervisor.followups'
 import { Route as SupervisorFeedbackRouteImport } from './routes/supervisor.feedback'
@@ -207,6 +208,11 @@ const SupervisorStudentRoute = SupervisorStudentRouteImport.update({
 const SupervisorSessionsRoute = SupervisorSessionsRouteImport.update({
   id: '/sessions',
   path: '/sessions',
+  getParentRoute: () => SupervisorRoute,
+} as any)
+const SupervisorParentsRoute = SupervisorParentsRouteImport.update({
+  id: '/parents',
+  path: '/parents',
   getParentRoute: () => SupervisorRoute,
 } as any)
 const SupervisorGradeRoute = SupervisorGradeRouteImport.update({
@@ -476,6 +482,7 @@ export interface FileRoutesByFullPath {
   '/supervisor/feedback': typeof SupervisorFeedbackRoute
   '/supervisor/followups': typeof SupervisorFollowupsRoute
   '/supervisor/grade': typeof SupervisorGradeRoute
+  '/supervisor/parents': typeof SupervisorParentsRoute
   '/supervisor/sessions': typeof SupervisorSessionsRoute
   '/supervisor/student': typeof SupervisorStudentRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
@@ -542,6 +549,7 @@ export interface FileRoutesByTo {
   '/supervisor/feedback': typeof SupervisorFeedbackRoute
   '/supervisor/followups': typeof SupervisorFollowupsRoute
   '/supervisor/grade': typeof SupervisorGradeRoute
+  '/supervisor/parents': typeof SupervisorParentsRoute
   '/supervisor/sessions': typeof SupervisorSessionsRoute
   '/supervisor/student': typeof SupervisorStudentRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
@@ -614,6 +622,7 @@ export interface FileRoutesById {
   '/supervisor/feedback': typeof SupervisorFeedbackRoute
   '/supervisor/followups': typeof SupervisorFollowupsRoute
   '/supervisor/grade': typeof SupervisorGradeRoute
+  '/supervisor/parents': typeof SupervisorParentsRoute
   '/supervisor/sessions': typeof SupervisorSessionsRoute
   '/supervisor/student': typeof SupervisorStudentRoute
   '/supervisor/teachers': typeof SupervisorTeachersRoute
@@ -687,6 +696,7 @@ export interface FileRouteTypes {
     | '/supervisor/feedback'
     | '/supervisor/followups'
     | '/supervisor/grade'
+    | '/supervisor/parents'
     | '/supervisor/sessions'
     | '/supervisor/student'
     | '/supervisor/teachers'
@@ -753,6 +763,7 @@ export interface FileRouteTypes {
     | '/supervisor/feedback'
     | '/supervisor/followups'
     | '/supervisor/grade'
+    | '/supervisor/parents'
     | '/supervisor/sessions'
     | '/supervisor/student'
     | '/supervisor/teachers'
@@ -824,6 +835,7 @@ export interface FileRouteTypes {
     | '/supervisor/feedback'
     | '/supervisor/followups'
     | '/supervisor/grade'
+    | '/supervisor/parents'
     | '/supervisor/sessions'
     | '/supervisor/student'
     | '/supervisor/teachers'
@@ -1037,6 +1049,13 @@ declare module '@tanstack/react-router' {
       path: '/sessions'
       fullPath: '/supervisor/sessions'
       preLoaderRoute: typeof SupervisorSessionsRouteImport
+      parentRoute: typeof SupervisorRoute
+    }
+    '/supervisor/parents': {
+      id: '/supervisor/parents'
+      path: '/parents'
+      fullPath: '/supervisor/parents'
+      preLoaderRoute: typeof SupervisorParentsRouteImport
       parentRoute: typeof SupervisorRoute
     }
     '/supervisor/grade': {
@@ -1456,6 +1475,7 @@ interface SupervisorRouteChildren {
   SupervisorFeedbackRoute: typeof SupervisorFeedbackRoute
   SupervisorFollowupsRoute: typeof SupervisorFollowupsRoute
   SupervisorGradeRoute: typeof SupervisorGradeRoute
+  SupervisorParentsRoute: typeof SupervisorParentsRoute
   SupervisorSessionsRoute: typeof SupervisorSessionsRoute
   SupervisorStudentRoute: typeof SupervisorStudentRoute
   SupervisorTeachersRoute: typeof SupervisorTeachersRoute
@@ -1471,6 +1491,7 @@ const SupervisorRouteChildren: SupervisorRouteChildren = {
   SupervisorFeedbackRoute: SupervisorFeedbackRoute,
   SupervisorFollowupsRoute: SupervisorFollowupsRoute,
   SupervisorGradeRoute: SupervisorGradeRoute,
+  SupervisorParentsRoute: SupervisorParentsRoute,
   SupervisorSessionsRoute: SupervisorSessionsRoute,
   SupervisorStudentRoute: SupervisorStudentRoute,
   SupervisorTeachersRoute: SupervisorTeachersRoute,
