@@ -92,25 +92,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     const cached = readStoredUser();
-    if (cached) setUser(cached);
 
-    // If we have a token, try to refresh the user from /auth/me in the
-    // background so the cached profile stays in sync.
+    // The role chosen at login (atomia_selected_role) is the source of truth
+    // for which dashboard the user is in — /auth/me must NEVER override it.
+    const selectedRaw =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("atomia_selected_role")
+        : null;
+    const selectedInternal: RoleId | null = (() => {
+      if (!selectedRaw) return null;
+      if (selectedRaw === "grade_supervisor") return "supervisor";
+      if (selectedRaw === "principal") return "admin";
+      if (selectedRaw in ROLES) return selectedRaw as RoleId;
+      return null;
+    })();
+
+    if (cached) {
+      const merged = selectedInternal
+        ? { ...cached, role: selectedInternal }
+        : cached;
+      setUser(merged);
+    }
+
+    // Best-effort: ensure cached theme exists for the selected role.
+    if (typeof window !== "undefined" && selectedRaw) {
+      const hasTheme = !!window.localStorage.getItem("atomia_theme");
+      const userId = window.localStorage.getItem("atomia_user_id");
+      if (!hasTheme && userId) {
+        const numeric = Number(userId);
+        fetch(
+          "https://x8ki-letl-twmt.n7.xano.io/api:theme/current",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({
+              user_id: Number.isFinite(numeric) ? numeric : userId,
+              role: selectedRaw,
+            }),
+          },
+        )
+          .then((r) => (r.ok ? r.json() : null))
+          .then((json) => {
+            const theme = json?.theme ?? json;
+            if (theme) {
+              try {
+                window.localStorage.setItem("atomia_theme", JSON.stringify(theme));
+              } catch {
+                /* ignore */
+              }
+            }
+          })
+          .catch(() => {
+            /* ignore */
+          });
+      }
+    }
+
+    // If we have a token, refresh the user from /auth/me — but preserve the
+    // selected role so a multi-role user staying on /grade-supervisor isn't
+    // bounced back to their default role.
     const token = getAuthToken();
     if (token) {
       apiGetCurrentUser()
         .then((fresh) => {
           if (cancelled) return;
           if (fresh) {
-            setUser(fresh);
-            persistUser(fresh);
+            const next = selectedInternal
+              ? { ...fresh, role: selectedInternal }
+              : fresh;
+            setUser(next);
+            persistUser(next);
           } else if (!cached) {
-            // Token is invalid and we had no cached session → clear it.
             setAuthToken(null);
           }
         })
         .catch(() => {
-          /* keep cached user if /me fails (e.g. offline) */
+          /* keep cached user if /me fails */
         })
         .finally(() => {
           if (!cancelled) setIsHydrated(true);

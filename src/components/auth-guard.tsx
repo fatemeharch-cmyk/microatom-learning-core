@@ -1,26 +1,60 @@
 import { useEffect, type ReactNode } from "react";
 import { useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
-import { ROLES, ROLE_ORDER, type RoleId } from "@/lib/roles";
 
 /**
  * Public routes that never require authentication.
- * Any other top-level segment that matches a role (e.g. "/student/...") is
- * treated as protected and must match the signed-in user's role.
  */
 const PUBLIC_ROUTES = new Set<string>(["/", "/login"]);
 
-function getRoleSegment(pathname: string): RoleId | null {
-  const seg = pathname.split("/").filter(Boolean)[0];
-  return seg && (ROLE_ORDER as string[]).includes(seg) ? (seg as RoleId) : null;
+/**
+ * Canonical roles (matching backend) → their dashboard route prefix.
+ * This is the SINGLE source of truth for refresh / deep-link routing.
+ */
+const CANONICAL_ROLE_TO_ROUTE: Record<string, string> = {
+  student: "/student",
+  parent: "/parent",
+  teacher: "/teacher",
+  grade_supervisor: "/grade-supervisor",
+  principal: "/principal",
+};
+
+/** All known dashboard route prefixes, ordered longest-first for matching. */
+const ALL_ROLE_ROUTES = Object.values(CANONICAL_ROLE_TO_ROUTE).sort(
+  (a, b) => b.length - a.length,
+);
+
+function routeBelongsToRole(pathname: string, route: string): boolean {
+  return pathname === route || pathname.startsWith(route + "/");
+}
+
+function pathOwningRole(pathname: string): string | null {
+  for (const r of ALL_ROLE_ROUTES) {
+    if (routeBelongsToRole(pathname, r)) return r;
+  }
+  return null;
+}
+
+function readSelectedRole(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = window.localStorage.getItem("atomia_selected_role");
+    return v && CANONICAL_ROLE_TO_ROUTE[v] ? v : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Wraps the app and enforces:
- *   - protected role areas require a signed-in user → /login otherwise
- *   - role mismatch (e.g. parent visiting /admin) → user's own landing page
+ * Refresh-safe route protection:
+ *   - Unauthenticated user on a protected role route → /login
+ *   - Authenticated user with a selected role visiting another role's
+ *     route → redirect to their own role's route.
+ *   - Otherwise: stay where you are (including child routes).
  *
- * Implemented as an effect so we don't need to modify any existing route file.
+ * `atomia_selected_role` (set by the login role selector) wins over
+ * whatever role /auth/me happens to return, so refreshing on
+ * /grade-supervisor never bounces to /student.
  */
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, isHydrated } = useAuth();
@@ -30,27 +64,29 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (PUBLIC_ROUTES.has(pathname)) {
-      // NOTE: do NOT auto-redirect signed-in users away from /login.
-      // The login page owns post-login routing because it must first
-      // call /auth/user/roles and (for multi-role users) show the role
-      // selector before navigating. Auto-redirecting here would race
-      // ahead and send everyone to their login-response role (often
-      // /student) before the selector ever appears.
-      return;
-    }
+    // The login page owns its own post-login routing.
+    if (PUBLIC_ROUTES.has(pathname)) return;
 
-    const roleSegment = getRoleSegment(pathname);
-    if (!roleSegment) return; // unknown / non-role route — leave alone
+    const owningRoute = pathOwningRole(pathname);
+    if (!owningRoute) return; // not a role-scoped route — leave alone
 
     if (!user) {
       navigate({ to: "/login", replace: true });
       return;
     }
 
-    if (user.role !== roleSegment) {
-      navigate({ to: ROLES[user.role].landing, replace: true });
+    const selected = readSelectedRole();
+    if (!selected) {
+      // No persisted selection yet — don't force-redirect anywhere.
+      return;
     }
+
+    const selectedRoute = CANONICAL_ROLE_TO_ROUTE[selected];
+    // Current path is under the selected role (or a child) → stay.
+    if (routeBelongsToRole(pathname, selectedRoute)) return;
+
+    // Otherwise the user is on a different role's area → send them home.
+    navigate({ to: selectedRoute, replace: true });
   }, [isHydrated, user, pathname, navigate]);
 
   return <>{children}</>;
