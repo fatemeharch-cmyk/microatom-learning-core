@@ -46,6 +46,8 @@ type AuthContextValue = {
   isHydrated: boolean;
   login: (username: string, password: string) => Promise<LoginResult>;
   logout: () => void;
+  /** Switch the active role for an already-signed-in user (multi-role users). */
+  setUserRole: (role: RoleId) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
