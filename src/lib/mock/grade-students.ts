@@ -1,3 +1,7 @@
+// TODO(xano): replace this mock module with real Xano API calls.
+import { warnMock } from "./_warn";
+warnMock("mock/grade-students");
+
 /**
  * Mock students for the Grade Supervisor "Students" flow.
  * Persian demo data, medical learning theme.

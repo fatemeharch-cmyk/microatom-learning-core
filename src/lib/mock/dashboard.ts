@@ -1,3 +1,7 @@
+// TODO(xano): replace this mock module with real Xano API calls.
+import { warnMock } from "./_warn";
+warnMock("mock/dashboard");
+
 /**
  * Atomia — Cross-role Dashboard provider.
  *

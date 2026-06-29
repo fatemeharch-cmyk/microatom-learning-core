@@ -1,3 +1,7 @@
+// TODO(xano): replace this mock module with real Xano API calls.
+import { warnMock } from "./_warn";
+warnMock("mock/biology-ch1");
+
 /**
  * Atomia — Biology Grade 11 Experimental, Chapter 1.
  * First real educational content integrated into Atomia.
