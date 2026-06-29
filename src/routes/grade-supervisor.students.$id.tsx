@@ -30,9 +30,12 @@ import {
   MICRO_ATOMS as BIO_MICROS,
   ensureSeed as bioEnsureSeed,
   summarizeStudent as bioSummarize,
+  refreshDosesFor as bioRefreshDoses,
   useBioCh1Tick,
 } from "@/lib/mock/biology-ch1";
 import { Leaf } from "lucide-react";
+import { useEffect } from "react";
+
 
 export const Route = createFileRoute("/grade-supervisor/students/$id")({
   loader: ({ params }) => {
