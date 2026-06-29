@@ -59,6 +59,7 @@ import { Route as StudentHomeworkRouteImport } from './routes/student.homework'
 import { Route as StudentGrowthRouteImport } from './routes/student.growth'
 import { Route as StudentExamsRouteImport } from './routes/student.exams'
 import { Route as StudentDailyRouteImport } from './routes/student.daily'
+import { Route as StudentBiologyRouteImport } from './routes/student.biology'
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
 import { Route as ParentWeeklyRouteImport } from './routes/parent.weekly'
@@ -82,7 +83,9 @@ import { Route as AdminCurriculumRouteImport } from './routes/admin.curriculum'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
 import { Route as AdminClassesRouteImport } from './routes/admin.classes'
 import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
+import { Route as StudentBiologyIndexRouteImport } from './routes/student.biology.index'
 import { Route as GradeSupervisorStudentsIndexRouteImport } from './routes/grade-supervisor.students.index'
+import { Route as StudentBiologyChapterIdRouteImport } from './routes/student.biology.$chapterId'
 import { Route as GradeSupervisorStudentsIdRouteImport } from './routes/grade-supervisor.students.$id'
 
 const TeacherRoute = TeacherRouteImport.update({
@@ -335,6 +338,11 @@ const StudentDailyRoute = StudentDailyRouteImport.update({
   path: '/daily',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentBiologyRoute = StudentBiologyRouteImport.update({
+  id: '/biology',
+  path: '/biology',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentAnalyticsRoute = StudentAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -450,12 +458,22 @@ const AdminCalendarRoute = AdminCalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => AdminRoute,
 } as any)
+const StudentBiologyIndexRoute = StudentBiologyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentBiologyRoute,
+} as any)
 const GradeSupervisorStudentsIndexRoute =
   GradeSupervisorStudentsIndexRouteImport.update({
     id: '/students/',
     path: '/students/',
     getParentRoute: () => GradeSupervisorRoute,
   } as any)
+const StudentBiologyChapterIdRoute = StudentBiologyChapterIdRouteImport.update({
+  id: '/$chapterId',
+  path: '/$chapterId',
+  getParentRoute: () => StudentBiologyRoute,
+} as any)
 const GradeSupervisorStudentsIdRoute =
   GradeSupervisorStudentsIdRouteImport.update({
     id: '/students/$id',
@@ -496,6 +514,7 @@ export interface FileRoutesByFullPath {
   '/parent/weekly': typeof ParentWeeklyRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
+  '/student/biology': typeof StudentBiologyRouteWithChildren
   '/student/daily': typeof StudentDailyRoute
   '/student/exams': typeof StudentExamsRoute
   '/student/growth': typeof StudentGrowthRoute
@@ -538,7 +557,9 @@ export interface FileRoutesByFullPath {
   '/supervisor/': typeof SupervisorIndexRoute
   '/teacher/': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
+  '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
   '/grade-supervisor/students/': typeof GradeSupervisorStudentsIndexRoute
+  '/student/biology/': typeof StudentBiologyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -609,7 +630,9 @@ export interface FileRoutesByTo {
   '/supervisor': typeof SupervisorIndexRoute
   '/teacher': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
+  '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
   '/grade-supervisor/students': typeof GradeSupervisorStudentsIndexRoute
+  '/student/biology': typeof StudentBiologyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -645,6 +668,7 @@ export interface FileRoutesById {
   '/parent/weekly': typeof ParentWeeklyRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
+  '/student/biology': typeof StudentBiologyRouteWithChildren
   '/student/daily': typeof StudentDailyRoute
   '/student/exams': typeof StudentExamsRoute
   '/student/growth': typeof StudentGrowthRoute
@@ -687,7 +711,9 @@ export interface FileRoutesById {
   '/supervisor/': typeof SupervisorIndexRoute
   '/teacher/': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
+  '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
   '/grade-supervisor/students/': typeof GradeSupervisorStudentsIndexRoute
+  '/student/biology/': typeof StudentBiologyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -724,6 +750,7 @@ export interface FileRouteTypes {
     | '/parent/weekly'
     | '/student/achievements'
     | '/student/analytics'
+    | '/student/biology'
     | '/student/daily'
     | '/student/exams'
     | '/student/growth'
@@ -766,7 +793,9 @@ export interface FileRouteTypes {
     | '/supervisor/'
     | '/teacher/'
     | '/grade-supervisor/students/$id'
+    | '/student/biology/$chapterId'
     | '/grade-supervisor/students/'
+    | '/student/biology/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -837,7 +866,9 @@ export interface FileRouteTypes {
     | '/supervisor'
     | '/teacher'
     | '/grade-supervisor/students/$id'
+    | '/student/biology/$chapterId'
     | '/grade-supervisor/students'
+    | '/student/biology'
   id:
     | '__root__'
     | '/'
@@ -872,6 +903,7 @@ export interface FileRouteTypes {
     | '/parent/weekly'
     | '/student/achievements'
     | '/student/analytics'
+    | '/student/biology'
     | '/student/daily'
     | '/student/exams'
     | '/student/growth'
@@ -914,7 +946,9 @@ export interface FileRouteTypes {
     | '/supervisor/'
     | '/teacher/'
     | '/grade-supervisor/students/$id'
+    | '/student/biology/$chapterId'
     | '/grade-supervisor/students/'
+    | '/student/biology/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1281,6 +1315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDailyRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/biology': {
+      id: '/student/biology'
+      path: '/biology'
+      fullPath: '/student/biology'
+      preLoaderRoute: typeof StudentBiologyRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/analytics': {
       id: '/student/analytics'
       path: '/analytics'
@@ -1442,12 +1483,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCalendarRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/student/biology/': {
+      id: '/student/biology/'
+      path: '/'
+      fullPath: '/student/biology/'
+      preLoaderRoute: typeof StudentBiologyIndexRouteImport
+      parentRoute: typeof StudentBiologyRoute
+    }
     '/grade-supervisor/students/': {
       id: '/grade-supervisor/students/'
       path: '/students'
       fullPath: '/grade-supervisor/students/'
       preLoaderRoute: typeof GradeSupervisorStudentsIndexRouteImport
       parentRoute: typeof GradeSupervisorRoute
+    }
+    '/student/biology/$chapterId': {
+      id: '/student/biology/$chapterId'
+      path: '/$chapterId'
+      fullPath: '/student/biology/$chapterId'
+      preLoaderRoute: typeof StudentBiologyChapterIdRouteImport
+      parentRoute: typeof StudentBiologyRoute
     }
     '/grade-supervisor/students/$id': {
       id: '/grade-supervisor/students/$id'
@@ -1538,9 +1593,24 @@ const ParentRouteChildren: ParentRouteChildren = {
 const ParentRouteWithChildren =
   ParentRoute._addFileChildren(ParentRouteChildren)
 
+interface StudentBiologyRouteChildren {
+  StudentBiologyChapterIdRoute: typeof StudentBiologyChapterIdRoute
+  StudentBiologyIndexRoute: typeof StudentBiologyIndexRoute
+}
+
+const StudentBiologyRouteChildren: StudentBiologyRouteChildren = {
+  StudentBiologyChapterIdRoute: StudentBiologyChapterIdRoute,
+  StudentBiologyIndexRoute: StudentBiologyIndexRoute,
+}
+
+const StudentBiologyRouteWithChildren = StudentBiologyRoute._addFileChildren(
+  StudentBiologyRouteChildren,
+)
+
 interface StudentRouteChildren {
   StudentAchievementsRoute: typeof StudentAchievementsRoute
   StudentAnalyticsRoute: typeof StudentAnalyticsRoute
+  StudentBiologyRoute: typeof StudentBiologyRouteWithChildren
   StudentDailyRoute: typeof StudentDailyRoute
   StudentExamsRoute: typeof StudentExamsRoute
   StudentGrowthRoute: typeof StudentGrowthRoute
@@ -1561,6 +1631,7 @@ interface StudentRouteChildren {
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAchievementsRoute: StudentAchievementsRoute,
   StudentAnalyticsRoute: StudentAnalyticsRoute,
+  StudentBiologyRoute: StudentBiologyRouteWithChildren,
   StudentDailyRoute: StudentDailyRoute,
   StudentExamsRoute: StudentExamsRoute,
   StudentGrowthRoute: StudentGrowthRoute,

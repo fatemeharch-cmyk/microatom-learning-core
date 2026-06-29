@@ -180,40 +180,6 @@ function SectionCard({
   );
 }
 
-function DrillTile({
-  to,
-  search,
-  title,
-  caption,
-  badge,
-}: {
-  to: string;
-  search: Record<string, string | undefined>;
-  title: string;
-  caption?: string;
-  badge?: string;
-}) {
-  return (
-    <Link
-      to="/student/biology/$chapterId"
-      params={{ chapterId: CHAPTER.id }}
-      search={search}
-      className="rounded-2xl border border-emerald-100 bg-emerald-50/40 hover:bg-emerald-50 transition p-4 flex items-start justify-between gap-3"
-    >
-      <div className="min-w-0">
-        {badge && (
-          <div className="text-[10px] font-bold text-emerald-700">{badge}</div>
-        )}
-        <div className="font-semibold text-slate-800 mt-0.5">{title}</div>
-        {caption && <div className="text-xs text-slate-500 mt-1">{caption}</div>}
-      </div>
-      <ChevronLeft className="h-5 w-5 text-emerald-600 mt-1 shrink-0" />
-    </Link>
-    // typing: TanStack-typed Link
-  ) as unknown as JSX.Element;
-}
-void DrillTile;
-
 function GoftarList() {
   return (
     <SectionCard title="گفتارها" subtitle={`${GOFTARS.length} گفتار در این فصل`} icon={<ListChecks className="h-4 w-4" />}>
