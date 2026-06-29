@@ -374,7 +374,7 @@ function StudentProfilePage() {
         </Card>
       </div>
 
-      {/* Biology Chapter 1 — pulled from شapelaped student doses & checkups */}
+      {/* Biology Chapter 1 — pulled from shared student doses & checkups */}
       <Card className="p-5">
         <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
           <div className="flex items-center gap-2">
