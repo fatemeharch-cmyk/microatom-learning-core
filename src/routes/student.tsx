@@ -11,7 +11,6 @@ import {
   Target,
   FolderHeart,
   Trophy,
-  Beaker,
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
 import { useHealthGlossary } from "@/lib/health-glossary";
@@ -19,7 +18,6 @@ import { useTheme, resolveIcon } from "@/lib/theme";
 
 const medicalItems: NavItem[] = [
   { title: "کلینیک من", url: "/student", icon: Home },
-  { title: "زیست فصل ۱", url: "/student/biology-ch1", icon: Beaker },
   { title: "شرح حال", url: "/student/profile", icon: Stethoscope },
   { title: "نبض دانش", url: "/student/progress", icon: HeartPulse },
   { title: "اسکن", url: "/student/tracking", icon: ScanLine },
