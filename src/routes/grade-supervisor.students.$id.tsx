@@ -25,6 +25,14 @@ import {
   type StudentProfile,
   type RiskLevel,
 } from "@/lib/mock/grade-students";
+import {
+  CHAPTER as BIO_CHAPTER,
+  MICRO_ATOMS as BIO_MICROS,
+  ensureSeed as bioEnsureSeed,
+  summarizeStudent as bioSummarize,
+  useBioCh1Tick,
+} from "@/lib/mock/biology-ch1";
+import { Leaf } from "lucide-react";
 
 export const Route = createFileRoute("/grade-supervisor/students/$id")({
   loader: ({ params }) => {
