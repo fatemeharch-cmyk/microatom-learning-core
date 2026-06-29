@@ -115,7 +115,10 @@ export function questionsByMicro(microId: string) {
 }
 
 // ---------- store ----------
-const DOSE_KEY = "atomia_bio_ch1_doses";
+// Study doses are now backed by Xano (see services/study-dose-service.ts).
+// We keep a tiny in-memory cache so that synchronous getDoses() callers keep
+// working. Callers should trigger refreshDosesFor(...) on mount.
+// Checkups remain in localStorage until a Xano endpoint exists for them.
 const CHECKUP_KEY = "atomia_bio_ch1_checkups";
 
 function load<T>(key: string): T[] {
@@ -139,11 +142,58 @@ function notify() {
   listeners.forEach((l) => l());
 }
 
-export function addDose(entry: Omit<DoseEntry, "id" | "at">) {
-  const list = load<DoseEntry>(DOSE_KEY);
-  list.push({ ...entry, id: `d-${Date.now()}`, at: Date.now() });
-  save(DOSE_KEY, list);
+// --- doses cache (Xano-backed) ---
+let doseCache: DoseEntry[] = [];
+
+import {
+  createStudyDose,
+  listMyStudyDoses,
+  listStudentStudyDoses,
+} from "@/lib/services/study-dose-service";
+
+export async function refreshDosesFor(studentId: string, mine = false) {
+  try {
+    const fetched = mine
+      ? await listMyStudyDoses()
+      : await listStudentStudyDoses(studentId);
+    // Merge: replace entries for this student.
+    const others = doseCache.filter((d) => d.studentId !== studentId);
+    doseCache = [...others, ...fetched.map((d) => ({ ...d, studentId: d.studentId || studentId }))];
+    notify();
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn("[atomia][study-dose] fetch failed", e);
+  }
+}
+
+export async function addDose(entry: Omit<DoseEntry, "id" | "at">) {
+  // Optimistic add for instant UI feedback.
+  const optimistic: DoseEntry = {
+    ...entry,
+    id: `tmp-${Date.now()}`,
+    at: Date.now(),
+  };
+  doseCache = [...doseCache, optimistic];
   notify();
+  try {
+    const saved = await createStudyDose({
+      microAtomId: entry.microAtomId,
+      minutes: entry.minutes,
+      studentId: entry.studentId,
+    });
+    doseCache = doseCache.map((d) =>
+      d.id === optimistic.id
+        ? { ...saved, studentId: saved.studentId || entry.studentId }
+        : d,
+    );
+    notify();
+  } catch (e) {
+    // Roll back optimistic entry on failure.
+    doseCache = doseCache.filter((d) => d.id !== optimistic.id);
+    notify();
+    // eslint-disable-next-line no-console
+    console.warn("[atomia][study-dose] create failed", e);
+  }
 }
 export function addCheckup(entry: Omit<CheckupResult, "id" | "at">) {
   const list = load<CheckupResult>(CHECKUP_KEY);
@@ -152,13 +202,13 @@ export function addCheckup(entry: Omit<CheckupResult, "id" | "at">) {
   notify();
 }
 export function getDoses(studentId?: string): DoseEntry[] {
-  const all = load<DoseEntry>(DOSE_KEY);
-  return studentId ? all.filter((d) => d.studentId === studentId) : all;
+  return studentId ? doseCache.filter((d) => d.studentId === studentId) : doseCache;
 }
 export function getCheckups(studentId?: string): CheckupResult[] {
   const all = load<CheckupResult>(CHECKUP_KEY);
   return studentId ? all.filter((c) => c.studentId === studentId) : all;
 }
+
 
 export function useBioCh1Tick() {
   const [, setTick] = useState(0);
