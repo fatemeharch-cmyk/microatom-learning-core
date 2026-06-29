@@ -224,21 +224,13 @@ export function useBioCh1Tick() {
 /** Active student inside the student workspace (آرمان محمدی). */
 export const STUDENT_ID = "s-001";
 
-/** Seed demo doses/checkups for other students in the Monitoring Center. */
+/** Seed demo checkups for other students in the Monitoring Center.
+ *  Doses are no longer seeded — they come from Xano via /study-dose/*. */
 export function ensureSeed() {
   if (typeof window === "undefined") return;
-  if (localStorage.getItem("atomia_bio_ch1_seeded_v2")) return;
+  if (localStorage.getItem("atomia_bio_ch1_seeded_v3")) return;
   const now = Date.now();
   const day = 24 * 60 * 60 * 1000;
-  const doses: DoseEntry[] = [
-    { id: "sd1", studentId: "s-001", microAtomId: "ma-1", minutes: 25, at: now - 4 * day },
-    { id: "sd2", studentId: "s-001", microAtomId: "ma-3", minutes: 30, at: now - 2 * day },
-    { id: "sd3", studentId: "s-002", microAtomId: "ma-4", minutes: 35, at: now - 1 * day },
-    { id: "sd4", studentId: "s-003", microAtomId: "ma-2", minutes: 20, at: now - 3 * day },
-    { id: "sd5", studentId: "s-004", microAtomId: "ma-5", minutes: 40, at: now - 1 * day },
-    { id: "sd6", studentId: "s-004", microAtomId: "ma-6", minutes: 30, at: now - 2 * day },
-    { id: "sd7", studentId: "s-006", microAtomId: "ma-3", minutes: 15, at: now - 5 * day },
-  ];
   const checkups: CheckupResult[] = [
     { id: "sc1", studentId: "s-001", microAtomId: "ma-1", score: 50, total: 2, correct: 1, at: now - 3 * day },
     { id: "sc2", studentId: "s-002", microAtomId: "ma-4", score: 0, total: 1, correct: 0, at: now - 1 * day },
@@ -247,10 +239,10 @@ export function ensureSeed() {
     { id: "sc5", studentId: "s-004", microAtomId: "ma-6", score: 100, total: 1, correct: 1, at: now - 2 * day },
     { id: "sc6", studentId: "s-006", microAtomId: "ma-3", score: 0, total: 1, correct: 0, at: now - 4 * day },
   ];
-  save(DOSE_KEY, doses);
   save(CHECKUP_KEY, checkups);
-  localStorage.setItem("atomia_bio_ch1_seeded_v2", "1");
+  localStorage.setItem("atomia_bio_ch1_seeded_v3", "1");
 }
+
 
 /** Aggregated per-student summary used by the Grade Supervisor view. */
 export function summarizeStudent(studentId: string) {
