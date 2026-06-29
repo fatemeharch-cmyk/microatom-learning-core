@@ -20,6 +20,7 @@ import {
   ensureSeed,
   getCheckups,
   getDoses,
+  refreshDosesFor,
   goftarById,
   atomById,
   microAtomById,
@@ -28,6 +29,7 @@ import {
   questionsByMicro,
   useBioCh1Tick,
 } from "@/lib/mock/biology-ch1";
+
 import {
   Leaf,
   ChevronLeft,
