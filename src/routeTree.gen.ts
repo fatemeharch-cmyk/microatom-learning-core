@@ -59,6 +59,7 @@ import { Route as StudentHomeworkRouteImport } from './routes/student.homework'
 import { Route as StudentGrowthRouteImport } from './routes/student.growth'
 import { Route as StudentExamsRouteImport } from './routes/student.exams'
 import { Route as StudentDailyRouteImport } from './routes/student.daily'
+import { Route as StudentBiologyCh1RouteImport } from './routes/student.biology-ch1'
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
 import { Route as ParentWeeklyRouteImport } from './routes/parent.weekly'
@@ -71,6 +72,7 @@ import { Route as ParentCompanionRouteImport } from './routes/parent.companion'
 import { Route as ParentChildrenRouteImport } from './routes/parent.children'
 import { Route as ParentCalendarRouteImport } from './routes/parent.calendar'
 import { Route as ParentAnnouncementsRouteImport } from './routes/parent.announcements'
+import { Route as GradeSupervisorBiologyCh1RouteImport } from './routes/grade-supervisor.biology-ch1'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemRouteImport } from './routes/admin.system'
 import { Route as AdminScheduleRouteImport } from './routes/admin.schedule'
@@ -335,6 +337,11 @@ const StudentDailyRoute = StudentDailyRouteImport.update({
   path: '/daily',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentBiologyCh1Route = StudentBiologyCh1RouteImport.update({
+  id: '/biology-ch1',
+  path: '/biology-ch1',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentAnalyticsRoute = StudentAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -395,6 +402,12 @@ const ParentAnnouncementsRoute = ParentAnnouncementsRouteImport.update({
   path: '/announcements',
   getParentRoute: () => ParentRoute,
 } as any)
+const GradeSupervisorBiologyCh1Route =
+  GradeSupervisorBiologyCh1RouteImport.update({
+    id: '/biology-ch1',
+    path: '/biology-ch1',
+    getParentRoute: () => GradeSupervisorRoute,
+  } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -484,6 +497,7 @@ export interface FileRoutesByFullPath {
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/grade-supervisor/biology-ch1': typeof GradeSupervisorBiologyCh1Route
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -496,6 +510,7 @@ export interface FileRoutesByFullPath {
   '/parent/weekly': typeof ParentWeeklyRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
+  '/student/biology-ch1': typeof StudentBiologyCh1Route
   '/student/daily': typeof StudentDailyRoute
   '/student/exams': typeof StudentExamsRoute
   '/student/growth': typeof StudentGrowthRoute
@@ -555,6 +570,7 @@ export interface FileRoutesByTo {
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/grade-supervisor/biology-ch1': typeof GradeSupervisorBiologyCh1Route
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -567,6 +583,7 @@ export interface FileRoutesByTo {
   '/parent/weekly': typeof ParentWeeklyRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
+  '/student/biology-ch1': typeof StudentBiologyCh1Route
   '/student/daily': typeof StudentDailyRoute
   '/student/exams': typeof StudentExamsRoute
   '/student/growth': typeof StudentGrowthRoute
@@ -633,6 +650,7 @@ export interface FileRoutesById {
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/grade-supervisor/biology-ch1': typeof GradeSupervisorBiologyCh1Route
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -645,6 +663,7 @@ export interface FileRoutesById {
   '/parent/weekly': typeof ParentWeeklyRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
+  '/student/biology-ch1': typeof StudentBiologyCh1Route
   '/student/daily': typeof StudentDailyRoute
   '/student/exams': typeof StudentExamsRoute
   '/student/growth': typeof StudentGrowthRoute
@@ -712,6 +731,7 @@ export interface FileRouteTypes {
     | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
+    | '/grade-supervisor/biology-ch1'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -724,6 +744,7 @@ export interface FileRouteTypes {
     | '/parent/weekly'
     | '/student/achievements'
     | '/student/analytics'
+    | '/student/biology-ch1'
     | '/student/daily'
     | '/student/exams'
     | '/student/growth'
@@ -783,6 +804,7 @@ export interface FileRouteTypes {
     | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
+    | '/grade-supervisor/biology-ch1'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -795,6 +817,7 @@ export interface FileRouteTypes {
     | '/parent/weekly'
     | '/student/achievements'
     | '/student/analytics'
+    | '/student/biology-ch1'
     | '/student/daily'
     | '/student/exams'
     | '/student/growth'
@@ -860,6 +883,7 @@ export interface FileRouteTypes {
     | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
+    | '/grade-supervisor/biology-ch1'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -872,6 +896,7 @@ export interface FileRouteTypes {
     | '/parent/weekly'
     | '/student/achievements'
     | '/student/analytics'
+    | '/student/biology-ch1'
     | '/student/daily'
     | '/student/exams'
     | '/student/growth'
@@ -1281,6 +1306,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDailyRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/biology-ch1': {
+      id: '/student/biology-ch1'
+      path: '/biology-ch1'
+      fullPath: '/student/biology-ch1'
+      preLoaderRoute: typeof StudentBiologyCh1RouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/analytics': {
       id: '/student/analytics'
       path: '/analytics'
@@ -1364,6 +1396,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/parent/announcements'
       preLoaderRoute: typeof ParentAnnouncementsRouteImport
       parentRoute: typeof ParentRoute
+    }
+    '/grade-supervisor/biology-ch1': {
+      id: '/grade-supervisor/biology-ch1'
+      path: '/biology-ch1'
+      fullPath: '/grade-supervisor/biology-ch1'
+      preLoaderRoute: typeof GradeSupervisorBiologyCh1RouteImport
+      parentRoute: typeof GradeSupervisorRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -1492,12 +1531,14 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface GradeSupervisorRouteChildren {
+  GradeSupervisorBiologyCh1Route: typeof GradeSupervisorBiologyCh1Route
   GradeSupervisorIndexRoute: typeof GradeSupervisorIndexRoute
   GradeSupervisorStudentsIdRoute: typeof GradeSupervisorStudentsIdRoute
   GradeSupervisorStudentsIndexRoute: typeof GradeSupervisorStudentsIndexRoute
 }
 
 const GradeSupervisorRouteChildren: GradeSupervisorRouteChildren = {
+  GradeSupervisorBiologyCh1Route: GradeSupervisorBiologyCh1Route,
   GradeSupervisorIndexRoute: GradeSupervisorIndexRoute,
   GradeSupervisorStudentsIdRoute: GradeSupervisorStudentsIdRoute,
   GradeSupervisorStudentsIndexRoute: GradeSupervisorStudentsIndexRoute,
@@ -1541,6 +1582,7 @@ const ParentRouteWithChildren =
 interface StudentRouteChildren {
   StudentAchievementsRoute: typeof StudentAchievementsRoute
   StudentAnalyticsRoute: typeof StudentAnalyticsRoute
+  StudentBiologyCh1Route: typeof StudentBiologyCh1Route
   StudentDailyRoute: typeof StudentDailyRoute
   StudentExamsRoute: typeof StudentExamsRoute
   StudentGrowthRoute: typeof StudentGrowthRoute
@@ -1561,6 +1603,7 @@ interface StudentRouteChildren {
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAchievementsRoute: StudentAchievementsRoute,
   StudentAnalyticsRoute: StudentAnalyticsRoute,
+  StudentBiologyCh1Route: StudentBiologyCh1Route,
   StudentDailyRoute: StudentDailyRoute,
   StudentExamsRoute: StudentExamsRoute,
   StudentGrowthRoute: StudentGrowthRoute,
@@ -1660,13 +1703,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -13,6 +13,7 @@ import {
   GraduationCap,
   BarChart3,
   Sparkles,
+  Beaker,
 } from "lucide-react";
 import {
   SupervisorShell,
@@ -22,6 +23,7 @@ import {
 const items: NavItem[] = [
   { title: "داشبورد پایه", url: "/grade-supervisor", icon: LayoutDashboard },
   { title: "دانش‌آموزان", url: "/grade-supervisor/students", icon: Users },
+  { title: "زیست فصل ۱", url: "/grade-supervisor/biology-ch1", icon: Beaker },
   { title: "سلامت آموزشی", url: "/supervisor/grade", icon: HeartPulse },
   { title: "چکاب‌ها", url: "/supervisor/sessions", icon: Stethoscope },
   { title: "کلینیک یادگیری", url: "/supervisor/followups", icon: NotebookPen },
