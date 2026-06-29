@@ -233,26 +233,45 @@ function TodayPage() {
               <h3 className="font-bold text-slate-800">وضعیت دروس</h3>
             </div>
             <div className="space-y-4">
-              {subjects.map((s) => (
-                <div key={s.name} className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-slate-400 w-10 text-left">
-                    {toFa(s.value)}٪
-                  </span>
-                  <div className="flex-1">
-                    <div className={`relative h-2 rounded-full ${s.soft}`}>
-                      <div
-                        className={`h-full rounded-full ${s.color}`}
-                        style={{ width: `${s.value}%` }}
-                      />
-                      <span
-                        className={`absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full ${s.color} shadow ring-2 ring-white`}
-                        style={{ right: `calc(${s.value}% - 6px)` }}
-                      />
+              {subjects.map((s) => {
+                const isBio = s.name === "زیست شناسی";
+                const row = (
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-slate-400 w-10 text-left">
+                      {toFa(s.value)}٪
+                    </span>
+                    <div className="flex-1">
+                      <div className={`relative h-2 rounded-full ${s.soft}`}>
+                        <div
+                          className={`h-full rounded-full ${s.color}`}
+                          style={{ width: `${s.value}%` }}
+                        />
+                        <span
+                          className={`absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full ${s.color} shadow ring-2 ring-white`}
+                          style={{ right: `calc(${s.value}% - 6px)` }}
+                        />
+                      </div>
                     </div>
+                    <span className="text-sm text-slate-700 w-20 text-right flex items-center justify-end gap-1">
+                      {s.name}
+                      {isBio && (
+                        <span className="text-[10px] font-bold text-emerald-600">›</span>
+                      )}
+                    </span>
                   </div>
-                  <span className="text-sm text-slate-700 w-20 text-right">{s.name}</span>
-                </div>
-              ))}
+                );
+                return isBio ? (
+                  <Link
+                    key={s.name}
+                    to="/student/biology"
+                    className="block rounded-lg hover:bg-emerald-50/60 -mx-1 px-1 py-0.5 transition"
+                  >
+                    {row}
+                  </Link>
+                ) : (
+                  <div key={s.name}>{row}</div>
+                );
+              })}
             </div>
             <Button
               asChild
