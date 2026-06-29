@@ -81,6 +81,9 @@ function StudentProfilePage() {
     extras: ReturnType<typeof getMonitoringExtras>;
   };
   const meta = STATUS_META[p.status];
+  bioEnsureSeed();
+  useBioCh1Tick();
+  const bio = bioSummarize(p.id);
 
   return (
     <div dir="rtl" className="font-vazir space-y-6">
