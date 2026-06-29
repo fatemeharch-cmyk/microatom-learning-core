@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound, useSearch } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,7 @@ import {
   ensureSeed,
   getCheckups,
   getDoses,
+  refreshDosesFor,
   goftarById,
   atomById,
   microAtomById,
@@ -27,6 +29,7 @@ import {
   questionsByMicro,
   useBioCh1Tick,
 } from "@/lib/mock/biology-ch1";
+
 import {
   Leaf,
   ChevronLeft,
@@ -121,7 +124,11 @@ function Crumbs() {
 function ChapterPage() {
   ensureSeed();
   useBioCh1Tick();
+  useEffect(() => {
+    refreshDosesFor(STUDENT_ID, true);
+  }, []);
   const { goftar, atom, micro } = useSearch({ from: "/student/biology/$chapterId" });
+
 
   let view: "goftars" | "atoms" | "micros" | "micro" = "goftars";
   if (micro) view = "micro";

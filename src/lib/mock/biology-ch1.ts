@@ -115,7 +115,10 @@ export function questionsByMicro(microId: string) {
 }
 
 // ---------- store ----------
-const DOSE_KEY = "atomia_bio_ch1_doses";
+// Study doses are now backed by Xano (see services/study-dose-service.ts).
+// We keep a tiny in-memory cache so that synchronous getDoses() callers keep
+// working. Callers should trigger refreshDosesFor(...) on mount.
+// Checkups remain in localStorage until a Xano endpoint exists for them.
 const CHECKUP_KEY = "atomia_bio_ch1_checkups";
 
 function load<T>(key: string): T[] {
@@ -139,11 +142,58 @@ function notify() {
   listeners.forEach((l) => l());
 }
 
-export function addDose(entry: Omit<DoseEntry, "id" | "at">) {
-  const list = load<DoseEntry>(DOSE_KEY);
-  list.push({ ...entry, id: `d-${Date.now()}`, at: Date.now() });
-  save(DOSE_KEY, list);
+// --- doses cache (Xano-backed) ---
+let doseCache: DoseEntry[] = [];
+
+import {
+  createStudyDose,
+  listMyStudyDoses,
+  listStudentStudyDoses,
+} from "@/lib/services/study-dose-service";
+
+export async function refreshDosesFor(studentId: string, mine = false) {
+  try {
+    const fetched = mine
+      ? await listMyStudyDoses()
+      : await listStudentStudyDoses(studentId);
+    // Merge: replace entries for this student.
+    const others = doseCache.filter((d) => d.studentId !== studentId);
+    doseCache = [...others, ...fetched.map((d) => ({ ...d, studentId: d.studentId || studentId }))];
+    notify();
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn("[atomia][study-dose] fetch failed", e);
+  }
+}
+
+export async function addDose(entry: Omit<DoseEntry, "id" | "at">) {
+  // Optimistic add for instant UI feedback.
+  const optimistic: DoseEntry = {
+    ...entry,
+    id: `tmp-${Date.now()}`,
+    at: Date.now(),
+  };
+  doseCache = [...doseCache, optimistic];
   notify();
+  try {
+    const saved = await createStudyDose({
+      microAtomId: entry.microAtomId,
+      minutes: entry.minutes,
+      studentId: entry.studentId,
+    });
+    doseCache = doseCache.map((d) =>
+      d.id === optimistic.id
+        ? { ...saved, studentId: saved.studentId || entry.studentId }
+        : d,
+    );
+    notify();
+  } catch (e) {
+    // Roll back optimistic entry on failure.
+    doseCache = doseCache.filter((d) => d.id !== optimistic.id);
+    notify();
+    // eslint-disable-next-line no-console
+    console.warn("[atomia][study-dose] create failed", e);
+  }
 }
 export function addCheckup(entry: Omit<CheckupResult, "id" | "at">) {
   const list = load<CheckupResult>(CHECKUP_KEY);
@@ -152,13 +202,13 @@ export function addCheckup(entry: Omit<CheckupResult, "id" | "at">) {
   notify();
 }
 export function getDoses(studentId?: string): DoseEntry[] {
-  const all = load<DoseEntry>(DOSE_KEY);
-  return studentId ? all.filter((d) => d.studentId === studentId) : all;
+  return studentId ? doseCache.filter((d) => d.studentId === studentId) : doseCache;
 }
 export function getCheckups(studentId?: string): CheckupResult[] {
   const all = load<CheckupResult>(CHECKUP_KEY);
   return studentId ? all.filter((c) => c.studentId === studentId) : all;
 }
+
 
 export function useBioCh1Tick() {
   const [, setTick] = useState(0);
@@ -174,21 +224,13 @@ export function useBioCh1Tick() {
 /** Active student inside the student workspace (آرمان محمدی). */
 export const STUDENT_ID = "s-001";
 
-/** Seed demo doses/checkups for other students in the Monitoring Center. */
+/** Seed demo checkups for other students in the Monitoring Center.
+ *  Doses are no longer seeded — they come from Xano via /study-dose/*. */
 export function ensureSeed() {
   if (typeof window === "undefined") return;
-  if (localStorage.getItem("atomia_bio_ch1_seeded_v2")) return;
+  if (localStorage.getItem("atomia_bio_ch1_seeded_v3")) return;
   const now = Date.now();
   const day = 24 * 60 * 60 * 1000;
-  const doses: DoseEntry[] = [
-    { id: "sd1", studentId: "s-001", microAtomId: "ma-1", minutes: 25, at: now - 4 * day },
-    { id: "sd2", studentId: "s-001", microAtomId: "ma-3", minutes: 30, at: now - 2 * day },
-    { id: "sd3", studentId: "s-002", microAtomId: "ma-4", minutes: 35, at: now - 1 * day },
-    { id: "sd4", studentId: "s-003", microAtomId: "ma-2", minutes: 20, at: now - 3 * day },
-    { id: "sd5", studentId: "s-004", microAtomId: "ma-5", minutes: 40, at: now - 1 * day },
-    { id: "sd6", studentId: "s-004", microAtomId: "ma-6", minutes: 30, at: now - 2 * day },
-    { id: "sd7", studentId: "s-006", microAtomId: "ma-3", minutes: 15, at: now - 5 * day },
-  ];
   const checkups: CheckupResult[] = [
     { id: "sc1", studentId: "s-001", microAtomId: "ma-1", score: 50, total: 2, correct: 1, at: now - 3 * day },
     { id: "sc2", studentId: "s-002", microAtomId: "ma-4", score: 0, total: 1, correct: 0, at: now - 1 * day },
@@ -197,10 +239,10 @@ export function ensureSeed() {
     { id: "sc5", studentId: "s-004", microAtomId: "ma-6", score: 100, total: 1, correct: 1, at: now - 2 * day },
     { id: "sc6", studentId: "s-006", microAtomId: "ma-3", score: 0, total: 1, correct: 0, at: now - 4 * day },
   ];
-  save(DOSE_KEY, doses);
   save(CHECKUP_KEY, checkups);
-  localStorage.setItem("atomia_bio_ch1_seeded_v2", "1");
+  localStorage.setItem("atomia_bio_ch1_seeded_v3", "1");
 }
+
 
 /** Aggregated per-student summary used by the Grade Supervisor view. */
 export function summarizeStudent(studentId: string) {

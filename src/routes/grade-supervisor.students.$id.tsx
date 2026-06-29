@@ -30,9 +30,12 @@ import {
   MICRO_ATOMS as BIO_MICROS,
   ensureSeed as bioEnsureSeed,
   summarizeStudent as bioSummarize,
+  refreshDosesFor as bioRefreshDoses,
   useBioCh1Tick,
 } from "@/lib/mock/biology-ch1";
 import { Leaf } from "lucide-react";
+import { useEffect } from "react";
+
 
 export const Route = createFileRoute("/grade-supervisor/students/$id")({
   loader: ({ params }) => {
@@ -83,7 +86,11 @@ function StudentProfilePage() {
   const meta = STATUS_META[p.status];
   bioEnsureSeed();
   useBioCh1Tick();
+  useEffect(() => {
+    bioRefreshDoses(p.id);
+  }, [p.id]);
   const bio = bioSummarize(p.id);
+
 
   return (
     <div dir="rtl" className="font-vazir space-y-6">
