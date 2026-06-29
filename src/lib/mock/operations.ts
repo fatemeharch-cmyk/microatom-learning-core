@@ -1,3 +1,7 @@
+// TODO(xano): replace this mock module with real Xano API calls.
+import { warnMock } from "./_warn";
+warnMock("mock/operations");
+
 /**
  * Mock store for Grade Supervisor operational pages: classes, students,
  * pulse analyses, appointment slots. Structured to be swapped with real
