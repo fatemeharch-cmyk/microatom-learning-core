@@ -124,7 +124,11 @@ function Crumbs() {
 function ChapterPage() {
   ensureSeed();
   useBioCh1Tick();
+  useEffect(() => {
+    refreshDosesFor(STUDENT_ID, true);
+  }, []);
   const { goftar, atom, micro } = useSearch({ from: "/student/biology/$chapterId" });
+
 
   let view: "goftars" | "atoms" | "micros" | "micro" = "goftars";
   if (micro) view = "micro";
