@@ -86,7 +86,11 @@ function StudentProfilePage() {
   const meta = STATUS_META[p.status];
   bioEnsureSeed();
   useBioCh1Tick();
+  useEffect(() => {
+    bioRefreshDoses(p.id);
+  }, [p.id]);
   const bio = bioSummarize(p.id);
+
 
   return (
     <div dir="rtl" className="font-vazir space-y-6">
