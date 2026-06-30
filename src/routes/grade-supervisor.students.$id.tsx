@@ -415,7 +415,7 @@ function StudentProfilePage() {
               <Leaf className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-slate-800">{BIO_CHAPTER.title}</h2>
+              <h2 className="text-sm font-bold text-slate-800">{bioChapterTitle}</h2>
               <p className="text-[11px] text-slate-500">عملکرد این دانش‌آموز در فصل فعال زیست‌شناسی</p>
             </div>
           </div>
@@ -440,7 +440,7 @@ function StudentProfilePage() {
           />
         </div>
         <div className="space-y-2">
-          {BIO_MICROS.map((m) => {
+          {bioMicros.map((m) => {
             const cs = bio.checkups.filter((c) => c.microAtomId === m.id);
             const avg = cs.length === 0 ? null : Math.round(cs.reduce((s, c) => s + c.score, 0) / cs.length);
             const minutes = bio.doses.filter((d) => d.microAtomId === m.id).reduce((s, d) => s + d.minutes, 0);
