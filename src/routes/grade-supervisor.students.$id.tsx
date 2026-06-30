@@ -88,12 +88,34 @@ function StudentProfilePage() {
     extras: ReturnType<typeof getMonitoringExtras>;
   };
   const meta = STATUS_META[p.status];
-  bioEnsureSeed();
   useBioCh1Tick();
   useEffect(() => {
     bioRefreshDoses(p.id);
   }, [p.id]);
-  const bio = bioSummarize(p.id);
+
+  // Pull active Biology chapter + its micro-atoms from Xano so the panel
+  // labels match the Content Engine instead of stale mock arrays.
+  const subjectQ = useQuery({
+    queryKey: ["content", "biology-subject"],
+    queryFn: () => findBiologySubject(),
+    staleTime: 5 * 60_000,
+  });
+  const chaptersQ = useQuery({
+    queryKey: ["content", "chapters", subjectQ.data?.id],
+    queryFn: () => listChaptersBySubject(subjectQ.data!.id),
+    enabled: !!subjectQ.data?.id,
+    staleTime: 5 * 60_000,
+  });
+  const activeChapter = chaptersQ.data?.[0] ?? null;
+  const microsQ = useQuery({
+    queryKey: ["content", "chapter-micros", activeChapter?.id],
+    queryFn: () => listAllMicroAtomsForChapter(activeChapter!.id),
+    enabled: !!activeChapter?.id,
+    staleTime: 5 * 60_000,
+  });
+  const bioMicros: ContentMicroAtom[] = microsQ.data ?? [];
+  const bioChapterTitle = activeChapter?.title ?? "زیست‌شناسی";
+  const bio = bioSummarize(p.id, bioMicros);
 
 
   return (
