@@ -26,13 +26,17 @@ import {
   type RiskLevel,
 } from "@/lib/mock/grade-students";
 import {
-  CHAPTER as BIO_CHAPTER,
-  MICRO_ATOMS as BIO_MICROS,
-  ensureSeed as bioEnsureSeed,
   summarizeStudent as bioSummarize,
   refreshDosesFor as bioRefreshDoses,
   useBioCh1Tick,
 } from "@/lib/mock/biology-ch1";
+import {
+  findBiologySubject,
+  listChaptersBySubject,
+  listAllMicroAtomsForChapter,
+  type ContentMicroAtom,
+} from "@/lib/services/content-service";
+import { useQuery } from "@tanstack/react-query";
 import { Leaf } from "lucide-react";
 import { useEffect } from "react";
 
