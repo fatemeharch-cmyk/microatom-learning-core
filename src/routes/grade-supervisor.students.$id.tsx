@@ -26,13 +26,17 @@ import {
   type RiskLevel,
 } from "@/lib/mock/grade-students";
 import {
-  CHAPTER as BIO_CHAPTER,
-  MICRO_ATOMS as BIO_MICROS,
-  ensureSeed as bioEnsureSeed,
   summarizeStudent as bioSummarize,
   refreshDosesFor as bioRefreshDoses,
   useBioCh1Tick,
 } from "@/lib/mock/biology-ch1";
+import {
+  findBiologySubject,
+  listChaptersBySubject,
+  listAllMicroAtomsForChapter,
+  type ContentMicroAtom,
+} from "@/lib/services/content-service";
+import { useQuery } from "@tanstack/react-query";
 import { Leaf } from "lucide-react";
 import { useEffect } from "react";
 
@@ -84,12 +88,34 @@ function StudentProfilePage() {
     extras: ReturnType<typeof getMonitoringExtras>;
   };
   const meta = STATUS_META[p.status];
-  bioEnsureSeed();
   useBioCh1Tick();
   useEffect(() => {
     bioRefreshDoses(p.id);
   }, [p.id]);
-  const bio = bioSummarize(p.id);
+
+  // Pull active Biology chapter + its micro-atoms from Xano so the panel
+  // labels match the Content Engine instead of stale mock arrays.
+  const subjectQ = useQuery({
+    queryKey: ["content", "biology-subject"],
+    queryFn: () => findBiologySubject(),
+    staleTime: 5 * 60_000,
+  });
+  const chaptersQ = useQuery({
+    queryKey: ["content", "chapters", subjectQ.data?.id],
+    queryFn: () => listChaptersBySubject(subjectQ.data!.id),
+    enabled: !!subjectQ.data?.id,
+    staleTime: 5 * 60_000,
+  });
+  const activeChapter = chaptersQ.data?.[0] ?? null;
+  const microsQ = useQuery({
+    queryKey: ["content", "chapter-micros", activeChapter?.id],
+    queryFn: () => listAllMicroAtomsForChapter(activeChapter!.id),
+    enabled: !!activeChapter?.id,
+    staleTime: 5 * 60_000,
+  });
+  const bioMicros: ContentMicroAtom[] = microsQ.data ?? [];
+  const bioChapterTitle = activeChapter?.title ?? "زیست‌شناسی";
+  const bio = bioSummarize(p.id, bioMicros);
 
 
   return (
@@ -389,7 +415,7 @@ function StudentProfilePage() {
               <Leaf className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-slate-800">{BIO_CHAPTER.title}</h2>
+              <h2 className="text-sm font-bold text-slate-800">{bioChapterTitle}</h2>
               <p className="text-[11px] text-slate-500">عملکرد این دانش‌آموز در فصل فعال زیست‌شناسی</p>
             </div>
           </div>
@@ -414,7 +440,7 @@ function StudentProfilePage() {
           />
         </div>
         <div className="space-y-2">
-          {BIO_MICROS.map((m) => {
+          {bioMicros.map((m) => {
             const cs = bio.checkups.filter((c) => c.microAtomId === m.id);
             const avg = cs.length === 0 ? null : Math.round(cs.reduce((s, c) => s + c.score, 0) / cs.length);
             const minutes = bio.doses.filter((d) => d.microAtomId === m.id).reduce((s, d) => s + d.minutes, 0);

@@ -1,5 +1,6 @@
-import { createFileRoute, Link, notFound, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,26 +10,25 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import {
-  SUBJECT,
-  CHAPTER,
-  GOFTARS,
-  ATOMS,
-  MICRO_ATOMS,
   STUDENT_ID,
   addDose,
   addCheckup,
-  ensureSeed,
   getCheckups,
   getDoses,
   refreshDosesFor,
-  goftarById,
-  atomById,
-  microAtomById,
-  atomsByGoftar,
-  microAtomsByAtom,
   questionsByMicro,
   useBioCh1Tick,
 } from "@/lib/mock/biology-ch1";
+import {
+  listGoftarsByChapter,
+  listAtomsByGoftar,
+  listMicroAtomsByAtom,
+  findBiologySubject,
+  listChaptersBySubject,
+  type ContentGoftar,
+  type ContentAtom,
+  type ContentMicroAtom,
+} from "@/lib/services/content-service";
 
 import {
   Leaf,
@@ -41,6 +41,7 @@ import {
   NotebookPen,
   ScrollText,
   Target,
+  Loader2,
 } from "lucide-react";
 
 type Search = {
@@ -55,10 +56,6 @@ export const Route = createFileRoute("/student/biology/$chapterId")({
     atom: typeof s.atom === "string" ? s.atom : undefined,
     micro: typeof s.micro === "string" ? s.micro : undefined,
   }),
-  loader: ({ params }) => {
-    if (params.chapterId !== CHAPTER.id) throw notFound();
-    return { chapter: CHAPTER };
-  },
   component: ChapterPage,
   notFoundComponent: () => (
     <div dir="rtl" className="bg-white rounded-3xl p-10 text-center text-slate-500">
@@ -67,30 +64,73 @@ export const Route = createFileRoute("/student/biology/$chapterId")({
   ),
 });
 
-function Crumbs() {
-  const { goftar, atom, micro } = useSearch({ from: "/student/biology/$chapterId" });
-  const g = goftar ? goftarById(goftar) : null;
-  const a = atom ? atomById(atom) : null;
-  const m = micro ? microAtomById(micro) : null;
+function useChapterTitle(chapterId: string) {
+  // Resolve chapter title by listing chapters of the Biology subject.
+  const subjectQ = useQuery({
+    queryKey: ["content", "biology-subject"],
+    queryFn: () => findBiologySubject(),
+    staleTime: 5 * 60_000,
+  });
+  const chaptersQ = useQuery({
+    queryKey: ["content", "chapters", subjectQ.data?.id],
+    queryFn: () => listChaptersBySubject(subjectQ.data!.id),
+    enabled: !!subjectQ.data?.id,
+    staleTime: 5 * 60_000,
+  });
+  const chapter = (chaptersQ.data ?? []).find((c) => c.id === chapterId);
+  return {
+    title: chapter?.title ?? "فصل",
+    subjectTitle: subjectQ.data?.title ?? "زیست‌شناسی",
+  };
+}
+
+function Crumbs({
+  chapterId,
+  chapterTitle,
+  subjectTitle,
+  goftar,
+  atom,
+  micro,
+  goftars,
+  atoms,
+  micros,
+}: {
+  chapterId: string;
+  chapterTitle: string;
+  subjectTitle: string;
+  goftar?: string;
+  atom?: string;
+  micro?: string;
+  goftars: ContentGoftar[];
+  atoms: ContentAtom[];
+  micros: ContentMicroAtom[];
+}) {
+  const g = goftar ? goftars.find((x) => x.id === goftar) : null;
+  const a = atom ? atoms.find((x) => x.id === atom) : null;
+  const m = micro ? micros.find((x) => x.id === micro) : null;
   return (
     <nav className="text-xs text-slate-500 flex items-center gap-1 flex-wrap">
-      <Link to="/student" className="hover:text-emerald-600">کلینیک من</Link>
+      <Link to="/student" className="hover:text-emerald-600">
+        کلینیک من
+      </Link>
       <span>/</span>
-      <Link to="/student/biology" className="hover:text-emerald-600">{SUBJECT.title}</Link>
+      <Link to="/student/biology" className="hover:text-emerald-600">
+        {subjectTitle}
+      </Link>
       <span>/</span>
       <Link
         to="/student/biology/$chapterId"
-        params={{ chapterId: CHAPTER.id }}
+        params={{ chapterId }}
         className="hover:text-emerald-600"
       >
-        {CHAPTER.title}
+        {chapterTitle}
       </Link>
       {g && (
         <>
           <span>/</span>
           <Link
             to="/student/biology/$chapterId"
-            params={{ chapterId: CHAPTER.id }}
+            params={{ chapterId }}
             search={{ goftar: g.id }}
             className="hover:text-emerald-600"
           >
@@ -103,7 +143,7 @@ function Crumbs() {
           <span>/</span>
           <Link
             to="/student/biology/$chapterId"
-            params={{ chapterId: CHAPTER.id }}
+            params={{ chapterId }}
             search={{ goftar: g?.id, atom: a.id }}
             className="hover:text-emerald-600"
           >
@@ -122,13 +162,36 @@ function Crumbs() {
 }
 
 function ChapterPage() {
-  ensureSeed();
+  const { chapterId } = Route.useParams();
   useBioCh1Tick();
   useEffect(() => {
     refreshDosesFor(STUDENT_ID, true);
   }, []);
   const { goftar, atom, micro } = useSearch({ from: "/student/biology/$chapterId" });
+  const { title: chapterTitle, subjectTitle } = useChapterTitle(chapterId);
 
+  const goftarsQ = useQuery({
+    queryKey: ["content", "goftars", chapterId],
+    queryFn: () => listGoftarsByChapter(chapterId),
+    staleTime: 5 * 60_000,
+  });
+  const goftars = goftarsQ.data ?? [];
+
+  const atomsQ = useQuery({
+    queryKey: ["content", "atoms", goftar],
+    queryFn: () => listAtomsByGoftar(goftar!),
+    enabled: !!goftar,
+    staleTime: 5 * 60_000,
+  });
+  const atoms = atomsQ.data ?? [];
+
+  const microsQ = useQuery({
+    queryKey: ["content", "micros", atom],
+    queryFn: () => listMicroAtomsByAtom(atom!),
+    enabled: !!atom,
+    staleTime: 5 * 60_000,
+  });
+  const micros = microsQ.data ?? [];
 
   let view: "goftars" | "atoms" | "micros" | "micro" = "goftars";
   if (micro) view = "micro";
@@ -137,23 +200,64 @@ function ChapterPage() {
 
   return (
     <div dir="rtl" className="font-vazir space-y-5">
-      <Crumbs />
+      <Crumbs
+        chapterId={chapterId}
+        chapterTitle={chapterTitle}
+        subjectTitle={subjectTitle}
+        goftar={goftar}
+        atom={atom}
+        micro={micro}
+        goftars={goftars}
+        atoms={atoms}
+        micros={micros}
+      />
       <header className="flex items-center gap-3">
         <span className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 grid place-items-center">
           <Leaf className="h-6 w-6" />
         </span>
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">{CHAPTER.title}</h1>
+          <h1 className="text-2xl font-extrabold text-slate-800">{chapterTitle}</h1>
           <p className="text-sm text-slate-500">
             از گفتار شروع کن، اتم را انتخاب کن و روی میکرواتم تمرکز کن.
           </p>
         </div>
       </header>
 
-      {view === "goftars" && <GoftarList />}
-      {view === "atoms" && goftar && <AtomList goftarId={goftar} />}
-      {view === "micros" && atom && <MicroList atomId={atom} />}
-      {view === "micro" && micro && <MicroDrill microId={micro} />}
+      {view === "goftars" && (
+        <GoftarList
+          chapterId={chapterId}
+          goftars={goftars}
+          loading={goftarsQ.isLoading}
+          error={goftarsQ.isError}
+        />
+      )}
+      {view === "atoms" && goftar && (
+        <AtomList
+          chapterId={chapterId}
+          goftarId={goftar}
+          goftarTitle={goftars.find((g) => g.id === goftar)?.title ?? "گفتار"}
+          atoms={atoms}
+          loading={atomsQ.isLoading}
+          error={atomsQ.isError}
+        />
+      )}
+      {view === "micros" && atom && goftar && (
+        <MicroList
+          chapterId={chapterId}
+          goftarId={goftar}
+          atomId={atom}
+          atomTitle={atoms.find((a) => a.id === atom)?.title ?? "اتم"}
+          micros={micros}
+          loading={microsQ.isLoading}
+          error={microsQ.isError}
+        />
+      )}
+      {view === "micro" && micro && (
+        <MicroDrill
+          microId={micro}
+          microTitle={micros.find((m) => m.id === micro)?.title ?? "میکرواتم"}
+        />
+      )}
     </div>
   );
 }
@@ -187,117 +291,217 @@ function SectionCard({
   );
 }
 
-function GoftarList() {
+function StateBlock({
+  loading,
+  error,
+  empty,
+  emptyMessage,
+}: {
+  loading: boolean;
+  error: boolean;
+  empty: boolean;
+  emptyMessage: string;
+}) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center text-slate-400 py-10">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        <span className="mr-2 text-sm">در حال دریافت محتوا…</span>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl p-4">
+        دریافت محتوا با خطا روبه‌رو شد.
+      </div>
+    );
+  }
+  if (empty) {
+    return (
+      <div className="text-sm text-slate-500 bg-slate-50 border border-slate-100 rounded-2xl p-6 text-center">
+        {emptyMessage}
+      </div>
+    );
+  }
+  return null;
+}
+
+function GoftarList({
+  chapterId,
+  goftars,
+  loading,
+  error,
+}: {
+  chapterId: string;
+  goftars: ContentGoftar[];
+  loading: boolean;
+  error: boolean;
+}) {
   return (
-    <SectionCard title="گفتارها" subtitle={`${GOFTARS.length} گفتار در این فصل`} icon={<ListChecks className="h-4 w-4" />}>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {GOFTARS.map((g) => {
-          const count = atomsByGoftar(g.id).length;
-          return (
+    <SectionCard
+      title="گفتارها"
+      subtitle={`${goftars.length} گفتار در این فصل`}
+      icon={<ListChecks className="h-4 w-4" />}
+    >
+      <StateBlock
+        loading={loading}
+        error={error}
+        empty={!loading && !error && goftars.length === 0}
+        emptyMessage="گفتاری برای این فصل ثبت نشده."
+      />
+      {!loading && !error && goftars.length > 0 && (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {goftars.map((g) => (
             <Link
               key={g.id}
               to="/student/biology/$chapterId"
-              params={{ chapterId: CHAPTER.id }}
+              params={{ chapterId }}
               search={{ goftar: g.id }}
               className="rounded-2xl border border-emerald-100 bg-emerald-50/40 hover:bg-emerald-50 transition p-4 flex items-start justify-between gap-3"
             >
               <div className="min-w-0">
                 <div className="font-semibold text-slate-800">{g.title}</div>
-                <div className="text-xs text-slate-500 mt-1">{g.summary}</div>
-                <Badge variant="outline" className="mt-2 border-emerald-200 text-emerald-700 bg-white">
-                  {count} اتم
-                </Badge>
+                {g.summary && (
+                  <div className="text-xs text-slate-500 mt-1">{g.summary}</div>
+                )}
               </div>
               <ChevronLeft className="h-5 w-5 text-emerald-600 mt-1 shrink-0" />
             </Link>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </SectionCard>
   );
 }
 
-function AtomList({ goftarId }: { goftarId: string }) {
-  const g = goftarById(goftarId);
-  if (!g) return <Empty message="گفتار یافت نشد." />;
-  const atoms = atomsByGoftar(goftarId);
+function AtomList({
+  chapterId,
+  goftarId,
+  goftarTitle,
+  atoms,
+  loading,
+  error,
+}: {
+  chapterId: string;
+  goftarId: string;
+  goftarTitle: string;
+  atoms: ContentAtom[];
+  loading: boolean;
+  error: boolean;
+}) {
   return (
-    <SectionCard title={`اتم‌های ${g.title}`} icon={<AtomIcon className="h-4 w-4" />}>
-      <div className="grid sm:grid-cols-2 gap-3">
-        {atoms.map((a) => {
-          const micros = microAtomsByAtom(a.id);
-          return (
+    <SectionCard title={`اتم‌های ${goftarTitle}`} icon={<AtomIcon className="h-4 w-4" />}>
+      <StateBlock
+        loading={loading}
+        error={error}
+        empty={!loading && !error && atoms.length === 0}
+        emptyMessage="اتمی برای این گفتار ثبت نشده."
+      />
+      {!loading && !error && atoms.length > 0 && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {atoms.map((a) => (
             <Link
               key={a.id}
               to="/student/biology/$chapterId"
-              params={{ chapterId: CHAPTER.id }}
+              params={{ chapterId }}
               search={{ goftar: goftarId, atom: a.id }}
               className="rounded-2xl border border-emerald-100 bg-emerald-50/40 hover:bg-emerald-50 transition p-4 flex items-start justify-between gap-3"
             >
               <div>
                 <div className="font-semibold text-slate-800">{a.title}</div>
-                <Badge variant="outline" className="mt-2 border-emerald-200 text-emerald-700 bg-white">
-                  {micros.length} میکرواتم
-                </Badge>
               </div>
               <ChevronLeft className="h-5 w-5 text-emerald-600 mt-1 shrink-0" />
             </Link>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </SectionCard>
   );
 }
 
-function MicroList({ atomId }: { atomId: string }) {
-  const a = atomById(atomId);
-  if (!a) return <Empty message="اتم یافت نشد." />;
-  const micros = microAtomsByAtom(atomId);
+function MicroList({
+  chapterId,
+  goftarId,
+  atomId,
+  atomTitle,
+  micros,
+  loading,
+  error,
+}: {
+  chapterId: string;
+  goftarId: string;
+  atomId: string;
+  atomTitle: string;
+  micros: ContentMicroAtom[];
+  loading: boolean;
+  error: boolean;
+}) {
   const checkups = getCheckups(STUDENT_ID);
   return (
-    <SectionCard title={`میکرواتم‌های ${a.title}`} icon={<ListChecks className="h-4 w-4" />}>
-      <div className="grid sm:grid-cols-2 gap-3">
-        {micros.map((m) => {
-          const last = [...checkups]
-            .filter((c) => c.microAtomId === m.id)
-            .sort((x, y) => y.at - x.at)[0];
-          return (
-            <Link
-              key={m.id}
-              to="/student/biology/$chapterId"
-              params={{ chapterId: CHAPTER.id }}
-              search={{ goftar: a.goftarId, atom: atomId, micro: m.id }}
-              className="rounded-2xl border border-emerald-100 bg-emerald-50/40 hover:bg-emerald-50 transition p-4 flex items-start justify-between gap-3"
-            >
-              <div>
-                <div className="font-semibold text-slate-800">{m.title}</div>
-                <div className="text-xs text-slate-500 mt-1">
-                  {last ? `آخرین چکاب: ${last.score}٪` : "هنوز چکابی ثبت نشده"}
+    <SectionCard
+      title={`میکرواتم‌های ${atomTitle}`}
+      icon={<ListChecks className="h-4 w-4" />}
+    >
+      <StateBlock
+        loading={loading}
+        error={error}
+        empty={!loading && !error && micros.length === 0}
+        emptyMessage="میکرواتمی برای این اتم ثبت نشده."
+      />
+      {!loading && !error && micros.length > 0 && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {micros.map((m) => {
+            const last = [...checkups]
+              .filter((c) => c.microAtomId === m.id)
+              .sort((x, y) => y.at - x.at)[0];
+            return (
+              <Link
+                key={m.id}
+                to="/student/biology/$chapterId"
+                params={{ chapterId }}
+                search={{ goftar: goftarId, atom: atomId, micro: m.id }}
+                className="rounded-2xl border border-emerald-100 bg-emerald-50/40 hover:bg-emerald-50 transition p-4 flex items-start justify-between gap-3"
+              >
+                <div>
+                  <div className="font-semibold text-slate-800">{m.title}</div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    {last ? `آخرین چکاب: ${last.score}٪` : "هنوز چکابی ثبت نشده"}
+                  </div>
                 </div>
-              </div>
-              <ChevronLeft className="h-5 w-5 text-emerald-600 mt-1 shrink-0" />
-            </Link>
-          );
-        })}
-      </div>
+                <ChevronLeft className="h-5 w-5 text-emerald-600 mt-1 shrink-0" />
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </SectionCard>
   );
 }
 
 type Phase = "idle" | "taking" | "review";
 
-function MicroDrill({ microId }: { microId: string }) {
-  const m = microAtomById(microId);
+function MicroDrill({
+  microId,
+  microTitle,
+}: {
+  microId: string;
+  microTitle: string;
+}) {
   const questions = useMemo(() => questionsByMicro(microId), [microId]);
   const [doseMinutes, setDoseMinutes] = useState("20");
   const [phase, setPhase] = useState<Phase>("idle");
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [lastResult, setLastResult] = useState<{ correct: number; total: number; score: number } | null>(null);
-
-  if (!m) return <Empty message="میکرواتم یافت نشد." />;
+  const [lastResult, setLastResult] = useState<{
+    correct: number;
+    total: number;
+    score: number;
+  } | null>(null);
 
   const myDoses = getDoses(STUDENT_ID).filter((d) => d.microAtomId === microId);
-  const myCheckups = getCheckups(STUDENT_ID).filter((c) => c.microAtomId === microId);
+  const myCheckups = getCheckups(STUDENT_ID).filter(
+    (c) => c.microAtomId === microId,
+  );
 
   function handleDose() {
     const n = parseInt(doseMinutes, 10);
@@ -332,7 +536,7 @@ function MicroDrill({ microId }: { microId: string }) {
   return (
     <div className="space-y-5">
       <SectionCard
-        title={`ثبت دوز مطالعه — ${m.title}`}
+        title={`ثبت دوز مطالعه — ${microTitle}`}
         subtitle="مدت زمان مطالعه روی این میکرواتم را وارد کن."
         icon={<Timer className="h-4 w-4" />}
       >
@@ -348,7 +552,10 @@ function MicroDrill({ microId }: { microId: string }) {
               className="mt-1"
             />
           </div>
-          <Button onClick={handleDose} className="rounded-full bg-emerald-600 hover:bg-emerald-700">
+          <Button
+            onClick={handleDose}
+            className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+          >
             ثبت دوز
           </Button>
         </div>
@@ -361,7 +568,7 @@ function MicroDrill({ microId }: { microId: string }) {
       </SectionCard>
 
       <SectionCard
-        title={`چکاب — ${m.title}`}
+        title={`چکاب — ${microTitle}`}
         subtitle={`${questions.length} سؤال کوتاه برای سنجش این میکرواتم`}
         icon={<Stethoscope className="h-4 w-4" />}
       >
@@ -407,7 +614,10 @@ function MicroDrill({ microId }: { microId: string }) {
               </div>
             ))}
             <div className="flex justify-end">
-              <Button onClick={handleSubmit} className="rounded-full bg-emerald-600 hover:bg-emerald-700">
+              <Button
+                onClick={handleSubmit}
+                className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+              >
                 ثبت پاسخ‌ها
               </Button>
             </div>
@@ -421,7 +631,8 @@ function MicroDrill({ microId }: { microId: string }) {
               <div>
                 <div className="font-semibold text-slate-800">نتیجه چکاب</div>
                 <div className="text-sm text-slate-600">
-                  {lastResult.correct} از {lastResult.total} پاسخ درست — نمره {lastResult.score}٪
+                  {lastResult.correct} از {lastResult.total} پاسخ درست — نمره{" "}
+                  {lastResult.score}٪
                 </div>
               </div>
             </div>
@@ -431,7 +642,10 @@ function MicroDrill({ microId }: { microId: string }) {
                 const picked = answers[q.id];
                 const correct = picked === q.correctIndex;
                 return (
-                  <div key={q.id} className="rounded-xl border border-slate-100 p-3 bg-white">
+                  <div
+                    key={q.id}
+                    className="rounded-xl border border-slate-100 p-3 bg-white"
+                  >
                     <div className="text-sm font-medium mb-1 text-slate-800">
                       {idx + 1}. {q.prompt}
                     </div>
@@ -450,10 +664,17 @@ function MicroDrill({ microId }: { microId: string }) {
               })}
             </div>
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setPhase("idle")} className="rounded-full">
+              <Button
+                variant="outline"
+                onClick={() => setPhase("idle")}
+                className="rounded-full"
+              >
                 پایان
               </Button>
-              <Button onClick={handleStart} className="rounded-full bg-emerald-600 hover:bg-emerald-700">
+              <Button
+                onClick={handleStart}
+                className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+              >
                 چکاب دوباره
               </Button>
             </div>
@@ -467,7 +688,9 @@ function MicroDrill({ microId }: { microId: string }) {
         icon={<ListChecks className="h-4 w-4" />}
       >
         {myCheckups.length === 0 ? (
-          <div className="text-sm text-slate-500">هنوز چکابی برای این میکرواتم ثبت نشده.</div>
+          <div className="text-sm text-slate-500">
+            هنوز چکابی برای این میکرواتم ثبت نشده.
+          </div>
         ) : (
           <div className="space-y-3">
             <div className="flex items-center gap-2 flex-wrap">
@@ -531,15 +754,3 @@ function MicroDrill({ microId }: { microId: string }) {
     </div>
   );
 }
-
-function Empty({ message }: { message: string }) {
-  return (
-    <div className="bg-white rounded-3xl p-10 text-center text-slate-500 border border-slate-100">
-      {message}
-    </div>
-  );
-}
-
-// Silence unused import warnings for items kept for type-only consumers.
-void MICRO_ATOMS;
-void ATOMS;
