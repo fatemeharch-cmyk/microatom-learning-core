@@ -70,7 +70,7 @@ function toast(msg: string) {
 }
 
 // -------- component --------
-type CheckupQuestion = { id: string | number; text: string; options?: string[] };
+type CheckupQuestion = { id: string | number; question: string };
 type CheckupResultResponse = {
   score?: number;
   correct?: number;
@@ -188,8 +188,7 @@ function Chapter1Page() {
       setQuestions(
         qs.map((q) => ({
           id: q.id,
-          text: q.text ?? "—",
-          options: Array.isArray(q.options) ? q.options : undefined,
+          question: q.question ?? "—",
         })),
       );
       setAnswers({});
@@ -437,10 +436,10 @@ function Chapter1Page() {
                 >
                   <div className="flex items-start gap-2">
                     <Badge className="bg-violet-100 text-violet-700 border-0 shrink-0">
-                      سؤال {idx + 1}
+                      سوال {idx + 1}
                     </Badge>
                     <p className="text-sm text-slate-800 font-medium leading-7">
-                      {q.text}
+                      {q.question}
                     </p>
                   </div>
                   <Input
@@ -449,7 +448,7 @@ function Chapter1Page() {
                     onChange={(e) =>
                       setAnswers((a) => ({ ...a, [q.id]: e.target.value }))
                     }
-                    placeholder="پاسخ کوتاه…"
+                    placeholder="پاسخ کوتاه..."
                     className="rounded-xl bg-white"
                   />
                 </div>
