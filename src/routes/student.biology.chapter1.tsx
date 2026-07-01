@@ -71,13 +71,30 @@ function toast(msg: string) {
 
 // -------- component --------
 type CheckupQuestion = { id: string | number; question: string };
+type CheckupAnswerReview = {
+  question_id?: string | number;
+  question?: string;
+  user_answer?: string;
+  correct_answer?: string;
+  is_correct?: boolean;
+};
+type CheckupSubmitResponse = {
+  session_id?: string | number;
+  total?: number;
+  correct?: number;
+  score?: number;
+  answers?: CheckupAnswerReview[];
+};
 type CheckupResultResponse = {
   score?: number;
   correct?: number;
   total?: number;
   weak_concepts?: string[];
   recommendation?: string | { title?: string; description?: string };
+  answers?: CheckupAnswerReview[];
 };
+
+
 
 
 function Chapter1Page() {
