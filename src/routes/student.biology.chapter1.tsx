@@ -62,6 +62,7 @@ const DEMO_QUESTIONS = [
 
 // -------- helpers --------
 const BIO_BASE = "https://x8ki-letl-twmt.n7.xano.io/api:biology";
+const DOSE_CREATE_URL = `${BIO_BASE}/chapter1/dose/create`;
 const USER_ID = 4;
 
 function toast(msg: string) {
@@ -83,7 +84,7 @@ function Chapter1Page() {
   // ----- Dose state -----
   const [selectedGoftar, setSelectedGoftar] = useState<string>("");
   const [selectedAtom, setSelectedAtom] = useState<string>("");
-  const [selectedMicro, setSelectedMicro] = useState<string>("");
+  const [selectedMicroAtomId, setSelectedMicroAtomId] = useState<string>("");
   const [doseCount, setDoseCount] = useState<number>(1);
   const [note, setNote] = useState<string>("");
   const [doseBusy, setDoseBusy] = useState(false);
@@ -115,24 +116,33 @@ function Chapter1Page() {
   );
 
   async function submitDose() {
-    const microId = Number(selectedMicro);
-    if (!selectedMicro || !Number.isFinite(microId)) {
-      toast("لطفاً یک میکرواتم انتخاب کن.");
+    const payload = {
+      user_id: 4,
+      micro_atom_id: Number(selectedMicroAtomId),
+      dose_count: Number(doseCount),
+      note: note || "",
+    };
+
+    console.log("DOSE PAYLOAD", payload);
+
+    if (!Number.isInteger(payload.micro_atom_id)) {
+      alert("شناسه میکرواتم نامعتبر است");
       return;
     }
+
+    if (!Number.isInteger(payload.dose_count)) {
+      alert("تعداد دوز نامعتبر است");
+      return;
+    }
+
     setDoseBusy(true);
     try {
-      await apiClient.post(`${BIO_BASE}/chapter1/dose/create`, {
-        user_id: USER_ID,
-        micro_atom_id: microId,
-        dose_count: Number(doseCount),
-        note: note || "",
-      });
-      const micro = DEMO_MICRO_ATOMS.find((m) => m.id === microId);
+      await apiClient.post(DOSE_CREATE_URL, payload);
+      const micro = DEMO_MICRO_ATOMS.find((m) => m.id === payload.micro_atom_id);
       setDoseLog((l) => [
         {
-          title: micro?.title ?? String(microId),
-          count: doseCount,
+          title: micro?.title ?? String(payload.micro_atom_id),
+          count: payload.dose_count,
           at: new Date().toLocaleTimeString("fa-IR"),
         },
         ...l,
@@ -279,7 +289,7 @@ function Chapter1Page() {
                 onChange={(e) => {
                   setSelectedGoftar(e.target.value);
                   setSelectedAtom("");
-                  setSelectedMicro("");
+                  setSelectedMicroAtomId("");
                 }}
                 className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm"
               >
@@ -296,7 +306,7 @@ function Chapter1Page() {
                 value={selectedAtom}
                 onChange={(e) => {
                   setSelectedAtom(e.target.value);
-                  setSelectedMicro("");
+                  setSelectedMicroAtomId("");
                 }}
                 disabled={!selectedGoftar}
                 className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm disabled:bg-slate-50 disabled:text-slate-400"
@@ -311,14 +321,14 @@ function Chapter1Page() {
               <Label className="text-xs text-slate-600">میکرواتم</Label>
               <select
                 dir="rtl"
-                value={selectedMicro}
-                onChange={(e) => setSelectedMicro(e.target.value)}
+                value={selectedMicroAtomId}
+                onChange={(e) => setSelectedMicroAtomId(e.target.value)}
                 disabled={!selectedAtom}
                 className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm disabled:bg-slate-50 disabled:text-slate-400"
               >
                 <option value="">انتخاب میکرواتم…</option>
                 {microList.map((m) => (
-                  <option key={m.id} value={m.id}>{m.title}</option>
+                  <option key={m.id} value={String(m.id)}>{m.title}</option>
                 ))}
               </select>
             </div>
@@ -356,7 +366,7 @@ function Chapter1Page() {
             </p>
             <Button
               onClick={submitDose}
-              disabled={doseBusy || !selectedMicro}
+                disabled={doseBusy || !selectedMicroAtomId}
               className="rounded-full bg-emerald-600 hover:bg-emerald-700"
             >
               {doseBusy ? (
