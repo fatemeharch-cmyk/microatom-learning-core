@@ -439,7 +439,7 @@ function Chapter1Page() {
                       سؤال {idx + 1}
                     </Badge>
                     <p className="text-sm text-slate-800 font-medium leading-7">
-                      {q.text}
+                      {q.question}
                     </p>
                   </div>
                   <Input
