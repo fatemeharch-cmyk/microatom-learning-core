@@ -514,54 +514,7 @@ function Chapter1Page() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {/* per-question review */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold text-slate-700">
-                بازبینی پاسخ‌ها
-              </h3>
-              {(result.answers ?? []).map((a, idx) => {
-                const q = questions.find((qq) => qq.id === a.question_id);
-                return (
-                  <div
-                    key={a.question_id}
-                    className="rounded-2xl border border-slate-100 p-3 space-y-2"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm text-slate-800 leading-7">
-                        {idx + 1}. {q?.text ?? a.question_id}
-                      </p>
-                      {a.is_correct ? (
-                        <Badge className="bg-emerald-100 text-emerald-700 border-0 shrink-0">
-                          <CheckCircle2 className="h-3 w-3 ml-1" /> درست
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-rose-100 text-rose-700 border-0 shrink-0">
-                          <AlertTriangle className="h-3 w-3 ml-1" /> نیاز به مرور
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="rounded-xl bg-slate-50 p-2 text-xs">
-                      <span className="text-slate-500">پاسخ تو: </span>
-                      <span className="text-slate-800">
-                        {a.user_answer?.trim() || "—"}
-                      </span>
-                    </div>
-                    {a.correct_answer && (
-                      <div
-                        className={`rounded-xl p-2 text-xs ${
-                          a.is_correct ? "bg-emerald-50" : "bg-amber-50"
-                        }`}
-                      >
-                        <span className="text-slate-500">پاسخ درست: </span>
-                        <span className="text-slate-800 font-semibold">
-                          {a.correct_answer}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {/* score summary is already shown above; skip per-question review (backend result endpoint returns aggregates only) */}
 
             {/* weak concepts */}
             {result.weak_concepts && result.weak_concepts.length > 0 && (
@@ -571,7 +524,7 @@ function Chapter1Page() {
                   ضعف‌های شناسایی شده
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {result.weak_concepts.map((w, i) => (
+                  {result.weak_concepts.map((w: string, i: number) => (
                     <Badge
                       key={i}
                       className="bg-amber-100 text-amber-700 border-0"
@@ -583,40 +536,34 @@ function Chapter1Page() {
               </div>
             )}
 
-            {/* recommendations */}
-            {result.recommendations && result.recommendations.length > 0 && (
+            {/* recommendation */}
+            {result.recommendation && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-violet-500" />
-                  نسخه‌ی پیشنهادی مطالعه
+                  پیشنهاد مطالعه
                 </h3>
-                <div className="space-y-2">
-                  {result.recommendations.map((r, i) => (
-                    <div
-                      key={i}
-                      className="rounded-2xl bg-violet-50/60 border border-violet-100 p-3 text-sm text-slate-700"
-                    >
-                      {typeof r === "string" ? (
-                        r
-                      ) : (
-                        <>
-                          {r.title && (
-                            <p className="font-semibold text-slate-800">
-                              {r.title}
-                            </p>
-                          )}
-                          {r.description && (
-                            <p className="mt-1 text-slate-600 leading-7">
-                              {r.description}
-                            </p>
-                          )}
-                        </>
+                <div className="rounded-2xl bg-violet-50/60 border border-violet-100 p-3 text-sm text-slate-700">
+                  {typeof result.recommendation === "string" ? (
+                    <p className="leading-7">{result.recommendation}</p>
+                  ) : (
+                    <>
+                      {result.recommendation.title && (
+                        <p className="font-semibold text-slate-800">
+                          {result.recommendation.title}
+                        </p>
                       )}
-                    </div>
-                  ))}
+                      {result.recommendation.description && (
+                        <p className="mt-1 text-slate-600 leading-7">
+                          {result.recommendation.description}
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             )}
+
 
             <div className="flex justify-end">
               <Link
