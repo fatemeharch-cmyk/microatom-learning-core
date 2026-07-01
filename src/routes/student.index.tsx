@@ -10,7 +10,6 @@ import {
   Activity,
   Bell,
   Stethoscope,
-  ChevronLeft,
   Sparkles,
   TrendingUp,
   BookOpen,
