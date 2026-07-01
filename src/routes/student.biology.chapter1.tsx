@@ -110,10 +110,48 @@ type CheckupResultResponse = {
   score?: number;
   correct?: number;
   total?: number;
-  weak_concepts?: string[];
-  recommendation?: string | { title?: string; description?: string };
+  weak_concepts?: Array<
+    | string
+    | {
+        concept?: unknown;
+        wrong_count?: unknown;
+      }
+  >;
+  recommendation?:
+    | string
+    | { action?: unknown; title?: unknown; description?: unknown };
   answers?: CheckupAnswerReview[];
 };
+
+function renderSafeText(value: unknown, fallback = "—") {
+  if (typeof value === "string" && value.trim().length > 0) return value;
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  return fallback;
+}
+
+function getWeakConceptLabel(item: unknown) {
+  if (typeof item === "string") return item;
+  if (item && typeof item === "object" && "concept" in item) {
+    return renderSafeText(item.concept, "مفهوم نامشخص");
+  }
+  return "مفهوم نامشخص";
+}
+
+function getWeakConceptWrongCount(item: unknown) {
+  if (!item || typeof item !== "object" || !("wrong_count" in item)) return 0;
+  const count = Number(item.wrong_count);
+  return Number.isFinite(count) ? count : 0;
+}
+
+function getRecommendationText(recommendation: CheckupResultResponse["recommendation"]) {
+  if (typeof recommendation === "string") return recommendation;
+  if (recommendation && typeof recommendation === "object") {
+    const action = renderSafeText(recommendation.action, "");
+    if (action) return action;
+    return JSON.stringify(recommendation);
+  }
+  return "";
+}
 
 class InlineResultErrorBoundary extends Component<
   { children: ReactNode; resetKey: string },
@@ -348,8 +386,9 @@ function Chapter1Page() {
   const answerReview: CheckupAnswerReview[] =
     safeAnswers.length > 0 ? safeAnswers : safeResultAnswers;
   const safeWeakConcepts = Array.isArray(result?.weak_concepts)
-    ? result?.weak_concepts
+    ? result.weak_concepts
     : [];
+  const safeRecommendationText = getRecommendationText(result?.recommendation);
   const totalCount =
     submitResult?.total ?? result?.total ?? (questions?.length ?? 0);
   const correctCount = submitResult?.correct ?? result?.correct ?? 0;
@@ -685,7 +724,7 @@ function Chapter1Page() {
       </Card>
 
       {/* 3) Analysis / result section */}
-      {phase === "result" && result && (safeWeakConcepts.length > 0 || result?.recommendation) && (
+      {phase === "result" && result && (
         <Card className="border-0 rounded-3xl shadow-sm bg-white">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-slate-800">
@@ -696,49 +735,41 @@ function Chapter1Page() {
           <CardContent className="space-y-5">
             <InlineResultErrorBoundary resetKey={`analysis-${resultResetKey}`}>
             {/* weak concepts */}
-            {safeWeakConcepts.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-500" />
                   ضعف‌های شناسایی شده
                 </h3>
-                <div className="flex flex-wrap gap-2">
-                  {safeWeakConcepts.map((w: string, i: number) => (
-                    <Badge
-                      key={i}
-                      className="bg-amber-100 text-amber-700 border-0"
-                    >
-                      {w}
-                    </Badge>
-                  ))}
-                </div>
+                {safeWeakConcepts.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {safeWeakConcepts.map((item, i: number) => (
+                      <Badge
+                        key={i}
+                        className="bg-amber-100 text-amber-700 border-0 gap-1"
+                      >
+                        <span>{getWeakConceptLabel(item)}</span>
+                        <span className="text-amber-600/80">
+                          {getWeakConceptWrongCount(item)} پاسخ نادرست
+                        </span>
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">
+                    ضعف خاصی ثبت نشده است.
+                  </p>
+                )}
               </div>
-            )}
 
             {/* recommendation */}
-            {result?.recommendation && (
+            {safeRecommendationText && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-violet-500" />
                   پیشنهاد مطالعه
                 </h3>
                 <div className="rounded-2xl bg-violet-50/60 border border-violet-100 p-3 text-sm text-slate-700">
-                  {typeof result?.recommendation === "string" ? (
-                    <p className="leading-7">{result?.recommendation}</p>
-                  ) : (
-                    <>
-                      {result?.recommendation?.title && (
-                        <p className="font-semibold text-slate-800">
-                          {result?.recommendation?.title}
-                        </p>
-                      )}
-                      {result?.recommendation?.description && (
-                        <p className="mt-1 text-slate-600 leading-7">
-                          {result?.recommendation?.description}
-                        </p>
-                      )}
-                    </>
-                  )}
+                  <p className="leading-7">{safeRecommendationText}</p>
                 </div>
               </div>
             )}
