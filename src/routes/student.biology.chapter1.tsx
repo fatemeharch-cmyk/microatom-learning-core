@@ -37,19 +37,19 @@ export const Route = createFileRoute("/student/biology/chapter1")({
 
 // -------- demo taxonomy (used if backend not ready) --------
 interface MicroAtom {
-  id: string;
+  id: number;
   title: string;
   goftar: string;
   atom: string;
 }
 
 const DEMO_MICRO_ATOMS: MicroAtom[] = [
-  { id: "ma-neu-101", goftar: "گفتار ۱: یاخته‌های عصبی", atom: "اتم: ساختار نورون", title: "میکرواتم: دندریت و آکسون" },
-  { id: "ma-neu-102", goftar: "گفتار ۱: یاخته‌های عصبی", atom: "اتم: ساختار نورون", title: "میکرواتم: غلاف میلین" },
-  { id: "ma-neu-201", goftar: "گفتار ۲: ساختار دستگاه عصبی", atom: "اتم: نخاع", title: "میکرواتم: شاخ‌های خاکستری نخاع" },
-  { id: "ma-neu-202", goftar: "گفتار ۲: ساختار دستگاه عصبی", atom: "اتم: مغز", title: "میکرواتم: بخش‌های مخ" },
-  { id: "ma-neu-301", goftar: "گفتار ۳: پیام عصبی", atom: "اتم: پتانسیل عمل", title: "میکرواتم: مراحل پتانسیل عمل" },
-  { id: "ma-neu-302", goftar: "گفتار ۳: پیام عصبی", atom: "اتم: سیناپس", title: "میکرواتم: انتقال‌دهنده‌های عصبی" },
+  { id: 101, goftar: "گفتار ۱: یاخته‌های عصبی", atom: "اتم: ساختار نورون", title: "میکرواتم: دندریت و آکسون" },
+  { id: 102, goftar: "گفتار ۱: یاخته‌های عصبی", atom: "اتم: ساختار نورون", title: "میکرواتم: غلاف میلین" },
+  { id: 201, goftar: "گفتار ۲: ساختار دستگاه عصبی", atom: "اتم: نخاع", title: "میکرواتم: شاخ‌های خاکستری نخاع" },
+  { id: 202, goftar: "گفتار ۲: ساختار دستگاه عصبی", atom: "اتم: مغز", title: "میکرواتم: بخش‌های مخ" },
+  { id: 301, goftar: "گفتار ۳: پیام عصبی", atom: "اتم: پتانسیل عمل", title: "میکرواتم: مراحل پتانسیل عمل" },
+  { id: 302, goftar: "گفتار ۳: پیام عصبی", atom: "اتم: سیناپس", title: "میکرواتم: انتقال‌دهنده‌های عصبی" },
 ];
 
 const DEMO_QUESTIONS = [
