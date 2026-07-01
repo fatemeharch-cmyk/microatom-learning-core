@@ -10,7 +10,7 @@
  * rendering.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { Component, type ReactNode, useMemo, useState } from "react";
 import {
   Brain,
   ChevronLeft,
@@ -114,6 +114,39 @@ type CheckupResultResponse = {
   recommendation?: string | { title?: string; description?: string };
   answers?: CheckupAnswerReview[];
 };
+
+class InlineResultErrorBoundary extends Component<
+  { children: ReactNode; resetKey: string },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.error("CHECKUP RESULT RENDER FAILED", error);
+  }
+
+  componentDidUpdate(prevProps: { resetKey: string }) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="rounded-2xl border border-rose-100 bg-rose-50/60 p-3 text-sm text-rose-700">
+          نمایش نتیجه با خطا مواجه شد، اما پاسخ‌ها ثبت شده‌اند.
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 
 
