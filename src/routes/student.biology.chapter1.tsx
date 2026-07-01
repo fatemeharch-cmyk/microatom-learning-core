@@ -188,8 +188,7 @@ function Chapter1Page() {
       setQuestions(
         qs.map((q) => ({
           id: q.id,
-          text: q.text ?? "—",
-          options: Array.isArray(q.options) ? q.options : undefined,
+          question: q.question ?? "—",
         })),
       );
       setAnswers({});
