@@ -17,7 +17,7 @@ import {
   Loader2,
   Stethoscope,
   ClipboardList,
-  CheckCircle2,
+  
   AlertTriangle,
   Sparkles,
   BookOpen,
@@ -61,37 +61,23 @@ const DEMO_QUESTIONS = [
 ];
 
 // -------- helpers --------
-function readUserId(): string {
-  if (typeof window === "undefined") return "";
-  try {
-    return window.localStorage.getItem("atomia_user_id") ?? "";
-  } catch {
-    return "";
-  }
-}
+const BIO_BASE = "https://x8ki-letl-twmt.n7.xano.io/api:biology";
+const USER_ID = 4;
 
 function toast(msg: string) {
-  // Non-blocking, tiny feedback — avoids adding a full toast lib for MVP
   if (typeof window !== "undefined") window.setTimeout(() => alert(msg), 0);
 }
 
 // -------- component --------
-type CheckupQuestion = { id: string; text: string; correct?: string };
-type SubmitAnswerResult = {
-  question_id: string;
-  is_correct: boolean;
-  correct_answer?: string;
-  user_answer?: string;
-  concept?: string;
-};
-type CheckupSubmitResponse = {
+type CheckupQuestion = { id: string | number; text: string; options?: string[] };
+type CheckupResultResponse = {
   score?: number;
   correct?: number;
   total?: number;
-  answers?: SubmitAnswerResult[];
   weak_concepts?: string[];
-  recommendations?: (string | { title?: string; description?: string })[];
+  recommendation?: string | { title?: string; description?: string };
 };
+
 
 function Chapter1Page() {
   // ----- Dose state -----
@@ -135,18 +121,12 @@ function Chapter1Page() {
     }
     setDoseBusy(true);
     try {
-      const body = {
-        user_id: readUserId(),
+      await apiClient.post(`${BIO_BASE}/chapter1/dose/create`, {
+        user_id: USER_ID,
         micro_atom_id: selectedMicro,
         dose_count: doseCount,
         note,
-      };
-      try {
-        await apiClient.post("/biology/chapter1/dose/create", body);
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn("[chapter1][dose] backend not ready, logged locally", err);
-      }
+      });
       const micro = DEMO_MICRO_ATOMS.find((m) => m.id === selectedMicro);
       setDoseLog((l) => [
         {
@@ -159,6 +139,9 @@ function Chapter1Page() {
       setNote("");
       setDoseCount(1);
       toast("دوز مطالعه ثبت شد.");
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "";
+      toast(`ثبت دوز مطالعه با خطا مواجه شد.${msg ? ` (${msg})` : ""}`);
     } finally {
       setDoseBusy(false);
     }
@@ -167,10 +150,10 @@ function Chapter1Page() {
   // ----- Checkup state -----
   type Phase = "idle" | "answering" | "result";
   const [phase, setPhase] = useState<Phase>("idle");
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | number | null>(null);
   const [questions, setQuestions] = useState<CheckupQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<CheckupSubmitResponse | null>(null);
+  const [result, setResult] = useState<CheckupResultResponse | null>(null);
   const [checkupBusy, setCheckupBusy] = useState(false);
   const [checkupError, setCheckupError] = useState<string | null>(null);
 
@@ -178,37 +161,32 @@ function Chapter1Page() {
     setCheckupBusy(true);
     setCheckupError(null);
     try {
-      let sid = `demo-${Date.now()}`;
-      let qs: CheckupQuestion[] = DEMO_QUESTIONS.map((q) => ({
-        id: q.id,
-        text: q.text,
-      }));
-      try {
-        const res = await apiClient.post<{
-          session_id: string | number;
-          questions: CheckupQuestion[];
-        }>("/biology/chapter1/checkup/start", {
-          user_id: readUserId(),
-          count: 5,
-        });
-        if (res.data?.session_id) sid = String(res.data.session_id);
-        if (Array.isArray(res.data?.questions) && res.data.questions.length) {
-          qs = res.data.questions.map((q) => ({
-            id: String(q.id),
-            text: q.text ?? "—",
-          }));
-        }
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn("[chapter1][checkup/start] backend not ready", err);
+      const res = await apiClient.post<{
+        session_id: string | number;
+        questions: CheckupQuestion[];
+      }>(`${BIO_BASE}/chapter1/checkup/start`, {
+        user_id: USER_ID,
+        count: 5,
+      });
+      const sid = res.data?.session_id;
+      const qs = Array.isArray(res.data?.questions) ? res.data.questions : [];
+      if (!sid || qs.length === 0) {
+        throw new Error("پاسخ نامعتبر از سرور دریافت شد.");
       }
       setSessionId(sid);
-      setQuestions(qs);
+      setQuestions(
+        qs.map((q) => ({
+          id: q.id,
+          text: q.text ?? "—",
+          options: Array.isArray(q.options) ? q.options : undefined,
+        })),
+      );
       setAnswers({});
       setResult(null);
       setPhase("answering");
     } catch (err) {
-      setCheckupError(err instanceof ApiError ? err.message : "خطا در شروع چکاب.");
+      const msg = err instanceof ApiError ? err.message : (err as Error).message;
+      setCheckupError(`شروع چکاپ با خطا مواجه شد.${msg ? ` (${msg})` : ""}`);
     } finally {
       setCheckupBusy(false);
     }
@@ -219,74 +197,23 @@ function Chapter1Page() {
     setCheckupBusy(true);
     setCheckupError(null);
     try {
-      const body = {
+      await apiClient.post(`${BIO_BASE}/chapter1/checkup/submit`, {
         session_id: sessionId,
         answers: questions.map((q) => ({
           question_id: q.id,
-          user_answer: (answers[q.id] ?? "").trim(),
+          user_answer: (answers[String(q.id)] ?? "").trim(),
         })),
-      };
-      let res: CheckupSubmitResponse | null = null;
-      try {
-        const r = await apiClient.post<CheckupSubmitResponse>(
-          "/biology/chapter1/checkup/submit",
-          body,
-        );
-        res = r.data ?? null;
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn("[chapter1][checkup/submit] backend not ready", err);
-      }
-      if (!res) {
-        // demo grader
-        const scored: SubmitAnswerResult[] = questions.map((q) => {
-          const demo = DEMO_QUESTIONS.find((d) => d.id === q.id);
-          const user = (answers[q.id] ?? "").trim();
-          const isCorrect =
-            !!demo &&
-            user.length > 0 &&
-            user.replace(/\s+/g, "") === demo.correct.replace(/\s+/g, "");
-          return {
-            question_id: q.id,
-            user_answer: user,
-            is_correct: isCorrect,
-            correct_answer: demo?.correct,
-          };
-        });
-        const correct = scored.filter((s) => s.is_correct).length;
-        const weak = scored
-          .filter((s) => !s.is_correct)
-          .map((s) => {
-            const q = questions.find((qq) => qq.id === s.question_id);
-            return q?.text.slice(0, 40) ?? s.question_id;
-          });
-        res = {
-          score: Math.round((correct / questions.length) * 100),
-          correct,
-          total: questions.length,
-          answers: scored,
-          weak_concepts: weak,
-          recommendations: weak.length
-            ? [
-                {
-                  title: "دوز مرور پیشنهادی",
-                  description:
-                    "برای مفاهیمی که ضعف داشتی، یک دوز کوتاه (۱۵ دقیقه) مطالعه‌ی هدفمند ثبت کن و دوباره چکاب بگیر.",
-                },
-              ]
-            : [
-                {
-                  title: "ادامه‌ی مسیر",
-                  description: "عالی بود! به سراغ گفتار بعدی برو.",
-                },
-              ],
-        };
-      }
-      setResult(res);
+      });
+      const r = await apiClient.post<CheckupResultResponse>(
+        `${BIO_BASE}/chapter1/checkup/result`,
+        { session_id: sessionId },
+      );
+      setResult(r.data ?? {});
       setPhase("result");
     } catch (err) {
+      const msg = err instanceof ApiError ? err.message : (err as Error).message;
       setCheckupError(
-        err instanceof ApiError ? err.message : "خطا در ثبت پاسخ‌ها.",
+        `ثبت پاسخ‌ها یا دریافت تحلیل با خطا مواجه شد.${msg ? ` (${msg})` : ""}`,
       );
     } finally {
       setCheckupBusy(false);
@@ -303,10 +230,9 @@ function Chapter1Page() {
   }
 
   const pct = result?.score ?? 0;
-  const correctCount =
-    result?.correct ??
-    (result?.answers?.filter((a) => a.is_correct).length ?? 0);
+  const correctCount = result?.correct ?? 0;
   const totalCount = result?.total ?? questions.length;
+
 
   return (
     <div dir="rtl" className="font-vazir space-y-6">
@@ -588,54 +514,7 @@ function Chapter1Page() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {/* per-question review */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold text-slate-700">
-                بازبینی پاسخ‌ها
-              </h3>
-              {(result.answers ?? []).map((a, idx) => {
-                const q = questions.find((qq) => qq.id === a.question_id);
-                return (
-                  <div
-                    key={a.question_id}
-                    className="rounded-2xl border border-slate-100 p-3 space-y-2"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm text-slate-800 leading-7">
-                        {idx + 1}. {q?.text ?? a.question_id}
-                      </p>
-                      {a.is_correct ? (
-                        <Badge className="bg-emerald-100 text-emerald-700 border-0 shrink-0">
-                          <CheckCircle2 className="h-3 w-3 ml-1" /> درست
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-rose-100 text-rose-700 border-0 shrink-0">
-                          <AlertTriangle className="h-3 w-3 ml-1" /> نیاز به مرور
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="rounded-xl bg-slate-50 p-2 text-xs">
-                      <span className="text-slate-500">پاسخ تو: </span>
-                      <span className="text-slate-800">
-                        {a.user_answer?.trim() || "—"}
-                      </span>
-                    </div>
-                    {a.correct_answer && (
-                      <div
-                        className={`rounded-xl p-2 text-xs ${
-                          a.is_correct ? "bg-emerald-50" : "bg-amber-50"
-                        }`}
-                      >
-                        <span className="text-slate-500">پاسخ درست: </span>
-                        <span className="text-slate-800 font-semibold">
-                          {a.correct_answer}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {/* score summary is already shown above; skip per-question review (backend result endpoint returns aggregates only) */}
 
             {/* weak concepts */}
             {result.weak_concepts && result.weak_concepts.length > 0 && (
@@ -645,7 +524,7 @@ function Chapter1Page() {
                   ضعف‌های شناسایی شده
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {result.weak_concepts.map((w, i) => (
+                  {result.weak_concepts.map((w: string, i: number) => (
                     <Badge
                       key={i}
                       className="bg-amber-100 text-amber-700 border-0"
@@ -657,40 +536,34 @@ function Chapter1Page() {
               </div>
             )}
 
-            {/* recommendations */}
-            {result.recommendations && result.recommendations.length > 0 && (
+            {/* recommendation */}
+            {result.recommendation && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-violet-500" />
-                  نسخه‌ی پیشنهادی مطالعه
+                  پیشنهاد مطالعه
                 </h3>
-                <div className="space-y-2">
-                  {result.recommendations.map((r, i) => (
-                    <div
-                      key={i}
-                      className="rounded-2xl bg-violet-50/60 border border-violet-100 p-3 text-sm text-slate-700"
-                    >
-                      {typeof r === "string" ? (
-                        r
-                      ) : (
-                        <>
-                          {r.title && (
-                            <p className="font-semibold text-slate-800">
-                              {r.title}
-                            </p>
-                          )}
-                          {r.description && (
-                            <p className="mt-1 text-slate-600 leading-7">
-                              {r.description}
-                            </p>
-                          )}
-                        </>
+                <div className="rounded-2xl bg-violet-50/60 border border-violet-100 p-3 text-sm text-slate-700">
+                  {typeof result.recommendation === "string" ? (
+                    <p className="leading-7">{result.recommendation}</p>
+                  ) : (
+                    <>
+                      {result.recommendation.title && (
+                        <p className="font-semibold text-slate-800">
+                          {result.recommendation.title}
+                        </p>
                       )}
-                    </div>
-                  ))}
+                      {result.recommendation.description && (
+                        <p className="mt-1 text-slate-600 leading-7">
+                          {result.recommendation.description}
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             )}
+
 
             <div className="flex justify-end">
               <Link
