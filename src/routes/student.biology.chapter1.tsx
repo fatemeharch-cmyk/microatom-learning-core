@@ -309,13 +309,14 @@ function Chapter1Page() {
   }
 
   const answerReview: CheckupAnswerReview[] =
-    (submitResult?.answers && submitResult.answers.length > 0
+    ((submitResult?.answers && submitResult.answers.length > 0
       ? submitResult.answers
-      : result?.answers) ?? [];
+      : result?.answers) as CheckupAnswerReview[] | undefined) || [];
   const totalCount =
-    submitResult?.total ?? result?.total ?? questions.length ?? 0;
+    submitResult?.total ?? result?.total ?? (questions?.length ?? 0);
   const correctCount = submitResult?.correct ?? result?.correct ?? 0;
-  const pct = submitResult?.score ?? result?.score ?? 0;
+  const pctRaw = submitResult?.score ?? result?.score ?? 0;
+  const pct = typeof pctRaw === "number" && isFinite(pctRaw) ? pctRaw : 0;
 
 
 
