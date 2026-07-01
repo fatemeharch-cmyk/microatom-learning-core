@@ -579,6 +579,12 @@ function Chapter1Page() {
               </div>
               <Progress value={pct} className="h-2" />
 
+              {submitResult && !result && (
+                <div className="rounded-2xl border border-amber-100 bg-amber-50/60 p-3 text-xs text-amber-800">
+                  تحلیل نهایی فعلاً دریافت نشد، اما پاسخ‌ها ثبت شدند.
+                </div>
+              )}
+
               {answerReview.length > 0 && (
                 <div className="space-y-2">
                   <h3 className="text-sm font-bold text-slate-700">
