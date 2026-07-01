@@ -71,13 +71,30 @@ function toast(msg: string) {
 
 // -------- component --------
 type CheckupQuestion = { id: string | number; question: string };
+type CheckupAnswerReview = {
+  question_id?: string | number;
+  question?: string;
+  user_answer?: string;
+  correct_answer?: string;
+  is_correct?: boolean;
+};
+type CheckupSubmitResponse = {
+  session_id?: string | number;
+  total?: number;
+  correct?: number;
+  score?: number;
+  answers?: CheckupAnswerReview[];
+};
 type CheckupResultResponse = {
   score?: number;
   correct?: number;
   total?: number;
   weak_concepts?: string[];
   recommendation?: string | { title?: string; description?: string };
+  answers?: CheckupAnswerReview[];
 };
+
+
 
 
 function Chapter1Page() {
@@ -165,6 +182,9 @@ function Chapter1Page() {
   const [questions, setQuestions] = useState<CheckupQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<CheckupResultResponse | null>(null);
+  const [submitResult, setSubmitResult] = useState<CheckupSubmitResponse | null>(
+    null,
+  );
   const [checkupBusy, setCheckupBusy] = useState(false);
   const [checkupError, setCheckupError] = useState<string | null>(null);
 
@@ -193,6 +213,7 @@ function Chapter1Page() {
       );
       setAnswers({});
       setResult(null);
+      setSubmitResult(null);
       setPhase("answering");
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : (err as Error).message;
@@ -203,27 +224,53 @@ function Chapter1Page() {
   }
 
   async function submitCheckup() {
-    if (!sessionId) return;
+    // defensive: session must exist
+    if (sessionId === null || sessionId === undefined || sessionId === "") {
+      setCheckupError("شناسه‌ی نشست چکاپ موجود نیست. لطفاً دوباره شروع کن.");
+      return;
+    }
+    // defensive: questions must exist
+    if (!Array.isArray(questions) || questions.length === 0) {
+      setCheckupError("سؤالی برای ارسال وجود ندارد.");
+      return;
+    }
+
     setCheckupBusy(true);
     setCheckupError(null);
     try {
-      await apiClient.post(`${BIO_BASE}/chapter1/checkup/submit`, {
+      const submitPayload = {
         session_id: sessionId,
         answers: questions.map((q) => ({
           question_id: q.id,
           user_answer: (answers[String(q.id)] ?? "").trim(),
         })),
-      });
-      const r = await apiClient.post<CheckupResultResponse>(
-        `${BIO_BASE}/chapter1/checkup/result`,
-        { session_id: sessionId },
+      };
+      console.log("CHECKUP SUBMIT PAYLOAD", submitPayload);
+
+      const submitRes = await apiClient.post<CheckupSubmitResponse>(
+        `${BIO_BASE}/chapter1/checkup/submit`,
+        submitPayload,
       );
-      setResult(r.data ?? {});
+      const submitData = submitRes.data ?? null;
+      setSubmitResult(submitData);
+
+      let resultData: CheckupResultResponse | null = null;
+      try {
+        const r = await apiClient.post<CheckupResultResponse>(
+          `${BIO_BASE}/chapter1/checkup/result`,
+          { session_id: sessionId },
+        );
+        resultData = r.data ?? null;
+      } catch (resErr) {
+        // Result endpoint failed — keep submit response and continue inline.
+        console.warn("CHECKUP RESULT FAILED", resErr);
+      }
+      setResult(resultData);
       setPhase("result");
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : (err as Error).message;
       setCheckupError(
-        `ثبت پاسخ‌ها یا دریافت تحلیل با خطا مواجه شد.${msg ? ` (${msg})` : ""}`,
+        `ثبت پاسخ‌ها با خطا مواجه شد.${msg ? ` (${msg})` : ""}`,
       );
     } finally {
       setCheckupBusy(false);
@@ -236,12 +283,20 @@ function Chapter1Page() {
     setQuestions([]);
     setAnswers({});
     setResult(null);
+    setSubmitResult(null);
     setCheckupError(null);
   }
 
-  const pct = result?.score ?? 0;
-  const correctCount = result?.correct ?? 0;
-  const totalCount = result?.total ?? questions.length;
+  const answerReview: CheckupAnswerReview[] =
+    (submitResult?.answers && submitResult.answers.length > 0
+      ? submitResult.answers
+      : result?.answers) ?? [];
+  const totalCount =
+    submitResult?.total ?? result?.total ?? questions.length ?? 0;
+  const correctCount = submitResult?.correct ?? result?.correct ?? 0;
+  const pct = submitResult?.score ?? result?.score ?? 0;
+
+
 
 
   return (
@@ -478,7 +533,7 @@ function Chapter1Page() {
             </div>
           )}
 
-          {phase === "result" && result && (
+          {phase === "result" && (
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="p-3 rounded-2xl bg-slate-50">
@@ -494,13 +549,58 @@ function Chapter1Page() {
                   </p>
                 </div>
                 <div className="p-3 rounded-2xl bg-violet-50">
-                  <p className="text-xs text-slate-500">درصد</p>
+                  <p className="text-xs text-slate-500">درصد چکاب</p>
                   <p className="text-xl font-extrabold text-violet-600">
                     {pct}٪
                   </p>
                 </div>
               </div>
               <Progress value={pct} className="h-2" />
+
+              {answerReview.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-bold text-slate-700">
+                    مرور پاسخ‌ها
+                  </h3>
+                  {answerReview.map((a, i) => {
+                    const q = questions.find(
+                      (qq) => String(qq.id) === String(a?.question_id),
+                    );
+                    const ok = a?.is_correct === true;
+                    return (
+                      <div
+                        key={i}
+                        className={`rounded-2xl border p-3 space-y-1 ${
+                          ok
+                            ? "border-emerald-100 bg-emerald-50/40"
+                            : "border-rose-100 bg-rose-50/40"
+                        }`}
+                      >
+                        <p className="text-xs text-slate-500">سوال {i + 1}</p>
+                        <p className="text-sm text-slate-800 font-medium leading-7">
+                          {q?.question ?? a?.question ?? "—"}
+                        </p>
+                        <p className="text-xs text-slate-600">
+                          <span className="font-semibold">پاسخ دانش‌آموز: </span>
+                          {a?.user_answer && a.user_answer.length > 0
+                            ? a.user_answer
+                            : "—"}
+                        </p>
+                        {a?.correct_answer && (
+                          <p className="text-xs text-emerald-700">
+                            <span className="font-semibold">پاسخ درست: </span>
+                            {a.correct_answer}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {checkupError && (
+                <p className="text-sm text-rose-600">{checkupError}</p>
+              )}
 
               <Button
                 variant="outline"
@@ -511,11 +611,12 @@ function Chapter1Page() {
               </Button>
             </div>
           )}
+
         </CardContent>
       </Card>
 
       {/* 3) Analysis / result section */}
-      {phase === "result" && result && (
+      {phase === "result" && result && (result.weak_concepts?.length || result.recommendation) && (
         <Card className="border-0 rounded-3xl shadow-sm bg-white">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-slate-800">
