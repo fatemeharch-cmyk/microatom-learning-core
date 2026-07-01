@@ -33,6 +33,27 @@ import { apiClient, ApiError } from "@/lib/api/client";
 
 export const Route = createFileRoute("/student/biology/chapter1")({
   component: Chapter1Page,
+  errorComponent: ({ error, reset }) => (
+    <div dir="rtl" className="p-6 space-y-3 font-vazir">
+      <h2 className="text-lg font-bold text-rose-600">
+        خطای غیرمنتظره در نمایش صفحه
+      </h2>
+      <p className="text-sm text-slate-600 whitespace-pre-wrap">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
+      <button
+        onClick={() => reset()}
+        className="rounded-full bg-violet-600 text-white px-4 py-2 text-sm"
+      >
+        تلاش دوباره
+      </button>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div dir="rtl" className="p-6 font-vazir text-slate-600">
+      صفحه یافت نشد.
+    </div>
+  ),
 });
 
 // -------- demo taxonomy (used if backend not ready) --------
