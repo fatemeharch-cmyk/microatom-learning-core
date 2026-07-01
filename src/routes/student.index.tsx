@@ -591,4 +591,3 @@ function toFa(n: number | string): string {
 // Suppress unused import warnings for icons reserved for future cards.
 void Activity;
 void Bell;
-void ChevronLeft;
