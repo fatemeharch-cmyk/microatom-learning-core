@@ -70,7 +70,7 @@ function toast(msg: string) {
 }
 
 // -------- component --------
-type CheckupQuestion = { id: string | number; text: string; options?: string[] };
+type CheckupQuestion = { id: string | number; question: string };
 type CheckupResultResponse = {
   score?: number;
   correct?: number;
