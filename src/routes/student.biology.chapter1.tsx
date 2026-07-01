@@ -182,6 +182,9 @@ function Chapter1Page() {
   const [questions, setQuestions] = useState<CheckupQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<CheckupResultResponse | null>(null);
+  const [submitResult, setSubmitResult] = useState<CheckupSubmitResponse | null>(
+    null,
+  );
   const [checkupBusy, setCheckupBusy] = useState(false);
   const [checkupError, setCheckupError] = useState<string | null>(null);
 
@@ -210,6 +213,7 @@ function Chapter1Page() {
       );
       setAnswers({});
       setResult(null);
+      setSubmitResult(null);
       setPhase("answering");
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : (err as Error).message;
@@ -220,27 +224,53 @@ function Chapter1Page() {
   }
 
   async function submitCheckup() {
-    if (!sessionId) return;
+    // defensive: session must exist
+    if (sessionId === null || sessionId === undefined || sessionId === "") {
+      setCheckupError("شناسه‌ی نشست چکاپ موجود نیست. لطفاً دوباره شروع کن.");
+      return;
+    }
+    // defensive: questions must exist
+    if (!Array.isArray(questions) || questions.length === 0) {
+      setCheckupError("سؤالی برای ارسال وجود ندارد.");
+      return;
+    }
+
     setCheckupBusy(true);
     setCheckupError(null);
     try {
-      await apiClient.post(`${BIO_BASE}/chapter1/checkup/submit`, {
+      const submitPayload = {
         session_id: sessionId,
         answers: questions.map((q) => ({
           question_id: q.id,
           user_answer: (answers[String(q.id)] ?? "").trim(),
         })),
-      });
-      const r = await apiClient.post<CheckupResultResponse>(
-        `${BIO_BASE}/chapter1/checkup/result`,
-        { session_id: sessionId },
+      };
+      console.log("CHECKUP SUBMIT PAYLOAD", submitPayload);
+
+      const submitRes = await apiClient.post<CheckupSubmitResponse>(
+        `${BIO_BASE}/chapter1/checkup/submit`,
+        submitPayload,
       );
-      setResult(r.data ?? {});
+      const submitData = submitRes.data ?? null;
+      setSubmitResult(submitData);
+
+      let resultData: CheckupResultResponse | null = null;
+      try {
+        const r = await apiClient.post<CheckupResultResponse>(
+          `${BIO_BASE}/chapter1/checkup/result`,
+          { session_id: sessionId },
+        );
+        resultData = r.data ?? null;
+      } catch (resErr) {
+        // Result endpoint failed — keep submit response and continue inline.
+        console.warn("CHECKUP RESULT FAILED", resErr);
+      }
+      setResult(resultData);
       setPhase("result");
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : (err as Error).message;
       setCheckupError(
-        `ثبت پاسخ‌ها یا دریافت تحلیل با خطا مواجه شد.${msg ? ` (${msg})` : ""}`,
+        `ثبت پاسخ‌ها با خطا مواجه شد.${msg ? ` (${msg})` : ""}`,
       );
     } finally {
       setCheckupBusy(false);
@@ -253,12 +283,20 @@ function Chapter1Page() {
     setQuestions([]);
     setAnswers({});
     setResult(null);
+    setSubmitResult(null);
     setCheckupError(null);
   }
 
-  const pct = result?.score ?? 0;
-  const correctCount = result?.correct ?? 0;
-  const totalCount = result?.total ?? questions.length;
+  const answerReview: CheckupAnswerReview[] =
+    (submitResult?.answers && submitResult.answers.length > 0
+      ? submitResult.answers
+      : result?.answers) ?? [];
+  const totalCount =
+    submitResult?.total ?? result?.total ?? questions.length ?? 0;
+  const correctCount = submitResult?.correct ?? result?.correct ?? 0;
+  const pct = submitResult?.score ?? result?.score ?? 0;
+
+
 
 
   return (
