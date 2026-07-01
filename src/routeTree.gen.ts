@@ -72,6 +72,7 @@ import { Route as ParentCompanionRouteImport } from './routes/parent.companion'
 import { Route as ParentChildrenRouteImport } from './routes/parent.children'
 import { Route as ParentCalendarRouteImport } from './routes/parent.calendar'
 import { Route as ParentAnnouncementsRouteImport } from './routes/parent.announcements'
+import { Route as GradeSupervisorChapter1MonitoringRouteImport } from './routes/grade-supervisor.chapter1-monitoring'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemRouteImport } from './routes/admin.system'
 import { Route as AdminScheduleRouteImport } from './routes/admin.schedule'
@@ -85,6 +86,7 @@ import { Route as AdminClassesRouteImport } from './routes/admin.classes'
 import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
 import { Route as StudentBiologyIndexRouteImport } from './routes/student.biology.index'
 import { Route as GradeSupervisorStudentsIndexRouteImport } from './routes/grade-supervisor.students.index'
+import { Route as StudentBiologyChapter1RouteImport } from './routes/student.biology.chapter1'
 import { Route as StudentBiologyChapterIdRouteImport } from './routes/student.biology.$chapterId'
 import { Route as GradeSupervisorStudentsIdRouteImport } from './routes/grade-supervisor.students.$id'
 
@@ -403,6 +405,12 @@ const ParentAnnouncementsRoute = ParentAnnouncementsRouteImport.update({
   path: '/announcements',
   getParentRoute: () => ParentRoute,
 } as any)
+const GradeSupervisorChapter1MonitoringRoute =
+  GradeSupervisorChapter1MonitoringRouteImport.update({
+    id: '/chapter1-monitoring',
+    path: '/chapter1-monitoring',
+    getParentRoute: () => GradeSupervisorRoute,
+  } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -469,6 +477,11 @@ const GradeSupervisorStudentsIndexRoute =
     path: '/students/',
     getParentRoute: () => GradeSupervisorRoute,
   } as any)
+const StudentBiologyChapter1Route = StudentBiologyChapter1RouteImport.update({
+  id: '/chapter1',
+  path: '/chapter1',
+  getParentRoute: () => StudentBiologyRoute,
+} as any)
 const StudentBiologyChapterIdRoute = StudentBiologyChapterIdRouteImport.update({
   id: '/$chapterId',
   path: '/$chapterId',
@@ -502,6 +515,7 @@ export interface FileRoutesByFullPath {
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/grade-supervisor/chapter1-monitoring': typeof GradeSupervisorChapter1MonitoringRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -558,6 +572,7 @@ export interface FileRoutesByFullPath {
   '/teacher/': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
   '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
+  '/student/biology/chapter1': typeof StudentBiologyChapter1Route
   '/grade-supervisor/students/': typeof GradeSupervisorStudentsIndexRoute
   '/student/biology/': typeof StudentBiologyIndexRoute
 }
@@ -576,6 +591,7 @@ export interface FileRoutesByTo {
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/grade-supervisor/chapter1-monitoring': typeof GradeSupervisorChapter1MonitoringRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -631,6 +647,7 @@ export interface FileRoutesByTo {
   '/teacher': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
   '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
+  '/student/biology/chapter1': typeof StudentBiologyChapter1Route
   '/grade-supervisor/students': typeof GradeSupervisorStudentsIndexRoute
   '/student/biology': typeof StudentBiologyIndexRoute
 }
@@ -656,6 +673,7 @@ export interface FileRoutesById {
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/users': typeof AdminUsersRoute
+  '/grade-supervisor/chapter1-monitoring': typeof GradeSupervisorChapter1MonitoringRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -712,6 +730,7 @@ export interface FileRoutesById {
   '/teacher/': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
   '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
+  '/student/biology/chapter1': typeof StudentBiologyChapter1Route
   '/grade-supervisor/students/': typeof GradeSupervisorStudentsIndexRoute
   '/student/biology/': typeof StudentBiologyIndexRoute
 }
@@ -738,6 +757,7 @@ export interface FileRouteTypes {
     | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
+    | '/grade-supervisor/chapter1-monitoring'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -794,6 +814,7 @@ export interface FileRouteTypes {
     | '/teacher/'
     | '/grade-supervisor/students/$id'
     | '/student/biology/$chapterId'
+    | '/student/biology/chapter1'
     | '/grade-supervisor/students/'
     | '/student/biology/'
   fileRoutesByTo: FileRoutesByTo
@@ -812,6 +833,7 @@ export interface FileRouteTypes {
     | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
+    | '/grade-supervisor/chapter1-monitoring'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -867,6 +889,7 @@ export interface FileRouteTypes {
     | '/teacher'
     | '/grade-supervisor/students/$id'
     | '/student/biology/$chapterId'
+    | '/student/biology/chapter1'
     | '/grade-supervisor/students'
     | '/student/biology'
   id:
@@ -891,6 +914,7 @@ export interface FileRouteTypes {
     | '/admin/schedule'
     | '/admin/system'
     | '/admin/users'
+    | '/grade-supervisor/chapter1-monitoring'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -947,6 +971,7 @@ export interface FileRouteTypes {
     | '/teacher/'
     | '/grade-supervisor/students/$id'
     | '/student/biology/$chapterId'
+    | '/student/biology/chapter1'
     | '/grade-supervisor/students/'
     | '/student/biology/'
   fileRoutesById: FileRoutesById
@@ -1406,6 +1431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentAnnouncementsRouteImport
       parentRoute: typeof ParentRoute
     }
+    '/grade-supervisor/chapter1-monitoring': {
+      id: '/grade-supervisor/chapter1-monitoring'
+      path: '/chapter1-monitoring'
+      fullPath: '/grade-supervisor/chapter1-monitoring'
+      preLoaderRoute: typeof GradeSupervisorChapter1MonitoringRouteImport
+      parentRoute: typeof GradeSupervisorRoute
+    }
     '/admin/users': {
       id: '/admin/users'
       path: '/users'
@@ -1497,6 +1529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GradeSupervisorStudentsIndexRouteImport
       parentRoute: typeof GradeSupervisorRoute
     }
+    '/student/biology/chapter1': {
+      id: '/student/biology/chapter1'
+      path: '/chapter1'
+      fullPath: '/student/biology/chapter1'
+      preLoaderRoute: typeof StudentBiologyChapter1RouteImport
+      parentRoute: typeof StudentBiologyRoute
+    }
     '/student/biology/$chapterId': {
       id: '/student/biology/$chapterId'
       path: '/$chapterId'
@@ -1547,12 +1586,15 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface GradeSupervisorRouteChildren {
+  GradeSupervisorChapter1MonitoringRoute: typeof GradeSupervisorChapter1MonitoringRoute
   GradeSupervisorIndexRoute: typeof GradeSupervisorIndexRoute
   GradeSupervisorStudentsIdRoute: typeof GradeSupervisorStudentsIdRoute
   GradeSupervisorStudentsIndexRoute: typeof GradeSupervisorStudentsIndexRoute
 }
 
 const GradeSupervisorRouteChildren: GradeSupervisorRouteChildren = {
+  GradeSupervisorChapter1MonitoringRoute:
+    GradeSupervisorChapter1MonitoringRoute,
   GradeSupervisorIndexRoute: GradeSupervisorIndexRoute,
   GradeSupervisorStudentsIdRoute: GradeSupervisorStudentsIdRoute,
   GradeSupervisorStudentsIndexRoute: GradeSupervisorStudentsIndexRoute,
@@ -1595,11 +1637,13 @@ const ParentRouteWithChildren =
 
 interface StudentBiologyRouteChildren {
   StudentBiologyChapterIdRoute: typeof StudentBiologyChapterIdRoute
+  StudentBiologyChapter1Route: typeof StudentBiologyChapter1Route
   StudentBiologyIndexRoute: typeof StudentBiologyIndexRoute
 }
 
 const StudentBiologyRouteChildren: StudentBiologyRouteChildren = {
   StudentBiologyChapterIdRoute: StudentBiologyChapterIdRoute,
+  StudentBiologyChapter1Route: StudentBiologyChapter1Route,
   StudentBiologyIndexRoute: StudentBiologyIndexRoute,
 }
 
