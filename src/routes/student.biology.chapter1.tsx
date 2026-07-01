@@ -115,7 +115,8 @@ function Chapter1Page() {
   );
 
   async function submitDose() {
-    if (!selectedMicro) {
+    const microId = Number(selectedMicro);
+    if (!selectedMicro || !Number.isFinite(microId)) {
       toast("لطفاً یک میکرواتم انتخاب کن.");
       return;
     }
@@ -123,14 +124,14 @@ function Chapter1Page() {
     try {
       await apiClient.post(`${BIO_BASE}/chapter1/dose/create`, {
         user_id: USER_ID,
-        micro_atom_id: selectedMicro,
-        dose_count: doseCount,
-        note,
+        micro_atom_id: microId,
+        dose_count: Number(doseCount),
+        note: note || "",
       });
-      const micro = DEMO_MICRO_ATOMS.find((m) => m.id === selectedMicro);
+      const micro = DEMO_MICRO_ATOMS.find((m) => m.id === microId);
       setDoseLog((l) => [
         {
-          title: micro?.title ?? selectedMicro,
+          title: micro?.title ?? String(microId),
           count: doseCount,
           at: new Date().toLocaleTimeString("fa-IR"),
         },
