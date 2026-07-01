@@ -61,37 +61,23 @@ const DEMO_QUESTIONS = [
 ];
 
 // -------- helpers --------
-function readUserId(): string {
-  if (typeof window === "undefined") return "";
-  try {
-    return window.localStorage.getItem("atomia_user_id") ?? "";
-  } catch {
-    return "";
-  }
-}
+const BIO_BASE = "https://x8ki-letl-twmt.n7.xano.io/api:biology";
+const USER_ID = 4;
 
 function toast(msg: string) {
-  // Non-blocking, tiny feedback — avoids adding a full toast lib for MVP
   if (typeof window !== "undefined") window.setTimeout(() => alert(msg), 0);
 }
 
 // -------- component --------
-type CheckupQuestion = { id: string; text: string; correct?: string };
-type SubmitAnswerResult = {
-  question_id: string;
-  is_correct: boolean;
-  correct_answer?: string;
-  user_answer?: string;
-  concept?: string;
-};
-type CheckupSubmitResponse = {
+type CheckupQuestion = { id: string | number; text: string; options?: string[] };
+type CheckupResultResponse = {
   score?: number;
   correct?: number;
   total?: number;
-  answers?: SubmitAnswerResult[];
   weak_concepts?: string[];
-  recommendations?: (string | { title?: string; description?: string })[];
+  recommendation?: string | { title?: string; description?: string };
 };
+
 
 function Chapter1Page() {
   // ----- Dose state -----
