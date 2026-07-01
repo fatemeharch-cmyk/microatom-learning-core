@@ -49,6 +49,24 @@ function BiologyHome() {
         </div>
       </header>
 
+      <Link
+        to="/student/biology/chapter1"
+        className="block rounded-3xl border-0 shadow-sm bg-gradient-to-br from-violet-50 to-pink-50 p-5 hover:shadow-md transition"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-xs text-violet-700 font-bold">MVP فعال</div>
+            <div className="mt-1 text-lg font-extrabold text-slate-800">
+              فصل اول زیست: تنظیم عصبی
+            </div>
+            <p className="text-sm text-slate-600 mt-1">
+              ثبت دوز مطالعه، چکاب کوتاه و تحلیل ساده — همه در یک صفحه.
+            </p>
+          </div>
+          <ChevronLeft className="h-5 w-5 text-violet-600 mt-1" />
+        </div>
+      </Link>
+
       <Card className="border-0 rounded-3xl shadow-sm bg-white overflow-hidden">
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-2">
