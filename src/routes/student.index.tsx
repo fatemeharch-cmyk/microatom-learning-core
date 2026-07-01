@@ -10,7 +10,6 @@ import {
   Activity,
   Bell,
   Stethoscope,
-  ChevronLeft,
   Sparkles,
   TrendingUp,
   BookOpen,
@@ -183,36 +182,6 @@ function TodayPage() {
             </div>
           </CardContent>
         </Card>
-      </section>
-
-      {/* Chapter 1 MVP entry point */}
-      <section>
-        <Link
-          to="/student/biology/chapter1"
-          className="block rounded-[22px] bg-gradient-to-l from-emerald-50 via-white to-white border border-emerald-100 shadow-sm hover:shadow-md transition"
-        >
-          <div className="p-5 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="h-12 w-12 rounded-2xl bg-emerald-100 grid place-items-center text-emerald-600 shrink-0">
-                <Leaf className="h-6 w-6" />
-              </span>
-              <div className="text-right">
-                <p className="text-sm font-bold text-slate-500">MVP فعال</p>
-                <p className="text-lg font-extrabold text-slate-800">فصل اول زیست</p>
-                <p className="text-xs text-slate-500">تنظیم عصبی — دوز مطالعه، چکاب و تحلیل ساده</p>
-              </div>
-            </div>
-            <Button
-              asChild
-              className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
-            >
-              <span className="flex items-center gap-1">
-                ورود به فصل
-                <ChevronLeft className="h-4 w-4" />
-              </span>
-            </Button>
-          </div>
-        </Link>
       </section>
 
       {/* Metric cards */}
@@ -622,4 +591,3 @@ function toFa(n: number | string): string {
 // Suppress unused import warnings for icons reserved for future cards.
 void Activity;
 void Bell;
-void ChevronLeft;
