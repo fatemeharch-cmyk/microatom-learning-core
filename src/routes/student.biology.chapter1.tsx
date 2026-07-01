@@ -341,15 +341,21 @@ function Chapter1Page() {
     setCheckupError(null);
   }
 
+  const safeAnswers = Array.isArray(submitResult?.answers)
+    ? submitResult.answers
+    : [];
+  const safeResultAnswers = Array.isArray(result?.answers) ? result.answers : [];
   const answerReview: CheckupAnswerReview[] =
-    ((submitResult?.answers && submitResult.answers.length > 0
-      ? submitResult.answers
-      : result?.answers) as CheckupAnswerReview[] | undefined) || [];
+    safeAnswers.length > 0 ? safeAnswers : safeResultAnswers;
+  const safeWeakConcepts = Array.isArray(result?.weak_concepts)
+    ? result.weak_concepts
+    : [];
   const totalCount =
     submitResult?.total ?? result?.total ?? (questions?.length ?? 0);
   const correctCount = submitResult?.correct ?? result?.correct ?? 0;
   const pctRaw = submitResult?.score ?? result?.score ?? 0;
   const pct = typeof pctRaw === "number" && isFinite(pctRaw) ? pctRaw : 0;
+  const resultResetKey = `${phase}-${sessionId ?? "none"}-${answerReview.length}-${safeWeakConcepts.length}`;
 
 
 
@@ -589,6 +595,7 @@ function Chapter1Page() {
           )}
 
           {phase === "result" && (
+            <InlineResultErrorBoundary resetKey={resultResetKey}>
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="p-3 rounded-2xl bg-slate-50">
@@ -624,8 +631,8 @@ function Chapter1Page() {
                     مرور پاسخ‌ها
                   </h3>
                   {answerReview.map((a, i) => {
-                    const q = questions.find(
-                      (qq) => String(qq.id) === String(a?.question_id),
+                    const q = (questions || []).find(
+                      (qq) => String(qq?.id) === String(a?.question_id),
                     );
                     const ok = a?.is_correct === true;
                     return (
@@ -650,7 +657,7 @@ function Chapter1Page() {
                         {a?.correct_answer && (
                           <p className="text-xs text-emerald-700">
                             <span className="font-semibold">پاسخ درست: </span>
-                            {a.correct_answer}
+                            {a?.correct_answer}
                           </p>
                         )}
                       </div>
@@ -671,13 +678,14 @@ function Chapter1Page() {
                 چکاب جدید
               </Button>
             </div>
+            </InlineResultErrorBoundary>
           )}
 
         </CardContent>
       </Card>
 
       {/* 3) Analysis / result section */}
-      {phase === "result" && result && ((result?.weak_concepts?.length ?? 0) > 0 || result?.recommendation) && (
+      {phase === "result" && result && (safeWeakConcepts.length > 0 || result?.recommendation) && (
         <Card className="border-0 rounded-3xl shadow-sm bg-white">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-slate-800">
@@ -686,15 +694,16 @@ function Chapter1Page() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            <InlineResultErrorBoundary resetKey={`analysis-${resultResetKey}`}>
             {/* weak concepts */}
-            {(result?.weak_concepts?.length ?? 0) > 0 && (
+            {safeWeakConcepts.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-500" />
                   ضعف‌های شناسایی شده
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {(result?.weak_concepts || []).map((w: string, i: number) => (
+                  {safeWeakConcepts.map((w: string, i: number) => (
                     <Badge
                       key={i}
                       className="bg-amber-100 text-amber-700 border-0"
@@ -714,18 +723,18 @@ function Chapter1Page() {
                   پیشنهاد مطالعه
                 </h3>
                 <div className="rounded-2xl bg-violet-50/60 border border-violet-100 p-3 text-sm text-slate-700">
-                  {typeof result.recommendation === "string" ? (
-                    <p className="leading-7">{result.recommendation}</p>
+                  {typeof result?.recommendation === "string" ? (
+                    <p className="leading-7">{result?.recommendation}</p>
                   ) : (
                     <>
-                      {result.recommendation?.title && (
+                      {result?.recommendation?.title && (
                         <p className="font-semibold text-slate-800">
-                          {result.recommendation.title}
+                          {result?.recommendation?.title}
                         </p>
                       )}
-                      {result.recommendation?.description && (
+                      {result?.recommendation?.description && (
                         <p className="mt-1 text-slate-600 leading-7">
-                          {result.recommendation.description}
+                          {result?.recommendation?.description}
                         </p>
                       )}
                     </>
@@ -744,6 +753,7 @@ function Chapter1Page() {
                 <ChevronLeft className="h-4 w-4" />
               </Link>
             </div>
+            </InlineResultErrorBoundary>
           </CardContent>
         </Card>
       )}
