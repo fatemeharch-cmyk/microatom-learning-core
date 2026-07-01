@@ -436,7 +436,7 @@ function Chapter1Page() {
                 >
                   <div className="flex items-start gap-2">
                     <Badge className="bg-violet-100 text-violet-700 border-0 shrink-0">
-                      سؤال {idx + 1}
+                      سوال {idx + 1}
                     </Badge>
                     <p className="text-sm text-slate-800 font-medium leading-7">
                       {q.question}
