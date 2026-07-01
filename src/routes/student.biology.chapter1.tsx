@@ -348,7 +348,7 @@ function Chapter1Page() {
   const answerReview: CheckupAnswerReview[] =
     safeAnswers.length > 0 ? safeAnswers : safeResultAnswers;
   const safeWeakConcepts = Array.isArray(result?.weak_concepts)
-    ? result.weak_concepts
+    ? result?.weak_concepts
     : [];
   const totalCount =
     submitResult?.total ?? result?.total ?? (questions?.length ?? 0);
