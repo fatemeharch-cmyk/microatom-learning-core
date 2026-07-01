@@ -616,7 +616,7 @@ function Chapter1Page() {
       </Card>
 
       {/* 3) Analysis / result section */}
-      {phase === "result" && result && (
+      {phase === "result" && result && (result.weak_concepts?.length || result.recommendation) && (
         <Card className="border-0 rounded-3xl shadow-sm bg-white">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-slate-800">
