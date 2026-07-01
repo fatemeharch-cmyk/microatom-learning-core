@@ -448,7 +448,7 @@ function Chapter1Page() {
                     onChange={(e) =>
                       setAnswers((a) => ({ ...a, [q.id]: e.target.value }))
                     }
-                    placeholder="پاسخ کوتاه…"
+                    placeholder="پاسخ کوتاه..."
                     className="rounded-xl bg-white"
                   />
                 </div>
