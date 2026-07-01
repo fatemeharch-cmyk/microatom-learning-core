@@ -674,7 +674,7 @@ function Chapter1Page() {
             )}
 
             {/* recommendation */}
-            {result.recommendation && (
+            {result?.recommendation && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-violet-500" />
@@ -685,12 +685,12 @@ function Chapter1Page() {
                     <p className="leading-7">{result.recommendation}</p>
                   ) : (
                     <>
-                      {result.recommendation.title && (
+                      {result.recommendation?.title && (
                         <p className="font-semibold text-slate-800">
                           {result.recommendation.title}
                         </p>
                       )}
-                      {result.recommendation.description && (
+                      {result.recommendation?.description && (
                         <p className="mt-1 text-slate-600 leading-7">
                           {result.recommendation.description}
                         </p>
