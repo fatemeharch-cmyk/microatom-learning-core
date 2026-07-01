@@ -17,7 +17,7 @@ import {
   Loader2,
   Stethoscope,
   ClipboardList,
-  CheckCircle2,
+  AlertTriangle as _AT2,
   AlertTriangle,
   Sparkles,
   BookOpen,
