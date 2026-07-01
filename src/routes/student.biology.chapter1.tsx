@@ -533,7 +533,7 @@ function Chapter1Page() {
             </div>
           )}
 
-          {phase === "result" && result && (
+          {phase === "result" && (
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="p-3 rounded-2xl bg-slate-50">
@@ -549,13 +549,58 @@ function Chapter1Page() {
                   </p>
                 </div>
                 <div className="p-3 rounded-2xl bg-violet-50">
-                  <p className="text-xs text-slate-500">درصد</p>
+                  <p className="text-xs text-slate-500">درصد چکاب</p>
                   <p className="text-xl font-extrabold text-violet-600">
                     {pct}٪
                   </p>
                 </div>
               </div>
               <Progress value={pct} className="h-2" />
+
+              {answerReview.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-bold text-slate-700">
+                    مرور پاسخ‌ها
+                  </h3>
+                  {answerReview.map((a, i) => {
+                    const q = questions.find(
+                      (qq) => String(qq.id) === String(a?.question_id),
+                    );
+                    const ok = a?.is_correct === true;
+                    return (
+                      <div
+                        key={i}
+                        className={`rounded-2xl border p-3 space-y-1 ${
+                          ok
+                            ? "border-emerald-100 bg-emerald-50/40"
+                            : "border-rose-100 bg-rose-50/40"
+                        }`}
+                      >
+                        <p className="text-xs text-slate-500">سوال {i + 1}</p>
+                        <p className="text-sm text-slate-800 font-medium leading-7">
+                          {q?.question ?? a?.question ?? "—"}
+                        </p>
+                        <p className="text-xs text-slate-600">
+                          <span className="font-semibold">پاسخ دانش‌آموز: </span>
+                          {a?.user_answer && a.user_answer.length > 0
+                            ? a.user_answer
+                            : "—"}
+                        </p>
+                        {a?.correct_answer && (
+                          <p className="text-xs text-emerald-700">
+                            <span className="font-semibold">پاسخ درست: </span>
+                            {a.correct_answer}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {checkupError && (
+                <p className="text-sm text-rose-600">{checkupError}</p>
+              )}
 
               <Button
                 variant="outline"
@@ -566,6 +611,7 @@ function Chapter1Page() {
               </Button>
             </div>
           )}
+
         </CardContent>
       </Card>
 
