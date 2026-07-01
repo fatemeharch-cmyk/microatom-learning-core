@@ -33,6 +33,27 @@ import { apiClient, ApiError } from "@/lib/api/client";
 
 export const Route = createFileRoute("/student/biology/chapter1")({
   component: Chapter1Page,
+  errorComponent: ({ error, reset }) => (
+    <div dir="rtl" className="p-6 space-y-3 font-vazir">
+      <h2 className="text-lg font-bold text-rose-600">
+        خطای غیرمنتظره در نمایش صفحه
+      </h2>
+      <p className="text-sm text-slate-600 whitespace-pre-wrap">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
+      <button
+        onClick={() => reset()}
+        className="rounded-full bg-violet-600 text-white px-4 py-2 text-sm"
+      >
+        تلاش دوباره
+      </button>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div dir="rtl" className="p-6 font-vazir text-slate-600">
+      صفحه یافت نشد.
+    </div>
+  ),
 });
 
 // -------- demo taxonomy (used if backend not ready) --------
@@ -288,13 +309,14 @@ function Chapter1Page() {
   }
 
   const answerReview: CheckupAnswerReview[] =
-    (submitResult?.answers && submitResult.answers.length > 0
+    ((submitResult?.answers && submitResult.answers.length > 0
       ? submitResult.answers
-      : result?.answers) ?? [];
+      : result?.answers) as CheckupAnswerReview[] | undefined) || [];
   const totalCount =
-    submitResult?.total ?? result?.total ?? questions.length ?? 0;
+    submitResult?.total ?? result?.total ?? (questions?.length ?? 0);
   const correctCount = submitResult?.correct ?? result?.correct ?? 0;
-  const pct = submitResult?.score ?? result?.score ?? 0;
+  const pctRaw = submitResult?.score ?? result?.score ?? 0;
+  const pct = typeof pctRaw === "number" && isFinite(pctRaw) ? pctRaw : 0;
 
 
 
@@ -557,6 +579,12 @@ function Chapter1Page() {
               </div>
               <Progress value={pct} className="h-2" />
 
+              {submitResult && !result && (
+                <div className="rounded-2xl border border-amber-100 bg-amber-50/60 p-3 text-xs text-amber-800">
+                  تحلیل نهایی فعلاً دریافت نشد، اما پاسخ‌ها ثبت شدند.
+                </div>
+              )}
+
               {answerReview.length > 0 && (
                 <div className="space-y-2">
                   <h3 className="text-sm font-bold text-slate-700">
@@ -616,7 +644,7 @@ function Chapter1Page() {
       </Card>
 
       {/* 3) Analysis / result section */}
-      {phase === "result" && result && (result.weak_concepts?.length || result.recommendation) && (
+      {phase === "result" && result && ((result?.weak_concepts?.length ?? 0) > 0 || result?.recommendation) && (
         <Card className="border-0 rounded-3xl shadow-sm bg-white">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-slate-800">
@@ -625,17 +653,15 @@ function Chapter1Page() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {/* score summary is already shown above; skip per-question review (backend result endpoint returns aggregates only) */}
-
             {/* weak concepts */}
-            {result.weak_concepts && result.weak_concepts.length > 0 && (
+            {(result?.weak_concepts?.length ?? 0) > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-500" />
                   ضعف‌های شناسایی شده
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {result.weak_concepts.map((w: string, i: number) => (
+                  {(result?.weak_concepts || []).map((w: string, i: number) => (
                     <Badge
                       key={i}
                       className="bg-amber-100 text-amber-700 border-0"
@@ -648,7 +674,7 @@ function Chapter1Page() {
             )}
 
             {/* recommendation */}
-            {result.recommendation && (
+            {result?.recommendation && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-violet-500" />
@@ -659,12 +685,12 @@ function Chapter1Page() {
                     <p className="leading-7">{result.recommendation}</p>
                   ) : (
                     <>
-                      {result.recommendation.title && (
+                      {result.recommendation?.title && (
                         <p className="font-semibold text-slate-800">
                           {result.recommendation.title}
                         </p>
                       )}
-                      {result.recommendation.description && (
+                      {result.recommendation?.description && (
                         <p className="mt-1 text-slate-600 leading-7">
                           {result.recommendation.description}
                         </p>
