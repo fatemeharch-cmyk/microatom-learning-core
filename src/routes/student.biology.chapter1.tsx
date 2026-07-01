@@ -644,7 +644,7 @@ function Chapter1Page() {
       </Card>
 
       {/* 3) Analysis / result section */}
-      {phase === "result" && result && (result.weak_concepts?.length || result.recommendation) && (
+      {phase === "result" && result && ((result?.weak_concepts?.length ?? 0) > 0 || result?.recommendation) && (
         <Card className="border-0 rounded-3xl shadow-sm bg-white">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-slate-800">
@@ -653,17 +653,15 @@ function Chapter1Page() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {/* score summary is already shown above; skip per-question review (backend result endpoint returns aggregates only) */}
-
             {/* weak concepts */}
-            {result.weak_concepts && result.weak_concepts.length > 0 && (
+            {(result?.weak_concepts?.length ?? 0) > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-500" />
                   ضعف‌های شناسایی شده
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {result.weak_concepts.map((w: string, i: number) => (
+                  {(result?.weak_concepts || []).map((w: string, i: number) => (
                     <Badge
                       key={i}
                       className="bg-amber-100 text-amber-700 border-0"
