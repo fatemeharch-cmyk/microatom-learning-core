@@ -1,8 +1,13 @@
 /**
  * Centralized API configuration for Xano backend integration.
+ *
+ * Xano splits endpoints into separate API groups, each with its own base
+ * URL. Register every group here so callers can build URLs against the
+ * correct group instead of assuming a single shared base URL.
  */
 
 export type ApiEnvironment = "development" | "staging" | "production";
+export type ApiGroup = "auth" | "content";
 
 export interface ApiConfig {
   baseUrl: string;
@@ -15,7 +20,15 @@ export interface ApiConfig {
 const ENV: ApiEnvironment =
   (import.meta.env?.MODE as ApiEnvironment) ?? "development";
 
-const XANO_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8hSBzNoS";
+export const AUTH_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8hSBzNoS";
+export const CONTENT_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8PSYz4xO";
+
+const XANO_BASE_URL = AUTH_BASE_URL;
+
+export const API_GROUP_BASE_URLS: Record<ApiGroup, string> = {
+  auth: AUTH_BASE_URL,
+  content: CONTENT_BASE_URL,
+};
 
 const ENV_CONFIG: Record<ApiEnvironment, ApiConfig> = {
   development: {
@@ -43,10 +56,19 @@ const ENV_CONFIG: Record<ApiEnvironment, ApiConfig> = {
 
 export const apiConfig: ApiConfig = ENV_CONFIG[ENV] ?? ENV_CONFIG.development;
 
+/** Build a URL against the default (auth) API group. */
 export function buildApiUrl(path: string): string {
-  // Allow absolute URLs to pass through (e.g. exam endpoints on a sibling group)
+  return buildApiUrlFor("auth", path);
+}
+
+/** Build a URL against a specific named API group. */
+export function buildApiUrlFor(group: ApiGroup, path: string): string {
+  // Allow absolute URLs to pass through
   if (/^https?:\/\//i.test(path)) return path;
-  const base = apiConfig.baseUrl.replace(/\/+$/, "");
+  const base = (API_GROUP_BASE_URLS[group] ?? apiConfig.baseUrl).replace(
+    /\/+$/,
+    "",
+  );
   const version = apiConfig.apiVersion.replace(/^\/+|\/+$/g, "");
   const suffix = path.startsWith("/") ? path : `/${path}`;
   if (!version) return `${base}${suffix}`;
