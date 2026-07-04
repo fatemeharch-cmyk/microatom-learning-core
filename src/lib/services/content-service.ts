@@ -1,14 +1,18 @@
 /**
- * Content service — wired to the Xano Content Engine.
+ * Content service — wired to the Xano Content API group.
  *
- * Endpoints:
- *   GET /content/subjects
- *   GET /content/subjects/{subject_id}/chapters
- *   GET /content/chapters/{chapter_id}/goftars
- *   GET /content/goftars/{goftar_id}/atoms
- *   GET /content/atoms/{atom_id}/micro-atoms
+ * Endpoints (Content group base URL — see api/config.ts):
+ *   GET subjects
+ *   GET subjects/{subject_id}/chapters
+ *   GET chapters/{chapter_id}/goftars
+ *   GET goftars/{goftar_id}/atoms
+ *   GET atoms/{atom_id}/micro-atoms
  */
 import { apiClient } from "@/lib/api/client";
+import { buildApiUrlFor } from "@/lib/api/config";
+
+const contentUrl = (path: string) => buildApiUrlFor("content", path);
+
 
 export interface ContentSubject {
   id: string;
