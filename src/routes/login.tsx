@@ -262,20 +262,20 @@ function LoginPage() {
             </Button>
           </form>
 
-          {debug ? (
-            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-900 font-mono space-y-1 break-all">
-              <div className="font-bold text-amber-700 mb-1">Debug</div>
-              <div>URL: {debug.url}</div>
-              <div>Status: {debug.status}</div>
-              <div>Keys: {debug.responseKeys.join(", ") || "—"}</div>
-              <div>Token: {debug.authTokenExists ? "true" : "false"}</div>
-              <div>Role: {debug.role ?? "—"}</div>
-              <div>
-                Redirect: {debug.role ? ROLES[debug.role].landing : "—"}
-              </div>
-              <div>Error: {message ?? "—"}</div>
-            </div>
-          ) : null}
+      {debug && import.meta.env.DEV ? (
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-900 font-mono space-y-1 break-all">
+          <div className="font-bold text-amber-700 mb-1">Debug</div>
+          <div>URL: {debug.url}</div>
+          <div>Status: {debug.status}</div>
+          <div>Keys: {debug.responseKeys.join(", ") || "—"}</div>
+          <div>Token: {debug.authTokenExists ? "true" : "false"}</div>
+          <div>Role: {debug.role ?? "—"}</div>
+          <div>
+            Redirect: {debug.role ? ROLES[debug.role].landing : "—"}
+          </div>
+          <div>Error: {message ?? "—"}</div>
+        </div>
+      ) : null}
         </div>
       </div>
     </div>
