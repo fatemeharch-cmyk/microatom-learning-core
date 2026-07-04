@@ -77,7 +77,7 @@ function listFrom(payload: unknown): Record<string, unknown>[] {
 }
 
 export async function listSubjects(): Promise<ContentSubject[]> {
-  const res = await apiClient.get<unknown>("/content/subjects");
+  const res = await apiClient.get<unknown>(contentUrl("subjects"));
   return listFrom(res.data).map((r) => ({ id: s(r.id), title: pickTitle(r) }));
 }
 
@@ -85,7 +85,7 @@ export async function listChaptersBySubject(
   subjectId: string,
 ): Promise<ContentChapter[]> {
   const res = await apiClient.get<unknown>(
-    `/content/subjects/${encodeURIComponent(subjectId)}/chapters`,
+    contentUrl(`subjects/${encodeURIComponent(subjectId)}/chapters`),
   );
   return listFrom(res.data).map((r) => ({
     id: s(r.id),
@@ -104,7 +104,7 @@ export async function listGoftarsByChapter(
   chapterId: string,
 ): Promise<ContentGoftar[]> {
   const res = await apiClient.get<unknown>(
-    `/content/chapters/${encodeURIComponent(chapterId)}/goftars`,
+    contentUrl(`chapters/${encodeURIComponent(chapterId)}/goftars`),
   );
   return listFrom(res.data).map((r) => ({
     id: s(r.id),
@@ -118,7 +118,7 @@ export async function listAtomsByGoftar(
   goftarId: string,
 ): Promise<ContentAtom[]> {
   const res = await apiClient.get<unknown>(
-    `/content/goftars/${encodeURIComponent(goftarId)}/atoms`,
+    contentUrl(`goftars/${encodeURIComponent(goftarId)}/atoms`),
   );
   return listFrom(res.data).map((r) => ({
     id: s(r.id),
@@ -131,7 +131,7 @@ export async function listMicroAtomsByAtom(
   atomId: string,
 ): Promise<ContentMicroAtom[]> {
   const res = await apiClient.get<unknown>(
-    `/content/atoms/${encodeURIComponent(atomId)}/micro-atoms`,
+    contentUrl(`atoms/${encodeURIComponent(atomId)}/micro-atoms`),
   );
   return listFrom(res.data).map((r) => ({
     id: s(r.id),
@@ -139,6 +139,7 @@ export async function listMicroAtomsByAtom(
     title: pickTitle(r),
   }));
 }
+
 
 /** Find the Biology subject by Persian title heuristic, falling back to the first subject. */
 export async function findBiologySubject(): Promise<ContentSubject | null> {
