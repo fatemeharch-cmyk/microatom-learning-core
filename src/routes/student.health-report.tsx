@@ -8,7 +8,7 @@ export const Route = createFileRoute("/student/health-report")({
       {
         name: "description",
         content:
-          "خلاصه چکاب‌ها، نبض یادگیری، دوز مطالعه و نسخه فعال دانش‌آموز.",
+          "خلاصه چکاب‌ها، نبض یادگیری، دوز مطالعه و نسخه پیشنهادی دانش‌آموز.",
       },
     ],
   }),
