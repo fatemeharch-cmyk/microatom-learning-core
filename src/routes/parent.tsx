@@ -8,6 +8,7 @@ import {
   Lightbulb,
   Megaphone,
   MessageSquareHeart,
+  FileHeart,
 } from "lucide-react";
 import { ParentShell, type NavItem } from "@/components/parent/parent-shell";
 import { useTheme, resolveIcon } from "@/lib/theme";
@@ -21,6 +22,7 @@ const defaultItems: NavItem[] = [
   { title: "همراهی پیشنهادی", url: "/parent/companion", icon: Lightbulb },
   { title: "اطلاعیه‌ها", url: "/parent/announcements", icon: Megaphone },
   { title: "بازخورد هفتگی", url: "/parent/feedback", icon: MessageSquareHeart },
+  { title: "پرونده سلامت آموزشی", url: "/parent/health-report", icon: FileHeart },
 ];
 
 function ParentLayout() {
