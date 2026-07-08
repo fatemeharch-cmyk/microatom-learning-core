@@ -11,6 +11,8 @@ import {
   Target,
   FolderHeart,
   Trophy,
+  FileHeart,
+
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
 import { useHealthGlossary } from "@/lib/health-glossary";
@@ -27,6 +29,7 @@ const medicalItems: NavItem[] = [
   { title: "کاوش", url: "/student/analytics", icon: Compass },
   { title: "ماموریت", url: "/student/homework", icon: Target },
   { title: "پرونده رشد", url: "/student/growth", icon: FolderHeart },
+  { title: "پرونده سلامت آموزشی", url: "/student/health-report", icon: FileHeart },
 ];
 
 void Trophy;
