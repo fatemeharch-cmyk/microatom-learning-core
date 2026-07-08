@@ -7,7 +7,7 @@
  */
 
 export type ApiEnvironment = "development" | "staging" | "production";
-export type ApiGroup = "auth" | "content";
+export type ApiGroup = "auth" | "content" | "supervisor";
 
 export interface ApiConfig {
   baseUrl: string;
@@ -22,12 +22,16 @@ const ENV: ApiEnvironment =
 
 export const AUTH_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8hSBzNoS";
 export const CONTENT_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8PSYz4xO";
+export const SUPERVISOR_BASE_URL =
+  (import.meta.env?.VITE_XANO_SUPERVISOR_BASE as string | undefined) ??
+  "https://x8ki-letl-twmt.n7.xano.io/api:supervisor";
 
 const XANO_BASE_URL = AUTH_BASE_URL;
 
 export const API_GROUP_BASE_URLS: Record<ApiGroup, string> = {
   auth: AUTH_BASE_URL,
   content: CONTENT_BASE_URL,
+  supervisor: SUPERVISOR_BASE_URL,
 };
 
 const ENV_CONFIG: Record<ApiEnvironment, ApiConfig> = {

@@ -9,6 +9,7 @@ import {
   Target,
   CalendarDays,
   ClipboardCheck,
+  ClipboardList,
   UserCircle2,
   GraduationCap,
   BarChart3,
@@ -22,6 +23,7 @@ import {
 const items: NavItem[] = [
   { title: "داشبورد پایه", url: "/grade-supervisor", icon: LayoutDashboard },
   { title: "دانش‌آموزان", url: "/grade-supervisor/students", icon: Users },
+  { title: "دفتر مسئول پایه", url: "/grade-supervisor/notebook", icon: ClipboardList },
   { title: "سلامت آموزشی", url: "/supervisor/grade", icon: HeartPulse },
   { title: "چکاب‌ها", url: "/supervisor/sessions", icon: Stethoscope },
   { title: "کلینیک یادگیری", url: "/supervisor/followups", icon: NotebookPen },
