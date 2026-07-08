@@ -41,7 +41,7 @@ export function HealthReportView({ audience, report = demoHealthReport }: Props)
     : "پرونده سلامت آموزشی من";
   const subtitle = isParent
     ? "خلاصه وضعیت یادگیری، چکاب‌ها، دوز مطالعه و مسیر رشد"
-    : "خلاصه چکاب‌ها، نبض یادگیری و نسخه فعال شما";
+    : "خلاصه چکاب‌ها، نبض یادگیری و نسخه پیشنهادی شما";
 
   const TrendIcon =
     report.pulse.trend === "up"
@@ -226,7 +226,7 @@ export function HealthReportView({ audience, report = demoHealthReport }: Props)
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Activity className="h-4 w-4 text-primary" />
-            نسخه فعال
+            نسخه پیشنهادی
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
