@@ -77,7 +77,7 @@ function ExamPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   const [questions, setQuestions] = useState<ContentQuestion[]>([]);
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, number | string>>({});
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [questionsError, setQuestionsError] = useState<string | null>(null);
 
