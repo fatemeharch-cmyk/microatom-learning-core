@@ -332,8 +332,8 @@ function TakingView({
   questions: ContentQuestion[];
   current: number;
   setCurrent: (n: number) => void;
-  answers: Record<string, number>;
-  setAnswers: (a: Record<string, number>) => void;
+  answers: Record<string, number | string>;
+  setAnswers: (a: Record<string, number | string>) => void;
   onFinish: () => void;
   onExit: () => void;
 }) {
