@@ -26,6 +26,7 @@ const medicalItems: NavItem[] = [
   { title: "کلینیک یادگیری", url: "/student/notebook", icon: NotebookPen },
   { title: "مراقبت", url: "/student/schedule", icon: ShieldCheck },
   { title: "چکاب", url: "/student/exams", icon: CalendarCheck2 },
+  { title: "آزمون", url: "/student/exam", icon: NotebookPen },
   { title: "کاوش", url: "/student/analytics", icon: Compass },
   { title: "ماموریت", url: "/student/homework", icon: Target },
   { title: "پرونده رشد", url: "/student/growth", icon: FolderHeart },

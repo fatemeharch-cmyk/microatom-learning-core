@@ -40,6 +40,17 @@ export interface ContentMicroAtom {
   atomId: string;
   title: string;
 }
+export interface ContentQuestion {
+  id: string;
+  questionText: string;
+  questionType: string;
+  option1: string;
+  option2: string;
+  option3: string;
+  option4: string;
+  difficulty: string;
+  estimatedTime: number | null;
+}
 
 function s(v: unknown): string {
   return v == null ? "" : String(v);
@@ -139,6 +150,35 @@ export async function listMicroAtomsByAtom(
     title: pickTitle(r),
   }));
 }
+
+export async function listQuestionsByMicroAtom(
+  microAtomId: string,
+): Promise<ContentQuestion[]> {
+  const res = await apiClient.get<unknown>(
+    contentUrl(`micro-atoms/${encodeURIComponent(microAtomId)}/questions`),
+  );
+  const payload = res.data as { questions?: unknown } | null;
+  const raw = Array.isArray(payload?.questions)
+    ? (payload!.questions as Record<string, unknown>[])
+    : [];
+  return raw.map((r) => ({
+    id: s(r.id),
+    questionText: s(r.question_text ?? (r as { questionText?: unknown }).questionText),
+    questionType: s(r.question_type ?? (r as { questionType?: unknown }).questionType),
+    option1: s(r.option1),
+    option2: s(r.option2),
+    option3: s(r.option3),
+    option4: s(r.option4),
+    difficulty: s(r.difficulty),
+    estimatedTime:
+      typeof r.estimated_time === "number"
+        ? (r.estimated_time as number)
+        : typeof (r as { estimatedTime?: unknown }).estimatedTime === "number"
+          ? ((r as { estimatedTime: number }).estimatedTime)
+          : null,
+  }));
+}
+
 
 
 /** Find the Biology subject by Persian title heuristic, falling back to the first subject. */
