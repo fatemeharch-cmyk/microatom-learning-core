@@ -369,9 +369,16 @@ function TakingView({
   );
   const selected = answers[q.id];
   const isLast = current === total - 1;
+  const isDescriptive =
+    !!q.questionType && q.questionType.toLowerCase() !== "multiple_choice";
+  const progress = Math.round(((current + 1) / total) * 100);
 
   function pick(idx: number) {
     setAnswers({ ...answers, [q.id]: idx });
+  }
+
+  function writeText(text: string) {
+    setAnswers({ ...answers, [q.id]: text });
   }
 
   return (
@@ -390,31 +397,44 @@ function TakingView({
             خروج
           </Button>
         </div>
+        <div className="pt-3">
+          <Progress value={progress} className="h-2" />
+        </div>
       </CardHeader>
       <CardContent className="space-y-5">
         <p className="text-base leading-8 font-medium text-slate-800 whitespace-pre-wrap">
           {q.questionText || "—"}
         </p>
 
-        <div className="grid gap-2">
-          {opts.map((o) => {
-            const isSel = selected === o.idx;
-            return (
-              <button
-                key={o.idx}
-                onClick={() => pick(o.idx)}
-                className={`text-right rounded-2xl border p-3 transition ${
-                  isSel
-                    ? "border-violet-400 bg-violet-50 text-violet-800"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                <span className="text-xs text-slate-400 ml-2">گزینه {o.idx}</span>
-                {o.text}
-              </button>
-            );
-          })}
-        </div>
+        {isDescriptive ? (
+          <Textarea
+            dir="rtl"
+            value={typeof selected === "string" ? selected : ""}
+            onChange={(e) => writeText(e.target.value)}
+            placeholder="پاسخ خود را اینجا بنویسید…"
+            className="min-h-[140px] rounded-2xl border-slate-200 bg-white text-right leading-8"
+          />
+        ) : (
+          <div className="grid gap-2">
+            {opts.map((o) => {
+              const isSel = selected === o.idx;
+              return (
+                <button
+                  key={o.idx}
+                  onClick={() => pick(o.idx)}
+                  className={`text-right rounded-2xl border p-3 transition ${
+                    isSel
+                      ? "border-violet-400 bg-violet-50 text-violet-800"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <span className="text-xs text-slate-400 ml-2">گزینه {o.idx}</span>
+                  {o.text}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <div className="flex items-center justify-between pt-2">
           <Button
