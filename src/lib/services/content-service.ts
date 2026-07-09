@@ -40,6 +40,17 @@ export interface ContentMicroAtom {
   atomId: string;
   title: string;
 }
+export interface ContentQuestion {
+  id: string;
+  questionText: string;
+  questionType: string;
+  option1: string;
+  option2: string;
+  option3: string;
+  option4: string;
+  difficulty: string;
+  estimatedTime: number | null;
+}
 
 function s(v: unknown): string {
   return v == null ? "" : String(v);
