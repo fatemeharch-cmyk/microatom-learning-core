@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Sparkles, LogIn, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -254,13 +254,25 @@ function LoginPage() {
 
             <Button type="submit" className="w-full gap-2" disabled={pending}>
               {pending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>در حال ورود...</span>
+                </>
               ) : (
-                <LogIn className="h-4 w-4" />
+                <>
+                  <LogIn className="h-4 w-4" />
+                  <span>ورود به آتومیا</span>
+                </>
               )}
-              <span>ورود به آتومیا</span>
             </Button>
           </form>
+
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            هنوز حساب ندارید؟{" "}
+            <Link to="/signup" className="text-primary font-semibold hover:underline">
+              ثبت‌نام کنید
+            </Link>
+          </p>
 
       {debug && import.meta.env.DEV ? (
         <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-900 font-mono space-y-1 break-all">

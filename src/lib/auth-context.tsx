@@ -10,10 +10,12 @@ import {
 import { ROLES, type RoleId } from "./roles";
 import {
   login as apiLogin,
+  signup as apiSignup,
   logout as apiLogout,
   getCurrentUser as apiGetCurrentUser,
+  type SignupInput,
 } from "./api/auth";
-import { getAuthToken, setAuthToken } from "./api/client";
+import { getAuthToken, setAuthToken, ApiError } from "./api/client";
 
 /**
  * AuthProvider — real authentication for Atomia via Xano.
@@ -45,6 +47,7 @@ type AuthContextValue = {
   /** True until we've finished hydrating the session on mount */
   isHydrated: boolean;
   login: (username: string, password: string) => Promise<LoginResult>;
+  signup: (input: SignupInput) => Promise<LoginResult>;
   logout: () => void;
   /** Switch the active role for an already-signed-in user (multi-role users). */
   setUserRole: (role: RoleId) => void;
@@ -162,12 +165,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               : fresh;
             setUser(next);
             persistUser(next);
-          } else if (!cached) {
+          } else {
+            // /auth/me returned 2xx but no usable role — treat as invalid session.
             setAuthToken(null);
+            persistUser(null);
+            setUser(null);
           }
         })
-        .catch(() => {
-          /* keep cached user if /me fails */
+        .catch((err) => {
+          // Invalid/expired token → clear session and force /login.
+          if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+            setAuthToken(null);
+            persistUser(null);
+            setUser(null);
+            if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+              window.location.assign("/login");
+            }
+          }
         })
         .finally(() => {
           if (!cancelled) setIsHydrated(true);
@@ -209,11 +223,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const signup = useCallback<AuthContextValue["signup"]>(async (input) => {
+    if (!input.username?.trim() || !input.password) {
+      return { ok: false, message: "نام کاربری و رمز عبور الزامی است." };
+    }
+    try {
+      const { user: nextUser } = await apiSignup(input);
+      persistUser(nextUser);
+      setUser(nextUser);
+      return { ok: true, user: nextUser };
+    } catch (err) {
+      setAuthToken(null);
+      // eslint-disable-next-line no-console
+      console.error("[auth] signup failed:", err);
+      const raw = err instanceof Error ? err.message : String(err);
+      return { ok: false, message: raw || "ثبت‌نام ناموفق بود." };
+    }
+  }, []);
+
   const logout = useCallback(() => {
     void apiLogout();
     persistUser(null);
     if (typeof window !== "undefined") {
-      // Also clear the cached active role so the next user starts fresh.
       window.localStorage.removeItem("atomia.activeRole");
     }
     setUser(null);
@@ -238,10 +269,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!user,
       isHydrated,
       login,
+      signup,
       logout,
       setUserRole,
     }),
-    [user, isHydrated, login, logout, setUserRole],
+    [user, isHydrated, login, signup, logout, setUserRole],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
