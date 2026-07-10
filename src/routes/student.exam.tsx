@@ -88,6 +88,7 @@ const DIFFICULTY_OPTIONS = [
 const COUNT_OPTIONS = [5, 10, 15, 20];
 
 function ExamPage() {
+  const search = Route.useSearch();
   const [subjectId, setSubjectId] = useState<string>("");
   const [chapterId, setChapterId] = useState<string>("");
   const [goftarId, setGoftarId] = useState<string>("");
