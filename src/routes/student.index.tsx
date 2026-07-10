@@ -135,11 +135,16 @@ function TodayPage() {
   }, [goftarId, navigate]);
 
   const startSuggestion = useCallback(() => {
-    void navigate({
-      to: "/student/exam",
-      search: { autostart: "1", count: "5" },
-    });
-  }, [navigate]);
+    if (suggestionLoading) return;
+    setSuggestionLoading(true);
+    window.setTimeout(() => {
+      void navigate({
+        to: "/student/exam",
+        search: { autostart: "1", count: "5" },
+      });
+    }, 1700);
+  }, [navigate, suggestionLoading]);
+
 
   const trophyMessage =
     healthScore >= 70
