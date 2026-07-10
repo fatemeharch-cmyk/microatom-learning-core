@@ -262,6 +262,13 @@ function LoginPage() {
             </Button>
           </form>
 
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            هنوز حساب ندارید؟{" "}
+            <Link to="/signup" className="text-primary font-semibold hover:underline">
+              ثبت‌نام کنید
+            </Link>
+          </p>
+
       {debug && import.meta.env.DEV ? (
         <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-900 font-mono space-y-1 break-all">
           <div className="font-bold text-amber-700 mb-1">Debug</div>
