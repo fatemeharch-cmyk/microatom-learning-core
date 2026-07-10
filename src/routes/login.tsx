@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Sparkles, LogIn, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
