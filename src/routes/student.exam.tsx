@@ -195,12 +195,20 @@ function ExamPage() {
         answers: payloadAnswers,
       });
       setSubmitResult(result);
+      if (result.examId) {
+        void navigate({
+          to: "/student/exams/$examId/result",
+          params: { examId: String(result.examId) },
+        });
+        return;
+      }
     } catch {
       setSubmitError("ثبت آزمون با خطا روبه‌رو شد.");
     } finally {
       setPhase("done");
     }
   }
+
 
 
   function resetToSetup() {
