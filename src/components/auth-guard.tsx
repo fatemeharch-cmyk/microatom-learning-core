@@ -7,14 +7,16 @@ import type { RoleId } from "@/lib/roles";
 const PUBLIC_ROUTES = new Set<string>(["/", "/login", "/signup"]);
 
 /** URL prefix → the internal RoleId allowed to access it. */
-const ROUTE_TO_ROLE: Array<{ prefix: string; role: RoleId }> = [
-  { prefix: "/grade-supervisor", role: "supervisor" },
-  { prefix: "/principal", role: "admin" },
-  { prefix: "/admin", role: "admin" },
-  { prefix: "/student", role: "student" },
-  { prefix: "/teacher", role: "teacher" },
-  { prefix: "/parent", role: "parent" },
-].sort((a, b) => b.prefix.length - a.prefix.length);
+const ROUTE_TO_ROLE: Array<{ prefix: string; role: RoleId }> = (
+  [
+    { prefix: "/grade-supervisor", role: "supervisor" as RoleId },
+    { prefix: "/principal", role: "admin" as RoleId },
+    { prefix: "/admin", role: "admin" as RoleId },
+    { prefix: "/student", role: "student" as RoleId },
+    { prefix: "/teacher", role: "teacher" as RoleId },
+    { prefix: "/parent", role: "parent" as RoleId },
+  ] as Array<{ prefix: string; role: RoleId }>
+).sort((a, b) => b.prefix.length - a.prefix.length);
 
 /** Internal RoleId → its dashboard route. */
 const ROLE_TO_ROUTE: Record<RoleId, string> = {
