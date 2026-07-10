@@ -49,6 +49,7 @@ import { Route as SupervisorAlertsRouteImport } from './routes/supervisor.alerts
 import { Route as StudentWeeklyRouteImport } from './routes/student.weekly'
 import { Route as StudentTrackingRouteImport } from './routes/student.tracking'
 import { Route as StudentScheduleRouteImport } from './routes/student.schedule'
+import { Route as StudentReviewRouteImport } from './routes/student.review'
 import { Route as StudentResourcesRouteImport } from './routes/student.resources'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
@@ -292,6 +293,11 @@ const StudentTrackingRoute = StudentTrackingRouteImport.update({
 const StudentScheduleRoute = StudentScheduleRouteImport.update({
   id: '/schedule',
   path: '/schedule',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentReviewRoute = StudentReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentResourcesRoute = StudentResourcesRouteImport.update({
@@ -568,6 +574,7 @@ export interface FileRoutesByFullPath {
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
   '/student/resources': typeof StudentResourcesRoute
+  '/student/review': typeof StudentReviewRoute
   '/student/schedule': typeof StudentScheduleRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
@@ -647,6 +654,7 @@ export interface FileRoutesByTo {
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
   '/student/resources': typeof StudentResourcesRoute
+  '/student/review': typeof StudentReviewRoute
   '/student/schedule': typeof StudentScheduleRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
@@ -734,6 +742,7 @@ export interface FileRoutesById {
   '/student/profile': typeof StudentProfileRoute
   '/student/progress': typeof StudentProgressRoute
   '/student/resources': typeof StudentResourcesRoute
+  '/student/review': typeof StudentReviewRoute
   '/student/schedule': typeof StudentScheduleRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
@@ -822,6 +831,7 @@ export interface FileRouteTypes {
     | '/student/profile'
     | '/student/progress'
     | '/student/resources'
+    | '/student/review'
     | '/student/schedule'
     | '/student/tracking'
     | '/student/weekly'
@@ -901,6 +911,7 @@ export interface FileRouteTypes {
     | '/student/profile'
     | '/student/progress'
     | '/student/resources'
+    | '/student/review'
     | '/student/schedule'
     | '/student/tracking'
     | '/student/weekly'
@@ -987,6 +998,7 @@ export interface FileRouteTypes {
     | '/student/profile'
     | '/student/progress'
     | '/student/resources'
+    | '/student/review'
     | '/student/schedule'
     | '/student/tracking'
     | '/student/weekly'
@@ -1317,6 +1329,13 @@ declare module '@tanstack/react-router' {
       path: '/schedule'
       fullPath: '/student/schedule'
       preLoaderRoute: typeof StudentScheduleRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/review': {
+      id: '/student/review'
+      path: '/review'
+      fullPath: '/student/review'
+      preLoaderRoute: typeof StudentReviewRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/resources': {
@@ -1747,6 +1766,7 @@ interface StudentRouteChildren {
   StudentProfileRoute: typeof StudentProfileRoute
   StudentProgressRoute: typeof StudentProgressRoute
   StudentResourcesRoute: typeof StudentResourcesRoute
+  StudentReviewRoute: typeof StudentReviewRoute
   StudentScheduleRoute: typeof StudentScheduleRoute
   StudentTrackingRoute: typeof StudentTrackingRoute
   StudentWeeklyRoute: typeof StudentWeeklyRoute
@@ -1770,6 +1790,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentProfileRoute: StudentProfileRoute,
   StudentProgressRoute: StudentProgressRoute,
   StudentResourcesRoute: StudentResourcesRoute,
+  StudentReviewRoute: StudentReviewRoute,
   StudentScheduleRoute: StudentScheduleRoute,
   StudentTrackingRoute: StudentTrackingRoute,
   StudentWeeklyRoute: StudentWeeklyRoute,
