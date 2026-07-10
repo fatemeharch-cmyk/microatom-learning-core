@@ -30,13 +30,73 @@ import {
 } from "recharts";
 
 import { useAuth } from "@/lib/auth-context";
+import { apiClient } from "@/lib/api/client";
 import {
-  getTodayCheckin,
   submitCheckin,
-  getTodayMission,
   updateMissionProgress,
   type DailyMission,
 } from "@/lib/services/content-service";
+
+// ---------------------------------------------------------------------------
+// Dashboard summary — GET /student/dashboard-summary
+// ---------------------------------------------------------------------------
+interface DashboardSummary {
+  student?: { name?: string };
+  learning_health?: {
+    score?: number;
+    status?: string;
+    trend_percentage?: number;
+  };
+  today?: {
+    medical_history_completed?: boolean;
+    checkup_completed?: boolean;
+    mission_completed?: boolean;
+  };
+  latest_checkup?: {
+    exists?: boolean;
+    question_count?: number;
+    duration_minutes?: number;
+    subject?: string;
+    goftar_id?: string | number;
+    based_on_mission?: boolean;
+  };
+  latest_exploration?: {
+    exists?: boolean;
+    subject?: string;
+    correct?: number;
+    wrong?: number;
+    needs_review?: string;
+  };
+  today_mission?: {
+    exists?: boolean;
+    id?: string | number;
+    title?: string;
+    goftar_id?: string | number;
+    minutes_done?: number;
+    target_minutes?: number;
+    is_complete?: boolean;
+  };
+  next_school_exam?: {
+    exists?: boolean;
+    title?: string;
+    date_label?: string;
+  };
+  weekly_study?: {
+    total_text?: string;
+    delta_text?: string;
+  } | null;
+  class_comparison?: {
+    rank?: number | null;
+    total?: number | null;
+    percentile?: number | null;
+  } | null;
+  weekly_trend?: Array<{ day: string; value: number }>;
+  smart_review?: {
+    available?: boolean;
+    question_count?: number;
+    message?: string;
+  };
+}
 
 export const Route = createFileRoute("/student/")({
   component: TodayPage,
@@ -71,10 +131,9 @@ function TodayPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const studentId = user?.id ?? "";
-  const displayName = user?.name?.trim() || "دانش‌آموز";
   const date = useMemo(() => todayISO(), []);
 
-  const [checkinDone, setCheckinDone] = useState(false);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [mission, setMission] = useState<DailyMission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,21 +150,30 @@ function TodayPage() {
   }, []);
   const comingSoon = useCallback(() => showToast("به‌زودی ✨"), [showToast]);
 
-
   const refresh = useCallback(async () => {
-    if (!studentId) {
-      setLoading(false);
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
-      const [ci, m] = await Promise.all([
-        getTodayCheckin(studentId, date).catch(() => ({ exists: false, checkin: null })),
-        getTodayMission(studentId, date).catch(() => null),
-      ]);
-      setCheckinDone(Boolean(ci?.exists));
-      setMission(m);
+      const res = await apiClient.get<DashboardSummary>(
+        "/student/dashboard-summary",
+      );
+      const data = (res.data ?? {}) as DashboardSummary;
+      setSummary(data);
+      const tm = data.today_mission;
+      if (tm?.exists) {
+        setMission({
+          id: String(tm.id ?? ""),
+          studentId: String(studentId),
+          missionDate: date,
+          goftarId: String(tm.goftar_id ?? ""),
+          title: String(tm.title ?? ""),
+          targetMinutes: Number(tm.target_minutes ?? 0),
+          minutesDone: Number(tm.minutes_done ?? 0),
+          isComplete: Boolean(tm.is_complete),
+        });
+      } else {
+        setMission(null);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -117,41 +185,56 @@ function TodayPage() {
     void refresh();
   }, [refresh]);
 
-  const examDone = false;
-  const missionDone = Boolean(mission?.isComplete);
-  const doneCount = (checkinDone ? 1 : 0) + (examDone ? 1 : 0) + (missionDone ? 1 : 0);
-  const healthScore = [20, 45, 70, 95][doneCount] ?? 20;
+  const displayName =
+    summary?.student?.name?.trim() || user?.name?.trim() || "دانش‌آموز";
+  const healthScore = Math.max(
+    0,
+    Math.min(100, Math.round(Number(summary?.learning_health?.score ?? 0))),
+  );
+  const healthStatus = summary?.learning_health?.status ?? "";
+  const trendPct = summary?.learning_health?.trend_percentage;
 
-  const goftarId = mission?.goftarId ?? "";
+  const checkinDone = Boolean(summary?.today?.medical_history_completed);
+  const missionDone = Boolean(
+    summary?.today?.mission_completed ?? mission?.isComplete,
+  );
+  const checkupDone = Boolean(summary?.today?.checkup_completed);
+
+  const missionGoftarId =
+    mission?.goftarId || String(summary?.today_mission?.goftar_id ?? "");
+  const checkupGoftarId =
+    String(summary?.latest_checkup?.goftar_id ?? "") || missionGoftarId;
+
   const startCheckup = useCallback(() => {
     void navigate({
       to: "/student/exam",
       search: {
         autostart: "1",
         count: "5",
-        goftarId: goftarId || undefined,
+        goftarId: checkupGoftarId || undefined,
       },
     });
-  }, [goftarId, navigate]);
+  }, [checkupGoftarId, navigate]);
 
+  const smartReview = summary?.smart_review;
+  const smartReviewAvailable = Boolean(smartReview?.available);
   const startSuggestion = useCallback(() => {
     if (suggestionLoading) return;
+    if (!smartReviewAvailable) return;
     setSuggestionLoading(true);
     window.setTimeout(() => {
-      void navigate({
-        to: "/student/exam",
-        search: { autostart: "1", count: "5" },
-      });
-    }, 1700);
-  }, [navigate, suggestionLoading]);
-
+      void navigate({ to: "/student/smart-review" as never });
+    }, 1200);
+  }, [navigate, suggestionLoading, smartReviewAvailable]);
 
   const trophyMessage =
-    healthScore >= 70
+    healthStatus ||
+    (healthScore >= 70
       ? "وضعیت شما عالی است! در مسیر درستی قرار داری، ادامه بده."
       : healthScore >= 40
         ? "روند خوبی داری، همینطور ادامه بده."
-        : "بیا امروز رو با یه قدم کوچیک شروع کنیم.";
+        : "بیا امروز رو با یه قدم کوچیک شروع کنیم.");
+
 
   return (
     <div dir="rtl" className="space-y-5 max-w-6xl mx-auto pb-10">
@@ -177,26 +260,53 @@ function TodayPage() {
             {/* Ring + stat pills */}
             <div className="mt-3 flex flex-col sm:flex-row-reverse sm:items-center gap-4">
               <div className="flex items-center gap-3 justify-end">
-                <RingProgress percent={healthScore} size={104} />
+                {loading && !summary ? (
+                  <div
+                    className="rounded-full bg-white/20 animate-pulse"
+                    style={{ width: 104, height: 104 }}
+                  />
+                ) : (
+                  <RingProgress percent={healthScore} size={104} />
+                )}
                 <div className="text-right">
                   <p className="text-xs text-white/85">شاخص سلامت یادگیری</p>
-                  <p className="text-xl font-extrabold mt-1">
-                    {toFa(healthScore)}٪ از ۱۰۰
-                  </p>
+                  {loading && !summary ? (
+                    <div className="h-6 w-28 mt-1 rounded bg-white/20 animate-pulse" />
+                  ) : (
+                    <p className="text-xl font-extrabold mt-1">
+                      {toFa(healthScore)}٪ از ۱۰۰
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="flex-1">
-                <div className="flex items-center justify-end gap-2 mb-1.5">
-                  <SampleBadge tone="light" />
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-right">
-                  <StatPill label="🟢 روزهای پیاپی مطالعه" value="۷ روز" />
-                  <StatPill label="🎯 آخرین کاوش" value="۸۶٪" />
-                  <StatPill label="📈 روند سلامت یادگیری" value="+۵٪" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-right">
+                  {loading && !summary ? (
+                    <>
+                      <div className="h-14 rounded-2xl bg-white/15 animate-pulse" />
+                      <div className="h-14 rounded-2xl bg-white/15 animate-pulse" />
+                    </>
+                  ) : (
+                    <>
+                      <StatPill
+                        label="🎯 وضعیت سلامت یادگیری"
+                        value={healthStatus || "—"}
+                      />
+                      <StatPill
+                        label="📈 روند سلامت یادگیری"
+                        value={
+                          typeof trendPct === "number"
+                            ? `${trendPct > 0 ? "+" : ""}${toFa(trendPct)}٪`
+                            : "—"
+                        }
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
+
 
             <div className="mt-3 flex flex-wrap items-center gap-3 justify-end">
               <Button
@@ -232,12 +342,20 @@ function TodayPage() {
       {/* --------------------------- SUGGESTION --------------------------- */}
       <Card className="border-0 rounded-[22px] shadow-sm bg-gradient-to-l from-violet-50 to-fuchsia-50">
         <CardContent className="p-5">
-          {suggestionLoading ? (
+          {loading && !summary ? (
+            <div className="space-y-2">
+              <div className="h-4 w-40 rounded bg-slate-200 animate-pulse" />
+              <div className="h-3 w-full rounded bg-slate-200 animate-pulse" />
+              <div className="h-3 w-2/3 rounded bg-slate-200 animate-pulse" />
+            </div>
+          ) : suggestionLoading ? (
             <div className="flex flex-col items-center justify-center py-4 text-center gap-2">
               <Loader2 className="h-7 w-7 animate-spin text-violet-600" />
               <p className="text-base font-bold text-violet-700 mt-1">نسخه هوشمند</p>
               <p className="text-xs text-slate-600">
-                ۵ سؤال اختصاصی — بر اساس اشتباهات شما
+                {smartReview?.question_count
+                  ? `${toFa(smartReview.question_count)} سؤال اختصاصی — بر اساس اشتباهات شما`
+                  : "بر اساس اشتباهات شما"}
               </p>
             </div>
           ) : (
@@ -251,16 +369,21 @@ function TodayPage() {
                     ✨ پیشنهاد آتومیا
                   </p>
                   <p className="text-sm text-slate-700 mt-1 leading-6">
-                    برای مرور بیشتر و تثبیت یادگیری، هوش آتومیا بر اساس آخرین عملکرد شما یک نسخه اختصاصی آماده کرده است.
+                    {smartReviewAvailable
+                      ? `برای مرور بیشتر، ${toFa(smartReview?.question_count ?? 0)} سؤال از اشتباهات اخیر شما آماده شده است.`
+                      : smartReview?.message ||
+                        "در حال حاضر نسخه هوشمندی برای مرور در دسترس نیست."}
                   </p>
                 </div>
               </div>
-              <Button
-                onClick={startSuggestion}
-                className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
-              >
-                🧠 دریافت نسخه هوشمند
-              </Button>
+              {smartReviewAvailable && (
+                <Button
+                  onClick={startSuggestion}
+                  className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
+                >
+                  🧠 دریافت نسخه هوشمند
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
@@ -272,7 +395,15 @@ function TodayPage() {
           emoji="❤️"
           accent="from-rose-500 to-pink-500"
           title="شرح حال امروز"
-          status={checkinDone ? "ثبت شده ✅" : "هنوز ثبت نشده"}
+          status={
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : checkinDone ? (
+              "ثبت شده ✅"
+            ) : (
+              "هنوز ثبت نشده"
+            )
+          }
           buttonLabel={checkinDone ? "مشاهده و ویرایش" : "شروع"}
           onClick={() => setCheckinOpen(true)}
         />
@@ -280,17 +411,28 @@ function TodayPage() {
           emoji="🩺"
           accent="from-sky-500 to-violet-500"
           title="چکاپ امروز"
+          tone={checkupDone ? "green" : undefined}
           status={
-            <div className="space-y-0.5">
-              <p className="text-[11px] text-slate-500">چکاپ روزانه</p>
-              <p className="text-[11px] text-slate-500">بر اساس مأموریت</p>
-              <p className="text-sm font-semibold text-slate-700">
-                ۵ سؤال · ۳ دقیقه
-              </p>
-            </div>
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.latest_checkup?.exists ? (
+              <div className="space-y-0.5">
+                <p className="text-[11px] text-slate-500">چکاپ روزانه</p>
+                {summary?.latest_checkup?.based_on_mission && (
+                  <p className="text-[11px] text-slate-500">بر اساس مأموریت</p>
+                )}
+                <p className="text-sm font-semibold text-slate-700">
+                  {toFa(summary?.latest_checkup?.question_count ?? 5)} سؤال ·{" "}
+                  {toFa(summary?.latest_checkup?.duration_minutes ?? 3)} دقیقه
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-600">چکاپ روزانه آماده شروع است.</p>
+            )
           }
-          buttonLabel="شروع چکاپ"
+          buttonLabel={checkupDone ? "انجام شد ✅" : "شروع چکاپ"}
           onClick={startCheckup}
+          disabled={checkupDone}
         />
         <ActionCard
           emoji="🎯"
@@ -298,11 +440,13 @@ function TodayPage() {
           title="مأموریت امروز"
           tone={missionDone ? "green" : undefined}
           status={
-            mission
-              ? `${mission.title} — ${toFa(mission.minutesDone)}/${toFa(mission.targetMinutes)} دقیقه`
-              : loading
-                ? "در حال بارگذاری…"
-                : "ماموریتی برای امروز نداری"
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : mission ? (
+              `${mission.title} — ${toFa(mission.minutesDone)}/${toFa(mission.targetMinutes)} دقیقه`
+            ) : (
+              "برای امروز مأموریتی ثبت نشده است."
+            )
           }
           buttonLabel={missionDone ? "انجام شد ✅" : "شروع"}
           onClick={() => setMissionOpen(true)}
@@ -312,10 +456,26 @@ function TodayPage() {
           emoji="📋"
           accent="from-indigo-500 to-violet-500"
           title="آزمون‌های مدرسه"
-          status="بعدی: ریاضی - فصل ۳"
+          status={
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.next_school_exam?.exists ? (
+              <div className="space-y-0.5">
+                <p className="text-sm font-semibold text-slate-700">
+                  {summary?.next_school_exam?.title ?? "—"}
+                </p>
+                {summary?.next_school_exam?.date_label && (
+                  <p className="text-xs text-slate-600">
+                    {summary.next_school_exam.date_label}
+                  </p>
+                )}
+              </div>
+            ) : (
+              "آزمون پیش‌رویی ثبت نشده است."
+            )
+          }
           buttonLabel="مشاهده همه"
           onClick={comingSoon}
-          sample
         />
       </section>
 
@@ -326,42 +486,82 @@ function TodayPage() {
           accent="from-fuchsia-500 to-violet-500"
           title="آخرین گزارش تشخیصی"
           status={
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-slate-700">
-                زیست‌شناسی - گفتار ۲
-              </p>
-              <p className="text-xs text-slate-600">
-                درست: ۱۸ · غلط: ۷
-              </p>
-              <p className="text-xs text-amber-700">
-                نیاز به مرور: گفتار ۲
-              </p>
-            </div>
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.latest_exploration?.exists ? (
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-slate-700">
+                  {summary?.latest_exploration?.subject ?? "—"}
+                </p>
+                <p className="text-xs text-slate-600">
+                  درست: {toFa(summary?.latest_exploration?.correct ?? 0)} · غلط:{" "}
+                  {toFa(summary?.latest_exploration?.wrong ?? 0)}
+                </p>
+                {summary?.latest_exploration?.needs_review && (
+                  <p className="text-xs text-amber-700">
+                    نیاز به مرور: {summary.latest_exploration.needs_review}
+                  </p>
+                )}
+              </div>
+            ) : (
+              "هنوز کاوشی انجام نشده است."
+            )
           }
           buttonLabel="تحلیل آزمون"
           onClick={comingSoon}
-          sample
         />
-        <TrendCard onClick={comingSoon} />
+        <TrendCard
+          data={summary?.weekly_trend ?? []}
+          loading={loading && !summary}
+          onClick={comingSoon}
+        />
         <ActionCard
           emoji="⏱️"
           accent="from-amber-500 to-orange-500"
           title="زمان مطالعه این هفته"
-          status="۷ ساعت و ۴۵ دقیقه · +۲ ساعت نسبت به هفته قبل"
+          status={
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.weekly_study?.total_text ? (
+              `${summary.weekly_study.total_text}${
+                summary.weekly_study.delta_text
+                  ? ` · ${summary.weekly_study.delta_text}`
+                  : ""
+              }`
+            ) : (
+              "با ثبت فعالیت‌ها، مجموع زمان مطالعه نمایش داده می‌شود."
+            )
+          }
           buttonLabel="جزئیات بیشتر"
           onClick={comingSoon}
-          sample
         />
         <ActionCard
           emoji="👥"
           accent="from-cyan-500 to-sky-500"
           title="جایگاه در کلاس"
-          status="۳ از ۳۳ نفر · بهتر از ۹۱٪ کلاس"
+          status={
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.class_comparison &&
+              summary.class_comparison.rank != null ? (
+              `${toFa(summary.class_comparison.rank)}${
+                summary.class_comparison.total
+                  ? ` از ${toFa(summary.class_comparison.total)} نفر`
+                  : ""
+              }${
+                summary.class_comparison.percentile != null
+                  ? ` · بهتر از ${toFa(summary.class_comparison.percentile)}٪ کلاس`
+                  : ""
+              }`
+            ) : (
+              "پس از ثبت نتایج کلاس، جایگاه شما محاسبه می‌شود."
+            )
+          }
           buttonLabel="مشاهده رتبه‌ها"
           onClick={comingSoon}
-          sample
         />
       </section>
+
 
 
       {/* Dialogs */}
@@ -520,17 +720,25 @@ function ActionCard({
 }
 
 
-const WEEK_DATA = [
-  { day: "شنبه", v: 42 },
-  { day: "یکشنبه", v: 55 },
-  { day: "دوشنبه", v: 48 },
-  { day: "سه‌شنبه", v: 68 },
-  { day: "چهارشنبه", v: 72 },
-  { day: "پنجشنبه", v: 65 },
-  { day: "جمعه", v: 80 },
-];
+function SkeletonLine() {
+  return (
+    <div className="space-y-1.5">
+      <div className="h-3 w-3/4 rounded bg-slate-200 animate-pulse" />
+      <div className="h-3 w-1/2 rounded bg-slate-200 animate-pulse" />
+    </div>
+  );
+}
 
-function TrendCard({ onClick }: { onClick: () => void }) {
+function TrendCard({
+  data,
+  loading,
+  onClick,
+}: {
+  data: Array<{ day: string; value: number }>;
+  loading: boolean;
+  onClick: () => void;
+}) {
+  const chartData = data.map((d) => ({ day: d.day, v: d.value }));
   return (
     <Card className="border-0 rounded-[22px] shadow-sm bg-white hover:shadow-md transition h-full">
       <CardContent className="p-4 flex flex-col gap-2 h-full">
@@ -538,41 +746,46 @@ function TrendCard({ onClick }: { onClick: () => void }) {
           <span className="h-9 w-9 rounded-xl grid place-items-center text-white bg-gradient-to-br from-violet-500 to-fuchsia-500">
             📈
           </span>
-          <div className="flex items-center gap-2">
-            <SampleBadge />
-            <h3 className="text-sm font-bold text-slate-800">روند هفتگی</h3>
-          </div>
+          <h3 className="text-sm font-bold text-slate-800">روند هفتگی</h3>
         </div>
         <div className="h-16 -mx-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={WEEK_DATA} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
-              <defs>
-                <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.5} />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="day" hide />
-              <Tooltip
-                cursor={{ stroke: "#c4b5fd", strokeWidth: 1 }}
-                contentStyle={{
-                  borderRadius: 10,
-                  border: "1px solid #e5e7eb",
-                  fontSize: 11,
-                  direction: "rtl",
-                }}
-                labelStyle={{ color: "#6b7280" }}
-                formatter={(v: number) => [`${toFa(v)}٪`, "امتیاز"]}
-              />
-              <Area
-                type="monotone"
-                dataKey="v"
-                stroke="#7c3aed"
-                strokeWidth={2}
-                fill="url(#trendGrad)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {loading ? (
+            <div className="h-full w-full rounded bg-slate-100 animate-pulse" />
+          ) : chartData.length === 0 ? (
+            <div className="h-full grid place-items-center text-[11px] text-slate-500 px-2 text-center">
+              با ثبت فعالیت‌ها، روند هفتگی شما نمایش داده می‌شود.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="day" hide />
+                <Tooltip
+                  cursor={{ stroke: "#c4b5fd", strokeWidth: 1 }}
+                  contentStyle={{
+                    borderRadius: 10,
+                    border: "1px solid #e5e7eb",
+                    fontSize: 11,
+                    direction: "rtl",
+                  }}
+                  labelStyle={{ color: "#6b7280" }}
+                  formatter={(v: number) => [`${toFa(v)}٪`, "امتیاز"]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="v"
+                  stroke="#7c3aed"
+                  strokeWidth={2}
+                  fill="url(#trendGrad)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
         <Button
           onClick={onClick}
@@ -584,6 +797,7 @@ function TrendCard({ onClick }: { onClick: () => void }) {
     </Card>
   );
 }
+
 
 // ---------------------------------------------------------------------------
 // Check-in Dialog
