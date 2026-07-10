@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ExamTakingView } from "@/components/student/exam-taking-view";
 import {
   getSmartReview,
-  submitExam,
+  submitSmartReview,
   type ContentQuestion,
   type ExamSubmitResult,
 } from "@/lib/services/content-service";
