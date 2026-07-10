@@ -47,6 +47,7 @@ type AuthContextValue = {
   /** True until we've finished hydrating the session on mount */
   isHydrated: boolean;
   login: (username: string, password: string) => Promise<LoginResult>;
+  signup: (input: SignupInput) => Promise<LoginResult>;
   logout: () => void;
   /** Switch the active role for an already-signed-in user (multi-role users). */
   setUserRole: (role: RoleId) => void;
