@@ -6,11 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
 import { ROLES, type RoleId } from "@/lib/roles";
-import {
-  lastLoginDebug,
-  fetchUserRoles,
-  type LoginDebugInfo,
-} from "@/lib/api/auth";
+import { fetchUserRoles } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
