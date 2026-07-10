@@ -15,12 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import {
   Bot,
-  CalendarDays,
   CheckCircle2,
   Loader2,
   Sparkles,
   Trophy,
 } from "lucide-react";
+
 import {
   AreaChart,
   Area,
