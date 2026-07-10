@@ -59,27 +59,27 @@ async function fetchAdaptiveQuestions(): Promise<ContentQuestion[]> {
   if (last?.goftarId || last?.weakestGoftarId) {
     attempts.push({
       goftar_id: last.goftarId ?? last.weakestGoftarId,
-      question_count: 5,
+      count: 5,
       difficulty: last.difficulty ?? "medium",
     });
   }
   if (last?.chapterId) {
     attempts.push({
       chapter_id: last.chapterId,
-      question_count: 5,
+      count: 5,
       difficulty: "medium",
     });
   }
   if (last?.subjectId) {
     attempts.push({
       subject_id: last.subjectId,
-      question_count: 5,
+      count: 5,
       difficulty: "medium",
     });
   }
 
   // Priority 4 — fallback: first available subject, random
-  attempts.push({ question_count: 5 });
+  attempts.push({ count: 5 });
 
   for (const filters of attempts) {
     try {
@@ -97,7 +97,7 @@ async function fetchAdaptiveQuestions(): Promise<ContentQuestion[]> {
     if (first) {
       const res = await searchQuestionBank({
         subject_id: first.id,
-        question_count: 5,
+        count: 5,
       });
       return res.slice(0, 5);
     }

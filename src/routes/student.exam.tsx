@@ -133,7 +133,7 @@ function ExamPage() {
     setPhase("taking");
     searchQuestionBank({
       goftar_id: search.goftarId || undefined,
-      question_count: safeCount,
+      count: safeCount,
     })
       .then((qs) => {
         setQuestions(qs);
@@ -159,7 +159,7 @@ function ExamPage() {
         subject_id: subjectId || undefined,
         chapter_id: chapterId || undefined,
         goftar_id: goftarId,
-        question_count: selectedCount,
+        count: selectedCount,
         difficulty:
           selectedDifficulty !== "mixed" ? selectedDifficulty : undefined,
       });
