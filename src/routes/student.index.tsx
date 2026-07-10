@@ -81,6 +81,7 @@ function TodayPage() {
 
   const [checkinOpen, setCheckinOpen] = useState(false);
   const [missionOpen, setMissionOpen] = useState(false);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
 
   // lightweight inline toast (no global Toaster mounted in this project)
   const [toast, setToast] = useState<string | null>(null);
@@ -89,6 +90,7 @@ function TodayPage() {
     window.setTimeout(() => setToast(null), 2200);
   }, []);
   const comingSoon = useCallback(() => showToast("به‌زودی ✨"), [showToast]);
+
 
   const refresh = useCallback(async () => {
     if (!studentId) {
