@@ -405,6 +405,59 @@ export async function getSmartReview(): Promise<SmartReviewResponse> {
   };
 }
 
+export async function submitSmartReview(
+  answers: { questionId: string; answer: number | string }[],
+): Promise<ExamSubmitResult> {
+  const body = {
+    answers: answers.map((a) => ({
+      question_id: Number(a.questionId),
+      answer: a.answer,
+    })),
+  };
+  const res = await apiClient.post<Record<string, unknown>>(
+    contentUrl("student/smart-review/submit"),
+    body,
+  );
+  const d = (res.data ?? {}) as Record<string, unknown>;
+  const numOr = (v: unknown): number | undefined => {
+    if (v === null || v === undefined || v === "") return undefined;
+    const n = typeof v === "number" ? v : Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  };
+  const num = (v: unknown) => numOr(v) ?? 0;
+  const before = numOr(d.learning_health_before ?? d.health_before);
+  const after = numOr(
+    d.learning_health_after ??
+      d.health_after ??
+      d.learning_health ??
+      d.learning_health_score,
+  );
+  const change = numOr(d.learning_health_change ?? d.health_change);
+  const computedChange =
+    change ??
+    (before !== undefined && after !== undefined ? after - before : undefined);
+  const increasedRaw = d.learning_health_increased;
+  const increased =
+    typeof increasedRaw === "boolean"
+      ? increasedRaw
+      : computedChange !== undefined
+        ? computedChange > 0
+        : undefined;
+  return {
+    success: Boolean(d.success ?? true),
+    score: num(d.score),
+    percentage: num(d.percentage),
+    correctCount: num(d.correct_count),
+    wrongCount: num(d.wrong_count),
+    blankCount: num(d.blank_count),
+    learningHealth: after,
+    learningHealthBefore: before,
+    learningHealthAfter: after,
+    learningHealthChange: computedChange,
+    learningHealthIncreased: increased,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Learning Clinic (کلینیک یادگیری)
 // ---------------------------------------------------------------------------
