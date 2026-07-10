@@ -75,19 +75,12 @@ function SmartReviewPage() {
   async function finish() {
     setPhase("submitting");
     setSubmitError(null);
-    const studentId =
-      (typeof window !== "undefined" &&
-        window.localStorage.getItem("atomia_user_id")) ||
-      "1";
     const payloadAnswers = questions.map((q) => ({
       questionId: q.id,
       answer: answers[q.id] ?? "",
     }));
     try {
-      const result = await submitExam({
-        studentId,
-        answers: payloadAnswers,
-      });
+      const result = await submitSmartReview(payloadAnswers);
       setSubmitResult(result);
     } catch {
       setSubmitError("ثبت پاسخ‌ها با خطا روبه‌رو شد.");
@@ -95,6 +88,7 @@ function SmartReviewPage() {
       setPhase("done");
     }
   }
+
 
   return (
     <div dir="rtl" className="font-vazir space-y-5">
