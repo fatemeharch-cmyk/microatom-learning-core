@@ -91,7 +91,8 @@ const SUBJECTS = [
 ];
 
 type LessonStatus = "ok" | "warn" | "bad";
-const LESSON_ICON: Record<LessonStatus, JSX.Element> = {
+import type { ReactNode } from "react";
+const LESSON_ICON: Record<LessonStatus, ReactNode> = {
   ok: <CheckCircle2 className="h-4 w-4 text-emerald-500" />,
   warn: <AlertTriangle className="h-4 w-4 text-amber-500" />,
   bad: <XCircle className="h-4 w-4 text-rose-500" />,
