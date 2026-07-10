@@ -279,22 +279,21 @@ function TodayPage() {
               <Sparkles className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-xs font-semibold text-violet-700">پیشنهاد آتومیا</p>
+              <p className="text-sm font-semibold text-violet-700">پیشنهاد آتومیا ✨</p>
               <p className="text-sm text-slate-700 mt-1 leading-6">
-                {checkinDone
-                  ? "برای شروع مطالعه، یک چکاپ ۵ سوالی کوتاه انجام بده تا نقاط ضعف امروزت مشخص شود."
-                  : "پیشنهاد می‌کنیم قبل از شروع مطالعه، یک چکاپ ۵ سوالی انجام دهید."}
+                هوش آتومیا بر اساس آخرین آزمون شما، ۵ سؤال از مباحثی که بیشتر اشتباه داشته‌اید آماده کرده است.
               </p>
             </div>
           </div>
           <Button
-            onClick={startCheckup}
+            onClick={() => void navigate({ to: "/student/review" })}
             className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
           >
-            شروع چکاپ
+            شروع مرور هوشمند
           </Button>
         </CardContent>
       </Card>
+
 
       <CheckinDialog
         open={checkinOpen}
