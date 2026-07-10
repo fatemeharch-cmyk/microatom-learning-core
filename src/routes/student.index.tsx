@@ -260,26 +260,53 @@ function TodayPage() {
             {/* Ring + stat pills */}
             <div className="mt-3 flex flex-col sm:flex-row-reverse sm:items-center gap-4">
               <div className="flex items-center gap-3 justify-end">
-                <RingProgress percent={healthScore} size={104} />
+                {loading && !summary ? (
+                  <div
+                    className="rounded-full bg-white/20 animate-pulse"
+                    style={{ width: 104, height: 104 }}
+                  />
+                ) : (
+                  <RingProgress percent={healthScore} size={104} />
+                )}
                 <div className="text-right">
                   <p className="text-xs text-white/85">شاخص سلامت یادگیری</p>
-                  <p className="text-xl font-extrabold mt-1">
-                    {toFa(healthScore)}٪ از ۱۰۰
-                  </p>
+                  {loading && !summary ? (
+                    <div className="h-6 w-28 mt-1 rounded bg-white/20 animate-pulse" />
+                  ) : (
+                    <p className="text-xl font-extrabold mt-1">
+                      {toFa(healthScore)}٪ از ۱۰۰
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="flex-1">
-                <div className="flex items-center justify-end gap-2 mb-1.5">
-                  <SampleBadge tone="light" />
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-right">
-                  <StatPill label="🟢 روزهای پیاپی مطالعه" value="۷ روز" />
-                  <StatPill label="🎯 آخرین کاوش" value="۸۶٪" />
-                  <StatPill label="📈 روند سلامت یادگیری" value="+۵٪" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-right">
+                  {loading && !summary ? (
+                    <>
+                      <div className="h-14 rounded-2xl bg-white/15 animate-pulse" />
+                      <div className="h-14 rounded-2xl bg-white/15 animate-pulse" />
+                    </>
+                  ) : (
+                    <>
+                      <StatPill
+                        label="🎯 وضعیت سلامت یادگیری"
+                        value={healthStatus || "—"}
+                      />
+                      <StatPill
+                        label="📈 روند سلامت یادگیری"
+                        value={
+                          typeof trendPct === "number"
+                            ? `${trendPct > 0 ? "+" : ""}${toFa(trendPct)}٪`
+                            : "—"
+                        }
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
+
 
             <div className="mt-3 flex flex-wrap items-center gap-3 justify-end">
               <Button
