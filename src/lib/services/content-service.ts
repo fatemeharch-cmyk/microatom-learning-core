@@ -232,6 +232,11 @@ export interface ExamSubmitResult {
   correctCount: number;
   wrongCount: number;
   blankCount: number;
+  learningHealth?: number;
+  learningHealthBefore?: number;
+  learningHealthAfter?: number;
+  learningHealthChange?: number;
+  learningHealthIncreased?: boolean;
 }
 
 export async function submitExam(payload: {
@@ -252,7 +257,30 @@ export async function submitExam(payload: {
     body,
   );
   const d = (res.data ?? {}) as Record<string, unknown>;
-  const num = (v: unknown) => (typeof v === "number" ? v : Number(v) || 0);
+  const numOr = (v: unknown): number | undefined => {
+    if (v === null || v === undefined || v === "") return undefined;
+    const n = typeof v === "number" ? v : Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  };
+  const num = (v: unknown) => numOr(v) ?? 0;
+  const before = numOr(d.learning_health_before ?? d.health_before);
+  const after = numOr(
+    d.learning_health_after ??
+      d.health_after ??
+      d.learning_health ??
+      d.learning_health_score,
+  );
+  const change = numOr(d.learning_health_change ?? d.health_change);
+  const computedChange =
+    change ??
+    (before !== undefined && after !== undefined ? after - before : undefined);
+  const increasedRaw = d.learning_health_increased;
+  const increased =
+    typeof increasedRaw === "boolean"
+      ? increasedRaw
+      : computedChange !== undefined
+        ? computedChange > 0
+        : undefined;
   return {
     success: Boolean(d.success),
     score: num(d.score),
@@ -260,6 +288,11 @@ export async function submitExam(payload: {
     correctCount: num(d.correct_count ?? (d as { correctCount?: unknown }).correctCount),
     wrongCount: num(d.wrong_count ?? (d as { wrongCount?: unknown }).wrongCount),
     blankCount: num(d.blank_count ?? (d as { blankCount?: unknown }).blankCount),
+    learningHealth: after,
+    learningHealthBefore: before,
+    learningHealthAfter: after,
+    learningHealthChange: computedChange,
+    learningHealthIncreased: increased,
   };
 }
 
