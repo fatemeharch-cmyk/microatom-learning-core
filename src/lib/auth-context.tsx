@@ -165,12 +165,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               : fresh;
             setUser(next);
             persistUser(next);
-          } else if (!cached) {
+          } else {
+            // /auth/me returned 2xx but no usable role — treat as invalid session.
             setAuthToken(null);
+            persistUser(null);
+            setUser(null);
           }
         })
-        .catch(() => {
-          /* keep cached user if /me fails */
+        .catch((err) => {
+          // Invalid/expired token → clear session and force /login.
+          if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+            setAuthToken(null);
+            persistUser(null);
+            setUser(null);
+            if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+              window.location.assign("/login");
+            }
+          }
         })
         .finally(() => {
           if (!cancelled) setIsHydrated(true);
