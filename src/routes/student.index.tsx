@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -13,12 +14,20 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  Bot,
+  CalendarDays,
   CheckCircle2,
-  Circle,
   Loader2,
   Sparkles,
+  Trophy,
 } from "lucide-react";
-
+import {
+  AreaChart,
+  Area,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+} from "recharts";
 
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -33,27 +42,16 @@ export const Route = createFileRoute("/student/")({
   component: TodayPage,
 });
 
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
 function toFa(n: number | string): string {
   return String(n).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[Number(d)]);
-}
-
-function faDate(iso: string): string {
-  try {
-    const d = new Date(iso);
-    return toFa(
-      new Intl.DateTimeFormat("fa-IR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }).format(d),
-    );
-  } catch {
-    return toFa(iso);
-  }
 }
 
 type CheckinDraft = {
@@ -65,11 +63,9 @@ type CheckinDraft = {
   note: string;
 };
 
-type LastExam = {
-  title: string;
-  percent: number;
-  date: string;
-} | null;
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
 
 function TodayPage() {
   const { user } = useAuth();
@@ -86,17 +82,13 @@ function TodayPage() {
   const [checkinOpen, setCheckinOpen] = useState(false);
   const [missionOpen, setMissionOpen] = useState(false);
 
-  // Last exam: read from localStorage if the exam page has saved one.
-  // No backend endpoint exists yet — safe optional enhancement.
-  const [lastExam, setLastExam] = useState<LastExam>(null);
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("atomia_last_exam");
-      if (raw) setLastExam(JSON.parse(raw));
-    } catch {
-      // ignore
-    }
+  // lightweight inline toast (no global Toaster mounted in this project)
+  const [toast, setToast] = useState<string | null>(null);
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    window.setTimeout(() => setToast(null), 2200);
   }, []);
+  const comingSoon = useCallback(() => showToast("به‌زودی ✨"), [showToast]);
 
   const refresh = useCallback(async () => {
     if (!studentId) {
@@ -126,10 +118,7 @@ function TodayPage() {
   const examDone = false;
   const missionDone = Boolean(mission?.isComplete);
   const doneCount = (checkinDone ? 1 : 0) + (examDone ? 1 : 0) + (missionDone ? 1 : 0);
-  const remaining = 3 - doneCount;
-  const percent = Math.round((doneCount / 3) * 100);
   const healthScore = [20, 45, 70, 95][doneCount] ?? 20;
-  const trendLabel = doneCount >= 2 ? "روند مثبت" : doneCount === 1 ? "در حال بهبود" : "شروع کن";
 
   const goftarId = mission?.goftarId ?? "";
   const startCheckup = useCallback(() => {
@@ -139,43 +128,83 @@ function TodayPage() {
     void navigate({ to: `/student/exam?${qs}` as string });
   }, [goftarId, navigate]);
 
-  const continueToday = useCallback(() => {
-    if (!checkinDone) setCheckinOpen(true);
-    else if (!examDone) startCheckup();
-    else if (!missionDone) setMissionOpen(true);
-  }, [checkinDone, examDone, missionDone, startCheckup]);
-
-  const allDone = doneCount === 3;
+  const trophyMessage =
+    healthScore >= 70
+      ? "وضعیت شما عالی است! در مسیر درستی قرار داری، ادامه بده."
+      : healthScore >= 40
+        ? "روند خوبی داری، همینطور ادامه بده."
+        : "بیا امروز رو با یه قدم کوچیک شروع کنیم.";
 
   return (
-    <div dir="rtl" className="space-y-5 max-w-5xl mx-auto pb-10">
-      {/* Hero */}
+    <div dir="rtl" className="space-y-5 max-w-6xl mx-auto pb-10">
+      {/* ------------------------------- HERO ------------------------------- */}
       <section className="relative overflow-hidden rounded-[28px] p-6 md:p-8 text-white shadow-lg bg-gradient-to-br from-violet-600 via-violet-500 to-fuchsia-500">
-        {/* soft glow blobs */}
+        {/* decorative shapes */}
         <div className="pointer-events-none absolute -top-16 -left-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -right-10 h-64 w-64 rounded-full bg-fuchsia-300/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-fuchsia-300/20 blur-3xl" />
+        <Sparkles className="pointer-events-none absolute top-6 left-8 h-5 w-5 text-white/70" />
+        <Sparkles className="pointer-events-none absolute top-16 left-24 h-3 w-3 text-white/50" />
+        <Sparkles className="pointer-events-none absolute bottom-10 left-16 h-4 w-4 text-white/60" />
 
-        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="text-right">
+        <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-center">
+          {/* Right: greeting + ring + stats + button */}
+          <div className="order-2 lg:order-1 text-right">
             <h1 className="text-2xl md:text-3xl font-extrabold leading-tight">
               سلام {displayName} 🌱
             </h1>
             <p className="text-sm md:text-base text-white/85 mt-2">
-              امروز مسیر رشدت منتظر توست.
+              هر روز یک قدم به رشد بهتر ✨
             </p>
+
+            {/* Ring + stat pills */}
+            <div className="mt-5 flex flex-col sm:flex-row-reverse sm:items-center gap-5">
+              <div className="flex items-center gap-4 justify-end">
+                <RingProgress percent={healthScore} size={128} />
+                <div className="text-right">
+                  <p className="text-xs text-white/85">شاخص سلامت یادگیری</p>
+                  <p className="text-2xl font-extrabold mt-1">
+                    {toFa(healthScore)}٪ از ۱۰۰
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-1">
+                <div className="flex items-center justify-end gap-2 mb-2">
+                  <SampleBadge tone="light" />
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-right">
+                  <StatPill label="هفته گذشته" value="۸۴٪" />
+                  <StatPill label="میانگین کلاس" value="۶۲٪" />
+                  <StatPill label="رشد نسبت به هفته قبل" value="+۵٪" />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center gap-3 justify-end">
+              <Button
+                onClick={comingSoon}
+                className="rounded-full bg-white text-violet-700 hover:bg-white/90 font-semibold px-5"
+              >
+                <CalendarDays className="ml-2 h-4 w-4" />
+                مشاهده تقویم یادگیری
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4 md:gap-5 justify-center md:justify-end">
-            <RingProgress percent={healthScore} size={120} />
-            <div className="text-right">
-              <p className="text-xs text-white/80">شاخص سلامت یادگیری</p>
-              <p className="text-3xl font-extrabold mt-1">{toFa(healthScore)}٪</p>
-              <p className="text-xs text-white/80 mt-1">پرونده سلامت یادگیری</p>
+          {/* Left/Top: trophy card */}
+          <div className="order-1 lg:order-2 lg:w-72">
+            <div className="rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 p-4 text-right">
+              <div className="flex items-center gap-2 justify-end">
+                <span className="text-xs text-white/85">وضعیت امروز</span>
+                <span className="h-9 w-9 rounded-xl bg-amber-300/90 text-amber-900 grid place-items-center">
+                  <Trophy className="h-5 w-5" />
+                </span>
+              </div>
+              <p className="text-sm leading-6 text-white mt-3">{trophyMessage}</p>
             </div>
           </div>
         </div>
       </section>
-
 
       {error && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs p-3 text-right">
@@ -183,118 +212,106 @@ function TodayPage() {
         </div>
       )}
 
-      {/* Four cards */}
+      {/* ------------------------------ ROW A ------------------------------ */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1 – Today's prescription */}
-        <ClinicCard emoji="📋" title="نسخه امروز" accent="from-violet-500 to-fuchsia-500">
-          <ul className="space-y-1.5 text-sm">
-            <PrescriptionRow done={checkinDone} label="شرح حال" />
-            <PrescriptionRow done={examDone} label="چکاپ" />
-            <PrescriptionRow done={missionDone} label="ماموریت" />
-          </ul>
-          <CardCta
-            onClick={continueToday}
-            disabled={loading || allDone}
-            label={allDone ? "کامل شد" : "ادامه"}
-          />
-        </ClinicCard>
-
-        {/* Card 2 – Learning health index */}
-        <ClinicCard emoji="❤️" title="شاخص سلامت یادگیری" accent="from-rose-500 to-pink-500">
-          <div className="text-right">
-            <p className="text-[11px] text-slate-500">امتیاز کلی</p>
-            <div className="flex items-baseline gap-2 justify-end mt-1">
-              <span className="text-3xl font-extrabold text-slate-800">
-                {toFa(healthScore)}
-              </span>
-              <span className="text-xs text-emerald-600 font-semibold">
-                در حال رشد
-              </span>
-            </div>
-          </div>
-          <CardCta
-            onClick={() => void navigate({ to: "/student/health-report" })}
-            label="مشاهده پرونده سلامت"
-            variant="outline"
-          />
-        </ClinicCard>
-
-
-        {/* Card 3 – Last exam */}
-        <ClinicCard emoji="🔬" title="آخرین کاوش" accent="from-sky-500 to-violet-500">
-          {lastExam ? (
-            <div className="text-right space-y-1">
-              <p className="text-sm font-bold text-slate-800 line-clamp-1">
-                {lastExam.title}
-              </p>
-              <p className="text-2xl font-extrabold text-sky-600">
-                {toFa(lastExam.percent)}٪
-              </p>
-              <p className="text-[11px] text-slate-500">{faDate(lastExam.date)}</p>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500 text-right leading-6">
-              هنوز کاوشی انجام نشده است.
-            </p>
-          )}
-          <CardCta
-            onClick={() => void navigate({ to: "/student/exam" })}
-            label={lastExam ? "تحلیل آزمون" : "شروع کاوش"}
-            variant="outline"
-          />
-        </ClinicCard>
-
-        {/* Card 4 – Today's mission */}
-        <ClinicCard emoji="🎯" title="ماموریت امروز" accent="from-emerald-500 to-teal-500">
-          {mission ? (
-            <div className="text-right space-y-1">
-              <p className="text-sm font-bold text-slate-800 line-clamp-2">
-                {mission.title}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                زمان تخمینی: {toFa(mission.targetMinutes)} دقیقه
-              </p>
-              <p className="text-[11px] text-emerald-600">
-                {toFa(mission.minutesDone)} از {toFa(mission.targetMinutes)} دقیقه انجام شده
-              </p>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500 text-right">
-              {loading ? "در حال بارگذاری…" : "ماموریتی برای امروز نداری."}
-            </p>
-          )}
-          <CardCta
-            onClick={() => setMissionOpen(true)}
-            disabled={!mission || missionDone}
-            label={missionDone ? "انجام شد" : "شروع"}
-          />
-        </ClinicCard>
+        <ActionCard
+          emoji="❤️"
+          accent="from-rose-500 to-pink-500"
+          title="شرح حال امروز"
+          status={checkinDone ? "ثبت شده ✅" : "هنوز ثبت نشده"}
+          buttonLabel={checkinDone ? "مشاهده و ویرایش" : "شروع"}
+          onClick={() => setCheckinOpen(true)}
+        />
+        <ActionCard
+          emoji="🩺"
+          accent="from-sky-500 to-violet-500"
+          title="چکاپ امروز"
+          status={"آماده‌ای؟ ۵ سوال کوتاه"}
+          buttonLabel="شروع چکاپ"
+          onClick={startCheckup}
+        />
+        <ActionCard
+          emoji="🎯"
+          accent="from-emerald-500 to-teal-500"
+          title="مأموریت امروز"
+          status={
+            mission
+              ? `${mission.title} — ${toFa(mission.minutesDone)}/${toFa(mission.targetMinutes)} دقیقه`
+              : loading
+                ? "در حال بارگذاری…"
+                : "ماموریتی برای امروز نداری"
+          }
+          buttonLabel={missionDone ? "انجام شد" : "شروع"}
+          onClick={() => setMissionOpen(true)}
+          disabled={!mission || missionDone}
+        />
+        <ActionCard
+          emoji="📋"
+          accent="from-indigo-500 to-violet-500"
+          title="آزمون‌های مدرسه"
+          status="بعدی: ریاضی - فصل ۳"
+          buttonLabel="مشاهده همه"
+          onClick={comingSoon}
+          sample
+        />
       </section>
 
-      {/* Atomia suggestion */}
+      {/* ------------------------------ ROW B ------------------------------ */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <ActionCard
+          emoji="🔬"
+          accent="from-fuchsia-500 to-violet-500"
+          title="آخرین کاوش"
+          status="زیست‌شناسی - گفتار ۲ · ۸۶٪ · دیروز ۱۶:۲۰"
+          buttonLabel="تحلیل آزمون"
+          onClick={comingSoon}
+          sample
+        />
+        <TrendCard onClick={comingSoon} />
+        <ActionCard
+          emoji="⏱️"
+          accent="from-amber-500 to-orange-500"
+          title="زمان مطالعه این هفته"
+          status="۷ ساعت و ۴۵ دقیقه · +۲ ساعت نسبت به هفته قبل"
+          buttonLabel="جزئیات بیشتر"
+          onClick={comingSoon}
+          sample
+        />
+        <ActionCard
+          emoji="👥"
+          accent="from-cyan-500 to-sky-500"
+          title="جایگاه در کلاس"
+          status="۳ از ۳۳ نفر · بهتر از ۹۱٪ کلاس"
+          buttonLabel="مشاهده رتبه‌ها"
+          onClick={comingSoon}
+          sample
+        />
+      </section>
+
+      {/* --------------------------- SUGGESTION --------------------------- */}
       <Card className="border-0 rounded-[22px] shadow-sm bg-gradient-to-l from-violet-50 to-fuchsia-50">
         <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="text-right flex items-start gap-3">
-            <span className="h-10 w-10 shrink-0 rounded-2xl grid place-items-center bg-white/70 text-violet-600">
-              <Sparkles className="h-5 w-5" />
+            <span className="h-11 w-11 shrink-0 rounded-2xl grid place-items-center bg-white text-violet-600 shadow-sm">
+              <Bot className="h-6 w-6" />
             </span>
             <div>
-              <p className="text-sm font-semibold text-violet-700">پیشنهاد آتومیا ✨</p>
+              <p className="text-sm font-semibold text-violet-700">پیشنهاد آتومیا</p>
               <p className="text-sm text-slate-700 mt-1 leading-6">
-                هوش آتومیا بر اساس آخرین آزمون شما، ۵ سؤال از مباحثی که بیشتر اشتباه داشته‌اید آماده کرده است.
+                بر اساس تحلیل اشتباهاتت در آزمون امروز صبح، پیشنهاد می‌کنیم ۵ سؤال مربوط به اشتباهاتت را پاسخ بدهی.
               </p>
             </div>
           </div>
           <Button
-            onClick={() => void navigate({ to: "/student/review" })}
+            onClick={startCheckup}
             className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
           >
-            شروع مرور هوشمند
+            شروع ۵ سؤال
           </Button>
         </CardContent>
       </Card>
 
-
+      {/* Dialogs */}
       <CheckinDialog
         open={checkinOpen}
         onOpenChange={setCheckinOpen}
@@ -305,7 +322,6 @@ function TodayPage() {
           void refresh();
         }}
       />
-
       <MissionDialog
         open={missionOpen}
         onOpenChange={setMissionOpen}
@@ -315,6 +331,13 @@ function TodayPage() {
           setMissionOpen(false);
         }}
       />
+
+      {/* Inline toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-slate-900/90 text-white text-sm px-5 py-2 shadow-lg backdrop-blur">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
@@ -323,9 +346,31 @@ function TodayPage() {
 // Presentational bits
 // ---------------------------------------------------------------------------
 
+function SampleBadge({ tone = "solid" }: { tone?: "solid" | "light" }) {
+  return (
+    <Badge
+      className={
+        tone === "light"
+          ? "bg-white/25 text-white border-white/30 hover:bg-white/25 rounded-full text-[10px] px-2 py-0.5 font-semibold"
+          : "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 rounded-full text-[10px] px-2 py-0.5 font-semibold"
+      }
+    >
+      نمونه
+    </Badge>
+  );
+}
+
+function StatPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-white/15 border border-white/25 backdrop-blur-sm px-3 py-2">
+      <p className="text-[10px] text-white/80 leading-tight">{label}</p>
+      <p className="text-sm font-extrabold mt-1">{value}</p>
+    </div>
+  );
+}
+
 function RingProgress({ percent, size = 96 }: { percent: number; size?: number }) {
   const stroke = 10;
-
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const offset = c - (Math.max(0, Math.min(100, percent)) / 100) * c;
@@ -354,22 +399,33 @@ function RingProgress({ percent, size = 96 }: { percent: number; size?: number }
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center text-white">
-        <span className="text-lg font-extrabold">{toFa(percent)}٪</span>
+        <div className="text-center leading-tight">
+          <div className="text-xl font-extrabold">{toFa(percent)}٪</div>
+          <div className="text-[10px] text-white/80">از ۱۰۰</div>
+        </div>
       </div>
     </div>
   );
 }
 
-function ClinicCard({
+function ActionCard({
   emoji,
-  title,
   accent,
-  children,
+  title,
+  status,
+  buttonLabel,
+  onClick,
+  disabled,
+  sample,
 }: {
   emoji: string;
-  title: string;
   accent: string;
-  children: React.ReactNode;
+  title: string;
+  status: string;
+  buttonLabel: string;
+  onClick: () => void;
+  disabled?: boolean;
+  sample?: boolean;
 }) {
   return (
     <Card className="border-0 rounded-[22px] shadow-sm bg-white hover:shadow-md transition h-full">
@@ -380,63 +436,93 @@ function ClinicCard({
           >
             {emoji}
           </span>
-          <h3 className="text-sm font-bold text-slate-800">{title}</h3>
+          <div className="flex items-center gap-2">
+            {sample && <SampleBadge />}
+            <h3 className="text-sm font-bold text-slate-800">{title}</h3>
+          </div>
         </div>
-        <div className="flex-1">{children}</div>
+        <p className="text-xs text-slate-600 text-right leading-6 flex-1 line-clamp-3">
+          {status}
+        </p>
+        <Button
+          onClick={onClick}
+          disabled={disabled}
+          className="w-full rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold h-9"
+        >
+          {buttonLabel}
+        </Button>
       </CardContent>
     </Card>
   );
 }
 
-function PrescriptionRow({ done, label }: { done: boolean; label: string }) {
-  return (
-    <li className="flex items-center justify-between">
-      <span
-        className={
-          done
-            ? "text-emerald-700 line-through decoration-emerald-400/60"
-            : "text-slate-700"
-        }
-      >
-        {label}
-      </span>
-      {done ? (
-        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-      ) : (
-        <Circle className="h-4 w-4 text-slate-300" />
-      )}
-    </li>
-  );
-}
+const WEEK_DATA = [
+  { day: "شنبه", v: 42 },
+  { day: "یکشنبه", v: 55 },
+  { day: "دوشنبه", v: 48 },
+  { day: "سه‌شنبه", v: 68 },
+  { day: "چهارشنبه", v: 72 },
+  { day: "پنجشنبه", v: 65 },
+  { day: "جمعه", v: 80 },
+];
 
-function CardCta({
-  onClick,
-  label,
-  disabled,
-  variant = "solid",
-}: {
-  onClick: () => void;
-  label: string;
-  disabled?: boolean;
-  variant?: "solid" | "outline";
-}) {
+function TrendCard({ onClick }: { onClick: () => void }) {
   return (
-    <Button
-      onClick={onClick}
-      disabled={disabled}
-      className={
-        variant === "solid"
-          ? "w-full rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold h-9 mt-2"
-          : "w-full rounded-full bg-white hover:bg-violet-50 text-violet-700 border border-violet-200 font-semibold h-9 mt-2"
-      }
-    >
-      {label}
-    </Button>
+    <Card className="border-0 rounded-[22px] shadow-sm bg-white hover:shadow-md transition h-full">
+      <CardContent className="p-4 flex flex-col gap-2 h-full">
+        <div className="flex items-center justify-between">
+          <span className="h-9 w-9 rounded-xl grid place-items-center text-white bg-gradient-to-br from-violet-500 to-fuchsia-500">
+            📈
+          </span>
+          <div className="flex items-center gap-2">
+            <SampleBadge />
+            <h3 className="text-sm font-bold text-slate-800">روند هفتگی</h3>
+          </div>
+        </div>
+        <div className="h-16 -mx-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={WEEK_DATA} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
+              <defs>
+                <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.5} />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="day" hide />
+              <Tooltip
+                cursor={{ stroke: "#c4b5fd", strokeWidth: 1 }}
+                contentStyle={{
+                  borderRadius: 10,
+                  border: "1px solid #e5e7eb",
+                  fontSize: 11,
+                  direction: "rtl",
+                }}
+                labelStyle={{ color: "#6b7280" }}
+                formatter={(v: number) => [`${toFa(v)}٪`, "امتیاز"]}
+              />
+              <Area
+                type="monotone"
+                dataKey="v"
+                stroke="#7c3aed"
+                strokeWidth={2}
+                fill="url(#trendGrad)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <Button
+          onClick={onClick}
+          className="w-full rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold h-9 mt-auto"
+        >
+          مشاهده نمودار
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Check-in Dialog (unchanged behavior)
+// Check-in Dialog
 // ---------------------------------------------------------------------------
 
 const MOODS = [
@@ -562,9 +648,7 @@ function CheckinDialog({
             />
           </Field>
 
-          {err && (
-            <p className="text-xs text-rose-600 text-right">خطا: {err}</p>
-          )}
+          {err && <p className="text-xs text-rose-600 text-right">خطا: {err}</p>}
         </div>
         <DialogFooter className="sm:justify-start">
           <Button
@@ -631,7 +715,7 @@ function ScaleField({
 }
 
 // ---------------------------------------------------------------------------
-// Mission Dialog (unchanged behavior)
+// Mission Dialog
 // ---------------------------------------------------------------------------
 
 function MissionDialog({
@@ -736,3 +820,6 @@ function MissionDialog({
     </Dialog>
   );
 }
+
+// Prevent unused var lint (CheckCircle2 icon reserved for future done-state visuals).
+void CheckCircle2;
