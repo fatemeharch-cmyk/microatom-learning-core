@@ -156,7 +156,7 @@ function TodayPage() {
     setError(null);
     try {
       const res = await apiClient.get<DashboardSummary>(
-        "/student/dashboard-summary",
+        buildApiUrlFor("content", "student/dashboard-summary"),
       );
       const data = (res.data ?? {}) as DashboardSummary;
       setSummary(data);
