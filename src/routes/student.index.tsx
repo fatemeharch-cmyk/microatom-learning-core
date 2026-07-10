@@ -31,6 +31,7 @@ import {
 
 import { useAuth } from "@/lib/auth-context";
 import { apiClient } from "@/lib/api/client";
+import { buildApiUrlFor } from "@/lib/api/config";
 import {
   submitCheckin,
   updateMissionProgress,
