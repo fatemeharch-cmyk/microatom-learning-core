@@ -283,6 +283,7 @@ function TodayPage() {
           status={
             <div className="space-y-0.5">
               <p className="text-[11px] text-slate-500">چکاپ روزانه</p>
+              <p className="text-[11px] text-slate-500">بر اساس مأموریت</p>
               <p className="text-sm font-semibold text-slate-700">
                 ۵ سؤال · ۳ دقیقه
               </p>
