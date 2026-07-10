@@ -599,9 +599,3 @@ function ReportStat({
   );
 }
 
-// Ensure JSX namespace for icon typing
-declare global {
-  namespace JSX {
-    interface Element {}
-  }
-}
