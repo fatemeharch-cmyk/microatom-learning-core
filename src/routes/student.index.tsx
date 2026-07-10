@@ -156,69 +156,68 @@ function TodayPage() {
   return (
     <div dir="rtl" className="space-y-5 max-w-6xl mx-auto pb-10">
       {/* ------------------------------- HERO ------------------------------- */}
-      <section className="relative overflow-hidden rounded-[28px] p-6 md:p-8 text-white shadow-lg bg-gradient-to-br from-violet-600 via-violet-500 to-fuchsia-500">
+      <section className="relative overflow-hidden rounded-[28px] p-4 md:p-5 text-white shadow-lg bg-gradient-to-br from-violet-600 via-violet-500 to-fuchsia-500">
         {/* decorative shapes */}
         <div className="pointer-events-none absolute -top-16 -left-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-fuchsia-300/20 blur-3xl" />
-        <Sparkles className="pointer-events-none absolute top-6 left-8 h-5 w-5 text-white/70" />
-        <Sparkles className="pointer-events-none absolute top-16 left-24 h-3 w-3 text-white/50" />
-        <Sparkles className="pointer-events-none absolute bottom-10 left-16 h-4 w-4 text-white/60" />
+        <Sparkles className="pointer-events-none absolute top-4 left-6 h-4 w-4 text-white/70" />
+        <Sparkles className="pointer-events-none absolute top-12 left-20 h-3 w-3 text-white/50" />
+        <Sparkles className="pointer-events-none absolute bottom-8 left-14 h-3 w-3 text-white/60" />
 
-        <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-center">
+        <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-center">
           {/* Right: greeting + ring + stats + button */}
           <div className="order-2 lg:order-1 text-right">
-            <h1 className="text-2xl md:text-3xl font-extrabold leading-tight">
+            <h1 className="text-xl md:text-2xl font-extrabold leading-tight">
               سلام {displayName} 🌱
             </h1>
-            <p className="text-sm md:text-base text-white/85 mt-2">
-              هر روز یک قدم به رشد بهتر ✨
+            <p className="text-sm text-white mt-1.5 font-medium">
+              امروز هوش آتومیا برایت یک نسخه جدید آماده کرده است.
             </p>
 
             {/* Ring + stat pills */}
-            <div className="mt-5 flex flex-col sm:flex-row-reverse sm:items-center gap-5">
-              <div className="flex items-center gap-4 justify-end">
-                <RingProgress percent={healthScore} size={128} />
+            <div className="mt-3 flex flex-col sm:flex-row-reverse sm:items-center gap-4">
+              <div className="flex items-center gap-3 justify-end">
+                <RingProgress percent={healthScore} size={104} />
                 <div className="text-right">
                   <p className="text-xs text-white/85">شاخص سلامت یادگیری</p>
-                  <p className="text-2xl font-extrabold mt-1">
+                  <p className="text-xl font-extrabold mt-1">
                     {toFa(healthScore)}٪ از ۱۰۰
                   </p>
                 </div>
               </div>
 
               <div className="flex-1">
-                <div className="flex items-center justify-end gap-2 mb-2">
+                <div className="flex items-center justify-end gap-2 mb-1.5">
                   <SampleBadge tone="light" />
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-right">
-                  <StatPill label="هفته گذشته" value="۸۴٪" />
-                  <StatPill label="میانگین کلاس" value="۶۲٪" />
-                  <StatPill label="رشد نسبت به هفته قبل" value="+۵٪" />
+                  <StatPill label="🟢 روزهای پیاپی مطالعه" value="۷ روز" />
+                  <StatPill label="🎯 آخرین کاوش" value="۸۶٪" />
+                  <StatPill label="📈 روند سلامت یادگیری" value="+۵٪" />
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3 justify-end">
+            <div className="mt-3 flex flex-wrap items-center gap-3 justify-end">
               <Button
                 onClick={comingSoon}
-                className="rounded-full bg-white text-violet-700 hover:bg-white/90 font-semibold px-5"
+                className="rounded-full bg-white text-violet-700 hover:bg-white/90 font-semibold px-4 h-9"
               >
-                <CalendarDays className="ml-2 h-4 w-4" />
-                مشاهده تقویم یادگیری
+                📂 مشاهده پرونده سلامت یادگیری
               </Button>
             </div>
           </div>
 
           {/* Left/Top: trophy card */}
-          <div className="order-1 lg:order-2 lg:w-72">
-            <div className="rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 p-4 text-right">
+          <div className="order-1 lg:order-2 lg:w-64">
+            <div className="rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 p-3 text-right">
               <div className="flex items-center gap-2 justify-end">
                 <span className="text-xs text-white/85">وضعیت امروز</span>
-                <span className="h-9 w-9 rounded-xl bg-amber-300/90 text-amber-900 grid place-items-center">
-                  <Trophy className="h-5 w-5" />
+                <span className="h-8 w-8 rounded-xl bg-amber-300/90 text-amber-900 grid place-items-center">
+                  <Trophy className="h-4 w-4" />
                 </span>
               </div>
-              <p className="text-sm leading-6 text-white mt-3">{trophyMessage}</p>
+              <p className="text-xs leading-6 text-white mt-2">{trophyMessage}</p>
             </div>
           </div>
         </div>
@@ -229,6 +228,43 @@ function TodayPage() {
           مشکل در دریافت داده‌های امروز: {error}
         </div>
       )}
+
+      {/* --------------------------- SUGGESTION --------------------------- */}
+      <Card className="border-0 rounded-[22px] shadow-sm bg-gradient-to-l from-violet-50 to-fuchsia-50">
+        <CardContent className="p-5">
+          {suggestionLoading ? (
+            <div className="flex flex-col items-center justify-center py-4 text-center gap-2">
+              <Loader2 className="h-7 w-7 animate-spin text-violet-600" />
+              <p className="text-base font-bold text-violet-700 mt-1">نسخه هوشمند</p>
+              <p className="text-xs text-slate-600">
+                ۵ سؤال اختصاصی — بر اساس اشتباهات شما
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="text-right flex items-start gap-3">
+                <span className="h-11 w-11 shrink-0 rounded-2xl grid place-items-center bg-white text-violet-600 shadow-sm">
+                  <Bot className="h-6 w-6" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-violet-700">
+                    ✨ پیشنهاد آتومیا
+                  </p>
+                  <p className="text-sm text-slate-700 mt-1 leading-6">
+                    برای مرور بیشتر و تثبیت یادگیری، هوش آتومیا بر اساس آخرین عملکرد شما یک نسخه اختصاصی آماده کرده است.
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={startSuggestion}
+                className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
+              >
+                🧠 دریافت نسخه هوشمند
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* ------------------------------ ROW A ------------------------------ */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -244,7 +280,14 @@ function TodayPage() {
           emoji="🩺"
           accent="from-sky-500 to-violet-500"
           title="چکاپ امروز"
-          status={"آماده‌ای؟ ۵ سوال کوتاه"}
+          status={
+            <div className="space-y-0.5">
+              <p className="text-[11px] text-slate-500">چکاپ روزانه</p>
+              <p className="text-sm font-semibold text-slate-700">
+                ۵ سؤال · ۳ دقیقه
+              </p>
+            </div>
+          }
           buttonLabel="شروع چکاپ"
           onClick={startCheckup}
         />
@@ -252,6 +295,7 @@ function TodayPage() {
           emoji="🎯"
           accent="from-emerald-500 to-teal-500"
           title="مأموریت امروز"
+          tone={missionDone ? "green" : undefined}
           status={
             mission
               ? `${mission.title} — ${toFa(mission.minutesDone)}/${toFa(mission.targetMinutes)} دقیقه`
@@ -259,7 +303,7 @@ function TodayPage() {
                 ? "در حال بارگذاری…"
                 : "ماموریتی برای امروز نداری"
           }
-          buttonLabel={missionDone ? "انجام شد" : "شروع"}
+          buttonLabel={missionDone ? "انجام شد ✅" : "شروع"}
           onClick={() => setMissionOpen(true)}
           disabled={!mission || missionDone}
         />
@@ -279,8 +323,20 @@ function TodayPage() {
         <ActionCard
           emoji="🔬"
           accent="from-fuchsia-500 to-violet-500"
-          title="آخرین کاوش"
-          status="زیست‌شناسی - گفتار ۲ · ۸۶٪ · دیروز ۱۶:۲۰"
+          title="آخرین گزارش تشخیصی"
+          status={
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-slate-700">
+                زیست‌شناسی - گفتار ۲
+              </p>
+              <p className="text-xs text-slate-600">
+                درست: ۱۸ · غلط: ۷
+              </p>
+              <p className="text-xs text-amber-700">
+                نیاز به مرور: گفتار ۲
+              </p>
+            </div>
+          }
           buttonLabel="تحلیل آزمون"
           onClick={comingSoon}
           sample
@@ -306,28 +362,6 @@ function TodayPage() {
         />
       </section>
 
-      {/* --------------------------- SUGGESTION --------------------------- */}
-      <Card className="border-0 rounded-[22px] shadow-sm bg-gradient-to-l from-violet-50 to-fuchsia-50">
-        <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="text-right flex items-start gap-3">
-            <span className="h-11 w-11 shrink-0 rounded-2xl grid place-items-center bg-white text-violet-600 shadow-sm">
-              <Bot className="h-6 w-6" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-violet-700">پیشنهاد آتومیا</p>
-              <p className="text-sm text-slate-700 mt-1 leading-6">
-                بر اساس تحلیل اشتباهاتت در آزمون امروز صبح، پیشنهاد می‌کنیم ۵ سؤال مربوط به اشتباهاتت را پاسخ بدهی.
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={startSuggestion}
-            className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
-          >
-            شروع ۵ سؤال
-          </Button>
-        </CardContent>
-      </Card>
 
       {/* Dialogs */}
       <CheckinDialog
