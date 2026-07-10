@@ -194,6 +194,9 @@ function mapQuestion(
         : typeof (r as { estimatedTime?: unknown }).estimatedTime === "number"
           ? ((r as { estimatedTime: number }).estimatedTime)
           : null,
+    subject: s((r as { subject?: unknown }).subject ?? (r as { subject_title?: unknown }).subject_title) || undefined,
+    chapter: s((r as { chapter?: unknown }).chapter ?? (r as { chapter_title?: unknown }).chapter_title) || undefined,
+    goftar: s((r as { goftar?: unknown }).goftar ?? (r as { goftar_title?: unknown }).goftar_title) || undefined,
   };
 }
 
