@@ -227,6 +227,7 @@ export async function searchQuestionBank(
 
 export interface ExamSubmitResult {
   success: boolean;
+  examId?: string;
   score: number;
   percentage: number;
   correctCount: number;
@@ -238,6 +239,7 @@ export interface ExamSubmitResult {
   learningHealthChange?: number;
   learningHealthIncreased?: boolean;
 }
+
 
 export async function submitExam(payload: {
   studentId: string;
@@ -283,6 +285,12 @@ export async function submitExam(payload: {
         : undefined;
   return {
     success: Boolean(d.success),
+    examId: s(
+      d.exam_id ??
+        (d as { attempt_id?: unknown }).attempt_id ??
+        (d as { examId?: unknown }).examId ??
+        "",
+    ) || undefined,
     score: num(d.score),
     percentage: num(d.percentage),
     correctCount: num(d.correct_count ?? (d as { correctCount?: unknown }).correctCount),
@@ -295,6 +303,74 @@ export async function submitExam(payload: {
     learningHealthIncreased: increased,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Exam analysis (Kaavosh result page)
+// ---------------------------------------------------------------------------
+
+export interface ExamAnalysis {
+  exam: {
+    id?: string;
+    title?: string;
+    subject?: string;
+    date?: string;
+    duration?: string | number;
+    [k: string]: unknown;
+  };
+  result: {
+    percentage?: number;
+    score?: number;
+    correct?: number;
+    wrong?: number;
+    blank?: number;
+    total?: number;
+    [k: string]: unknown;
+  };
+  class_comparison: {
+    student_score?: number;
+    class_average?: number;
+    highest_score?: number;
+    rank?: number | null;
+    [k: string]: unknown;
+  } | null;
+  performance_by_goftar: Array<Record<string, unknown>>;
+  performance_by_micro_atom: Array<Record<string, unknown>>;
+  strengths: Array<Record<string, unknown>>;
+  needs_attention: Array<Record<string, unknown>>;
+  answer_review: Array<Record<string, unknown>>;
+  recommendation: {
+    smart_review_available?: boolean;
+    message?: string;
+    [k: string]: unknown;
+  } | null;
+}
+
+export async function getExamAnalysis(examId: string): Promise<ExamAnalysis> {
+  const res = await apiClient.get<Record<string, unknown>>(
+    contentUrl(`student/exams/${encodeURIComponent(examId)}/analysis`),
+  );
+  const d = (res.data ?? {}) as Record<string, unknown>;
+  const asArr = (v: unknown): Array<Record<string, unknown>> =>
+    Array.isArray(v) ? (v as Array<Record<string, unknown>>) : [];
+  const asObj = (v: unknown): Record<string, unknown> =>
+    v && typeof v === "object" ? (v as Record<string, unknown>) : {};
+  return {
+    exam: asObj(d.exam),
+    result: asObj(d.result),
+    class_comparison: d.class_comparison
+      ? (asObj(d.class_comparison) as ExamAnalysis["class_comparison"])
+      : null,
+    performance_by_goftar: asArr(d.performance_by_goftar),
+    performance_by_micro_atom: asArr(d.performance_by_micro_atom),
+    strengths: asArr(d.strengths),
+    needs_attention: asArr(d.needs_attention),
+    answer_review: asArr(d.answer_review),
+    recommendation: d.recommendation
+      ? (asObj(d.recommendation) as ExamAnalysis["recommendation"])
+      : null,
+  };
+}
+
 
 export interface SmartReviewResponse {
   available: boolean;

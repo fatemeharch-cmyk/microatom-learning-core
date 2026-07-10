@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, ClipboardList, ChevronRight, ChevronLeft as ChevronLeftIcon, CheckCircle2 } from "lucide-react";
@@ -89,7 +89,9 @@ const COUNT_OPTIONS = [5, 10, 15, 20];
 
 function ExamPage() {
   const search = Route.useSearch();
+  const navigate = useNavigate();
   const [subjectId, setSubjectId] = useState<string>("");
+
   const [chapterId, setChapterId] = useState<string>("");
   const [goftarId, setGoftarId] = useState<string>("");
   const [selectedCount, setSelectedCount] = useState<number>(10);
@@ -193,12 +195,20 @@ function ExamPage() {
         answers: payloadAnswers,
       });
       setSubmitResult(result);
+      if (result.examId) {
+        void navigate({
+          to: "/student/exams/$examId/result",
+          params: { examId: String(result.examId) },
+        });
+        return;
+      }
     } catch {
       setSubmitError("ثبت آزمون با خطا روبه‌رو شد.");
     } finally {
       setPhase("done");
     }
   }
+
 
 
   function resetToSetup() {
