@@ -245,7 +245,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void apiLogout();
     persistUser(null);
     if (typeof window !== "undefined") {
-      window.localStorage.removeItem("atomia.activeRole");
+      try {
+        window.localStorage.removeItem("atomia.activeRole");
+        window.localStorage.removeItem("atomia_selected_role");
+        window.localStorage.removeItem("atomia_user_id");
+        window.localStorage.removeItem("atomia_theme");
+      } catch {
+        /* ignore */
+      }
     }
     setUser(null);
     if (typeof window !== "undefined") {
