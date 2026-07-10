@@ -131,10 +131,9 @@ function TodayPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const studentId = user?.id ?? "";
-  const displayName = user?.name?.trim() || "دانش‌آموز";
   const date = useMemo(() => todayISO(), []);
 
-  const [checkinDone, setCheckinDone] = useState(false);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [mission, setMission] = useState<DailyMission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -151,21 +150,30 @@ function TodayPage() {
   }, []);
   const comingSoon = useCallback(() => showToast("به‌زودی ✨"), [showToast]);
 
-
   const refresh = useCallback(async () => {
-    if (!studentId) {
-      setLoading(false);
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
-      const [ci, m] = await Promise.all([
-        getTodayCheckin(studentId, date).catch(() => ({ exists: false, checkin: null })),
-        getTodayMission(studentId, date).catch(() => null),
-      ]);
-      setCheckinDone(Boolean(ci?.exists));
-      setMission(m);
+      const res = await apiClient.get<DashboardSummary>(
+        "/student/dashboard-summary",
+      );
+      const data = (res.data ?? {}) as DashboardSummary;
+      setSummary(data);
+      const tm = data.today_mission;
+      if (tm?.exists) {
+        setMission({
+          id: String(tm.id ?? ""),
+          studentId: String(studentId),
+          missionDate: date,
+          goftarId: String(tm.goftar_id ?? ""),
+          title: String(tm.title ?? ""),
+          targetMinutes: Number(tm.target_minutes ?? 0),
+          minutesDone: Number(tm.minutes_done ?? 0),
+          isComplete: Boolean(tm.is_complete),
+        });
+      } else {
+        setMission(null);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -177,41 +185,56 @@ function TodayPage() {
     void refresh();
   }, [refresh]);
 
-  const examDone = false;
-  const missionDone = Boolean(mission?.isComplete);
-  const doneCount = (checkinDone ? 1 : 0) + (examDone ? 1 : 0) + (missionDone ? 1 : 0);
-  const healthScore = [20, 45, 70, 95][doneCount] ?? 20;
+  const displayName =
+    summary?.student?.name?.trim() || user?.name?.trim() || "دانش‌آموز";
+  const healthScore = Math.max(
+    0,
+    Math.min(100, Math.round(Number(summary?.learning_health?.score ?? 0))),
+  );
+  const healthStatus = summary?.learning_health?.status ?? "";
+  const trendPct = summary?.learning_health?.trend_percentage;
 
-  const goftarId = mission?.goftarId ?? "";
+  const checkinDone = Boolean(summary?.today?.medical_history_completed);
+  const missionDone = Boolean(
+    summary?.today?.mission_completed ?? mission?.isComplete,
+  );
+  const checkupDone = Boolean(summary?.today?.checkup_completed);
+
+  const missionGoftarId =
+    mission?.goftarId || String(summary?.today_mission?.goftar_id ?? "");
+  const checkupGoftarId =
+    String(summary?.latest_checkup?.goftar_id ?? "") || missionGoftarId;
+
   const startCheckup = useCallback(() => {
     void navigate({
       to: "/student/exam",
       search: {
         autostart: "1",
         count: "5",
-        goftarId: goftarId || undefined,
+        goftarId: checkupGoftarId || undefined,
       },
     });
-  }, [goftarId, navigate]);
+  }, [checkupGoftarId, navigate]);
 
+  const smartReview = summary?.smart_review;
+  const smartReviewAvailable = Boolean(smartReview?.available);
   const startSuggestion = useCallback(() => {
     if (suggestionLoading) return;
+    if (!smartReviewAvailable) return;
     setSuggestionLoading(true);
     window.setTimeout(() => {
-      void navigate({
-        to: "/student/exam",
-        search: { autostart: "1", count: "5" },
-      });
-    }, 1700);
-  }, [navigate, suggestionLoading]);
-
+      void navigate({ to: "/student/smart-review" as never });
+    }, 1200);
+  }, [navigate, suggestionLoading, smartReviewAvailable]);
 
   const trophyMessage =
-    healthScore >= 70
+    healthStatus ||
+    (healthScore >= 70
       ? "وضعیت شما عالی است! در مسیر درستی قرار داری، ادامه بده."
       : healthScore >= 40
         ? "روند خوبی داری، همینطور ادامه بده."
-        : "بیا امروز رو با یه قدم کوچیک شروع کنیم.";
+        : "بیا امروز رو با یه قدم کوچیک شروع کنیم.");
+
 
   return (
     <div dir="rtl" className="space-y-5 max-w-6xl mx-auto pb-10">
