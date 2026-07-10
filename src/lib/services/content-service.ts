@@ -399,6 +399,68 @@ export async function getSmartReview(): Promise<SmartReviewResponse> {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Learning Clinic (کلینیک یادگیری)
+// ---------------------------------------------------------------------------
+
+export interface LearningClinicMistake {
+  id?: string | number;
+  question_id?: string | number;
+  question_text?: string;
+  student_answer?: string;
+  correct_answer?: string;
+  explanation?: string;
+  subject?: string;
+  chapter?: string;
+  goftar?: string;
+  atom?: string;
+  micro_atom?: string;
+  exam_date?: string;
+  status?: string; // "wrong" | "blank"
+  [k: string]: unknown;
+}
+
+export interface LearningClinicWeakArea {
+  title?: string;
+  subject?: string;
+  chapter?: string;
+  goftar?: string;
+  micro_atom?: string;
+  score?: number;
+  mistake_count?: number;
+  [k: string]: unknown;
+}
+
+export interface LearningClinicResponse {
+  summary: Record<string, unknown>;
+  mistakes: LearningClinicMistake[];
+  weak_areas: LearningClinicWeakArea[];
+  recommended_action: {
+    smart_review_available?: boolean;
+    message?: string;
+    title?: string;
+    [k: string]: unknown;
+  } | null;
+}
+
+export async function getLearningClinic(): Promise<LearningClinicResponse> {
+  const res = await apiClient.get<Record<string, unknown>>(
+    contentUrl("student/learning-clinic"),
+  );
+  const d = (res.data ?? {}) as Record<string, unknown>;
+  const asArr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
+  const asObj = (v: unknown): Record<string, unknown> =>
+    v && typeof v === "object" ? (v as Record<string, unknown>) : {};
+  return {
+    summary: asObj(d.summary),
+    mistakes: asArr<LearningClinicMistake>(d.mistakes),
+    weak_areas: asArr<LearningClinicWeakArea>(d.weak_areas),
+    recommended_action: d.recommended_action
+      ? (asObj(d.recommended_action) as LearningClinicResponse["recommended_action"])
+      : null,
+  };
+}
+
 /** Find the Biology subject by Persian title heuristic, falling back to the first subject. */
 export async function findBiologySubject(): Promise<ContentSubject | null> {
   const subjects = await listSubjects();
