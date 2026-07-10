@@ -288,3 +288,113 @@ export async function listAllMicroAtomsForChapter(
   );
   return microsArrs.flat();
 }
+
+// ---------------------------------------------------------------------------
+// Daily check-in & daily mission (student home page)
+// ---------------------------------------------------------------------------
+
+export interface DailyCheckin {
+  id?: string | number;
+  student_id?: number;
+  checkin_date?: string;
+  sleep_hours?: number;
+  mood?: string;
+  focus?: number;
+  stress?: number;
+  energy?: number;
+  note?: string;
+  [k: string]: unknown;
+}
+
+export interface DailyMission {
+  id: string;
+  studentId: string;
+  missionDate: string;
+  goftarId: string;
+  title: string;
+  targetMinutes: number;
+  minutesDone: number;
+  isComplete: boolean;
+}
+
+export async function getTodayCheckin(
+  studentId: string,
+  date: string,
+): Promise<{ exists: boolean; checkin: DailyCheckin | null }> {
+  const qs = new URLSearchParams({
+    student_id: String(studentId),
+    date,
+  }).toString();
+  const res = await apiClient.get<Record<string, unknown>>(
+    contentUrl(`daily-checkin/today?${qs}`),
+  );
+  const d = (res.data ?? {}) as Record<string, unknown>;
+  const checkin = (d.checkin ?? null) as DailyCheckin | null;
+  return { exists: Boolean(d.exists), checkin };
+}
+
+export async function submitCheckin(payload: {
+  studentId: string;
+  date: string;
+  sleepHours?: number;
+  mood?: string;
+  focus?: number;
+  stress?: number;
+  energy?: number;
+  note?: string;
+}): Promise<DailyCheckin> {
+  const body: Record<string, unknown> = {
+    student_id: Number(payload.studentId),
+    checkin_date: payload.date,
+  };
+  if (payload.sleepHours !== undefined) body.sleep_hours = payload.sleepHours;
+  if (payload.mood !== undefined) body.mood = payload.mood;
+  if (payload.focus !== undefined) body.focus = payload.focus;
+  if (payload.stress !== undefined) body.stress = payload.stress;
+  if (payload.energy !== undefined) body.energy = payload.energy;
+  if (payload.note !== undefined) body.note = payload.note;
+  const res = await apiClient.post<DailyCheckin>(
+    contentUrl("daily-checkin/submit"),
+    body,
+  );
+  return (res.data ?? {}) as DailyCheckin;
+}
+
+function mapMission(r: Record<string, unknown>): DailyMission {
+  const num = (v: unknown) => (typeof v === "number" ? v : Number(v) || 0);
+  return {
+    id: s(r.id),
+    studentId: s(r.student_id ?? (r as { studentId?: unknown }).studentId),
+    missionDate: s(r.mission_date ?? (r as { missionDate?: unknown }).missionDate),
+    goftarId: s(r.goftar_id ?? (r as { goftarId?: unknown }).goftarId),
+    title: s(r.title),
+    targetMinutes: num(r.target_minutes ?? (r as { targetMinutes?: unknown }).targetMinutes),
+    minutesDone: num(r.minutes_done ?? (r as { minutesDone?: unknown }).minutesDone),
+    isComplete: Boolean(r.is_complete ?? (r as { isComplete?: unknown }).isComplete),
+  };
+}
+
+export async function getTodayMission(
+  studentId: string,
+  date: string,
+): Promise<DailyMission> {
+  const qs = new URLSearchParams({
+    student_id: String(studentId),
+    date,
+  }).toString();
+  const res = await apiClient.get<Record<string, unknown>>(
+    contentUrl(`daily-mission/today?${qs}`),
+  );
+  return mapMission((res.data ?? {}) as Record<string, unknown>);
+}
+
+export async function updateMissionProgress(
+  missionId: string,
+  minutesDone: number,
+): Promise<DailyMission> {
+  const res = await apiClient.post<Record<string, unknown>>(
+    contentUrl("daily-mission/update-progress"),
+    { mission_id: Number(missionId), minutes_done: Number(minutesDone) },
+  );
+  return mapMission((res.data ?? {}) as Record<string, unknown>);
+}
