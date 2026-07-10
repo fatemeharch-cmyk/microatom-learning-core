@@ -126,7 +126,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [debug, setDebug] = useState<LoginDebugInfo | null>(null);
+  
   const [roleChoices, setRoleChoices] = useState<RoleId[] | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [applyingRole, setApplyingRole] = useState<RoleId | null>(null);
@@ -149,7 +149,7 @@ function LoginPage() {
     setMessage(null);
     setPending(true);
     const result = await login(username, password);
-    setDebug(lastLoginDebug);
+    
     if (!result.ok) {
       setPending(false);
       setMessage(localizeLoginError(result.message));
