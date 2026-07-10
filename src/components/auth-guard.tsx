@@ -1,93 +1,98 @@
 import { useEffect, type ReactNode } from "react";
 import { useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
+import type { RoleId } from "@/lib/roles";
 
-/**
- * Public routes that never require authentication.
- */
-const PUBLIC_ROUTES = new Set<string>(["/", "/login"]);
+/** Routes that never require authentication. */
+const PUBLIC_ROUTES = new Set<string>(["/", "/login", "/signup"]);
 
-/**
- * Canonical roles (matching backend) → their dashboard route prefix.
- * This is the SINGLE source of truth for refresh / deep-link routing.
- */
-const CANONICAL_ROLE_TO_ROUTE: Record<string, string> = {
+/** URL prefix → the internal RoleId allowed to access it. */
+const ROUTE_TO_ROLE: Array<{ prefix: string; role: RoleId }> = [
+  { prefix: "/grade-supervisor", role: "supervisor" },
+  { prefix: "/principal", role: "admin" },
+  { prefix: "/admin", role: "admin" },
+  { prefix: "/student", role: "student" },
+  { prefix: "/teacher", role: "teacher" },
+  { prefix: "/parent", role: "parent" },
+].sort((a, b) => b.prefix.length - a.prefix.length);
+
+/** Internal RoleId → its dashboard route. */
+const ROLE_TO_ROUTE: Record<RoleId, string> = {
   student: "/student",
-  parent: "/parent",
   teacher: "/teacher",
-  grade_supervisor: "/grade-supervisor",
-  principal: "/principal",
+  parent: "/parent",
+  supervisor: "/grade-supervisor",
+  admin: "/principal",
 };
 
-/** All known dashboard route prefixes, ordered longest-first for matching. */
-const ALL_ROLE_ROUTES = Object.values(CANONICAL_ROLE_TO_ROUTE).sort(
-  (a, b) => b.length - a.length,
-);
-
-function routeBelongsToRole(pathname: string, route: string): boolean {
-  return pathname === route || pathname.startsWith(route + "/");
-}
-
-function pathOwningRole(pathname: string): string | null {
-  for (const r of ALL_ROLE_ROUTES) {
-    if (routeBelongsToRole(pathname, r)) return r;
+function matchProtected(pathname: string): { prefix: string; role: RoleId } | null {
+  for (const entry of ROUTE_TO_ROLE) {
+    if (pathname === entry.prefix || pathname.startsWith(entry.prefix + "/")) {
+      return entry;
+    }
   }
   return null;
 }
 
-function readSelectedRole(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const v = window.localStorage.getItem("atomia_selected_role");
-    return v && CANONICAL_ROLE_TO_ROUTE[v] ? v : null;
-  } catch {
-    return null;
-  }
+function LoadingScreen() {
+  return (
+    <div
+      dir="rtl"
+      className="flex min-h-screen items-center justify-center bg-background text-foreground"
+    >
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <p className="text-sm text-muted-foreground">در حال بررسی نشست…</p>
+      </div>
+    </div>
+  );
 }
 
-/**
- * Refresh-safe route protection:
- *   - Unauthenticated user on a protected role route → /login
- *   - Authenticated user with a selected role visiting another role's
- *     route → redirect to their own role's route.
- *   - Otherwise: stay where you are (including child routes).
- *
- * `atomia_selected_role` (set by the login role selector) wins over
- * whatever role /auth/me happens to return, so refreshing on
- * /grade-supervisor never bounces to /student.
- */
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, isHydrated } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  const isPublic = PUBLIC_ROUTES.has(pathname);
+  const match = matchProtected(pathname);
+
   useEffect(() => {
+    if (isPublic) return;
+    if (!match) return; // non-role route (e.g. /about) — leave alone
     if (!isHydrated) return;
 
-    // The login page owns its own post-login routing.
-    if (PUBLIC_ROUTES.has(pathname)) return;
-
-    const owningRoute = pathOwningRole(pathname);
-    if (!owningRoute) return; // not a role-scoped route — leave alone
-
+    // Not authenticated → send to /login, preserving intended route.
     if (!user) {
+      try {
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(
+            "atomia.auth.redirect",
+            pathname + window.location.search,
+          );
+        }
+      } catch {
+        /* ignore */
+      }
       navigate({ to: "/login", replace: true });
       return;
     }
 
-    const selected = readSelectedRole();
-    if (!selected) {
-      // No persisted selection yet — don't force-redirect anywhere.
-      return;
+    // Authenticated but wrong role → send to their own dashboard.
+    if (user.role !== match.role) {
+      const target = ROLE_TO_ROUTE[user.role] ?? "/login";
+      navigate({ to: target, replace: true });
     }
+  }, [isPublic, match, isHydrated, user, pathname, navigate]);
 
-    const selectedRoute = CANONICAL_ROLE_TO_ROUTE[selected];
-    // Current path is under the selected role (or a child) → stay.
-    if (routeBelongsToRole(pathname, selectedRoute)) return;
+  // Public routes always render.
+  if (isPublic) return <>{children}</>;
+  // Non-protected routes render as-is.
+  if (!match) return <>{children}</>;
 
-    // Otherwise the user is on a different role's area → send them home.
-    navigate({ to: selectedRoute, replace: true });
-  }, [isHydrated, user, pathname, navigate]);
+  // Protected: block rendering until we know the answer.
+  if (!isHydrated) return <LoadingScreen />;
+  if (!user) return <LoadingScreen />;
+  if (user.role !== match.role) return <LoadingScreen />;
 
   return <>{children}</>;
 }
