@@ -428,18 +428,28 @@ function ActionCard({
   onClick,
   disabled,
   sample,
+  tone,
 }: {
   emoji: string;
   accent: string;
   title: string;
-  status: string;
+  status: React.ReactNode;
   buttonLabel: string;
   onClick: () => void;
   disabled?: boolean;
   sample?: boolean;
+  tone?: "green";
 }) {
+  const cardTone =
+    tone === "green"
+      ? "bg-emerald-50 border border-emerald-100"
+      : "bg-white border-0";
+  const btnTone =
+    tone === "green"
+      ? "bg-emerald-600 hover:bg-emerald-600 text-white"
+      : "bg-violet-600 hover:bg-violet-700 text-white";
   return (
-    <Card className="border-0 rounded-[22px] shadow-sm bg-white hover:shadow-md transition h-full">
+    <Card className={`rounded-[22px] shadow-sm hover:shadow-md transition h-full ${cardTone}`}>
       <CardContent className="p-4 flex flex-col gap-3 h-full">
         <div className="flex items-center justify-between">
           <span
@@ -452,13 +462,13 @@ function ActionCard({
             <h3 className="text-sm font-bold text-slate-800">{title}</h3>
           </div>
         </div>
-        <p className="text-xs text-slate-600 text-right leading-6 flex-1 line-clamp-3">
+        <div className="text-xs text-slate-600 text-right leading-6 flex-1">
           {status}
-        </p>
+        </div>
         <Button
           onClick={onClick}
           disabled={disabled}
-          className="w-full rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold h-9"
+          className={`w-full rounded-full font-semibold h-9 ${btnTone}`}
         >
           {buttonLabel}
         </Button>
@@ -466,6 +476,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 const WEEK_DATA = [
   { day: "شنبه", v: 42 },
