@@ -219,14 +219,39 @@ function TodayPage() {
 
   const smartReview = summary?.smart_review;
   const smartReviewAvailable = Boolean(smartReview?.available);
-  const startSuggestion = useCallback(() => {
+  const [suggestionError, setSuggestionError] = useState<string | null>(null);
+  const startSuggestion = useCallback(async () => {
     if (suggestionLoading) return;
-    if (!smartReviewAvailable) return;
+    setSuggestionError(null);
     setSuggestionLoading(true);
-    window.setTimeout(() => {
-      void navigate({ to: "/student/smart-review" as never });
-    }, 1200);
-  }, [navigate, suggestionLoading, smartReviewAvailable]);
+    try {
+      const { getSmartReview } = await import("@/lib/services/content-service");
+      const res = await getSmartReview();
+      if (res.available && res.questions.length > 0) {
+        try {
+          window.sessionStorage.setItem(
+            "atomia_smart_review",
+            JSON.stringify({
+              available: true,
+              message: res.message,
+              questions: res.questions,
+            }),
+          );
+        } catch {
+          // ignore quota errors — route will re-fetch as fallback
+        }
+        void navigate({ to: "/student/smart-review" as never });
+      } else {
+        setSuggestionError(
+          res.message || "در حال حاضر نسخه هوشمندی برای مرور در دسترس نیست.",
+        );
+        setSuggestionLoading(false);
+      }
+    } catch {
+      setSuggestionError("دریافت نسخه هوشمند با خطا روبه‌رو شد.");
+      setSuggestionLoading(false);
+    }
+  }, [navigate, suggestionLoading]);
 
   const trophyMessage =
     healthStatus ||

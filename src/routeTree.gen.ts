@@ -48,6 +48,7 @@ import { Route as SupervisorAnalyticsRouteImport } from './routes/supervisor.ana
 import { Route as SupervisorAlertsRouteImport } from './routes/supervisor.alerts'
 import { Route as StudentWeeklyRouteImport } from './routes/student.weekly'
 import { Route as StudentTrackingRouteImport } from './routes/student.tracking'
+import { Route as StudentSmartReviewRouteImport } from './routes/student.smart-review'
 import { Route as StudentScheduleRouteImport } from './routes/student.schedule'
 import { Route as StudentReviewRouteImport } from './routes/student.review'
 import { Route as StudentResourcesRouteImport } from './routes/student.resources'
@@ -289,6 +290,11 @@ const StudentWeeklyRoute = StudentWeeklyRouteImport.update({
 const StudentTrackingRoute = StudentTrackingRouteImport.update({
   id: '/tracking',
   path: '/tracking',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentSmartReviewRoute = StudentSmartReviewRouteImport.update({
+  id: '/smart-review',
+  path: '/smart-review',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentScheduleRoute = StudentScheduleRouteImport.update({
@@ -584,6 +590,7 @@ export interface FileRoutesByFullPath {
   '/student/resources': typeof StudentResourcesRoute
   '/student/review': typeof StudentReviewRoute
   '/student/schedule': typeof StudentScheduleRoute
+  '/student/smart-review': typeof StudentSmartReviewRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
@@ -665,6 +672,7 @@ export interface FileRoutesByTo {
   '/student/resources': typeof StudentResourcesRoute
   '/student/review': typeof StudentReviewRoute
   '/student/schedule': typeof StudentScheduleRoute
+  '/student/smart-review': typeof StudentSmartReviewRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
@@ -754,6 +762,7 @@ export interface FileRoutesById {
   '/student/resources': typeof StudentResourcesRoute
   '/student/review': typeof StudentReviewRoute
   '/student/schedule': typeof StudentScheduleRoute
+  '/student/smart-review': typeof StudentSmartReviewRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
   '/supervisor/alerts': typeof SupervisorAlertsRoute
@@ -844,6 +853,7 @@ export interface FileRouteTypes {
     | '/student/resources'
     | '/student/review'
     | '/student/schedule'
+    | '/student/smart-review'
     | '/student/tracking'
     | '/student/weekly'
     | '/supervisor/alerts'
@@ -925,6 +935,7 @@ export interface FileRouteTypes {
     | '/student/resources'
     | '/student/review'
     | '/student/schedule'
+    | '/student/smart-review'
     | '/student/tracking'
     | '/student/weekly'
     | '/supervisor/alerts'
@@ -1013,6 +1024,7 @@ export interface FileRouteTypes {
     | '/student/resources'
     | '/student/review'
     | '/student/schedule'
+    | '/student/smart-review'
     | '/student/tracking'
     | '/student/weekly'
     | '/supervisor/alerts'
@@ -1335,6 +1347,13 @@ declare module '@tanstack/react-router' {
       path: '/tracking'
       fullPath: '/student/tracking'
       preLoaderRoute: typeof StudentTrackingRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/smart-review': {
+      id: '/student/smart-review'
+      path: '/smart-review'
+      fullPath: '/student/smart-review'
+      preLoaderRoute: typeof StudentSmartReviewRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/schedule': {
@@ -1789,6 +1808,7 @@ interface StudentRouteChildren {
   StudentResourcesRoute: typeof StudentResourcesRoute
   StudentReviewRoute: typeof StudentReviewRoute
   StudentScheduleRoute: typeof StudentScheduleRoute
+  StudentSmartReviewRoute: typeof StudentSmartReviewRoute
   StudentTrackingRoute: typeof StudentTrackingRoute
   StudentWeeklyRoute: typeof StudentWeeklyRoute
   StudentIndexRoute: typeof StudentIndexRoute
@@ -1814,6 +1834,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentResourcesRoute: StudentResourcesRoute,
   StudentReviewRoute: StudentReviewRoute,
   StudentScheduleRoute: StudentScheduleRoute,
+  StudentSmartReviewRoute: StudentSmartReviewRoute,
   StudentTrackingRoute: StudentTrackingRoute,
   StudentWeeklyRoute: StudentWeeklyRoute,
   StudentIndexRoute: StudentIndexRoute,
