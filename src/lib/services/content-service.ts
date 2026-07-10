@@ -263,6 +263,33 @@ export async function submitExam(payload: {
   };
 }
 
+export interface SmartReviewResponse {
+  available: boolean;
+  message?: string;
+  question_count?: number;
+  questions: ContentQuestion[];
+}
+
+export async function getSmartReview(): Promise<SmartReviewResponse> {
+  const res = await apiClient.get<Record<string, unknown>>(
+    contentUrl("student/smart-review"),
+  );
+  const d = (res.data ?? {}) as Record<string, unknown>;
+  const available = Boolean(d.available);
+  const rawQs = Array.isArray(d.questions)
+    ? (d.questions as Record<string, unknown>[])
+    : [];
+  return {
+    available,
+    message: typeof d.message === "string" ? (d.message as string) : undefined,
+    question_count:
+      typeof d.question_count === "number"
+        ? (d.question_count as number)
+        : undefined,
+    questions: rawQs.map((r) => mapQuestion(r)),
+  };
+}
+
 /** Find the Biology subject by Persian title heuristic, falling back to the first subject. */
 export async function findBiologySubject(): Promise<ContentSubject | null> {
   const subjects = await listSubjects();
