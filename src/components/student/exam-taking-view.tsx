@@ -19,6 +19,8 @@ export function ExamTakingView({
   onFinish,
   onExit,
   exitLabel = "خروج",
+  finishLabel = "پایان آزمون",
+  showMeta = false,
 }: {
   questions: ContentQuestion[];
   current: number;
@@ -28,6 +30,8 @@ export function ExamTakingView({
   onFinish: () => void;
   onExit: () => void;
   exitLabel?: string;
+  finishLabel?: string;
+  showMeta?: boolean;
 }) {
   const total = questions.length;
 
@@ -89,9 +93,29 @@ export function ExamTakingView({
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
+        {showMeta && (q.subject || q.goftar || q.difficulty) && (
+          <div className="flex flex-wrap gap-2 text-xs">
+            {q.subject && (
+              <span className="rounded-full bg-violet-50 text-violet-700 px-2.5 py-1">
+                {q.subject}
+              </span>
+            )}
+            {q.goftar && (
+              <span className="rounded-full bg-sky-50 text-sky-700 px-2.5 py-1">
+                {q.goftar}
+              </span>
+            )}
+            {q.difficulty && (
+              <span className="rounded-full bg-amber-50 text-amber-700 px-2.5 py-1">
+                سطح: {q.difficulty}
+              </span>
+            )}
+          </div>
+        )}
         <p className="text-base leading-8 font-medium text-slate-800 whitespace-pre-wrap">
           {q.questionText || "—"}
         </p>
+
 
         {isDescriptive ? (
           <Textarea
@@ -138,7 +162,7 @@ export function ExamTakingView({
               onClick={onFinish}
               className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              پایان آزمون
+              {finishLabel}
               <CheckCircle2 className="h-4 w-4 mr-1" />
             </Button>
           ) : (
