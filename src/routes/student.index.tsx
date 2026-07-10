@@ -15,10 +15,9 @@ import {
 import {
   CheckCircle2,
   Circle,
-  Loader2,
   Sparkles,
-  ArrowLeft,
 } from "lucide-react";
+
 import { useAuth } from "@/lib/auth-context";
 import {
   getTodayCheckin,
