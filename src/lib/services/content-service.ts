@@ -42,6 +42,7 @@ export interface ContentMicroAtom {
 }
 export interface ContentQuestion {
   id: string;
+  microAtomId: string;
   questionText: string;
   questionType: string;
   option1: string;
