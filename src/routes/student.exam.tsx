@@ -19,10 +19,10 @@ import {
   listSubjects,
   listChaptersBySubject,
   listGoftarsByChapter,
-  listAtomsByGoftar,
-  listMicroAtomsByAtom,
-  listQuestionsByMicroAtom,
+  searchQuestionBank,
+  submitExam,
   type ContentQuestion,
+  type ExamSubmitResult,
 } from "@/lib/services/content-service";
 
 export const Route = createFileRoute("/student/exam")({
@@ -65,14 +65,23 @@ function StateBlock({
   return null;
 }
 
-type Phase = "setup" | "taking" | "done";
+type Phase = "setup" | "taking" | "submitting" | "done";
+
+const DIFFICULTY_OPTIONS = [
+  { value: "mixed", label: "مخلوط" },
+  { value: "easy", label: "آسان" },
+  { value: "medium", label: "متوسط" },
+  { value: "hard", label: "سخت" },
+];
+
+const COUNT_OPTIONS = [5, 10, 15, 20];
 
 function ExamPage() {
   const [subjectId, setSubjectId] = useState<string>("");
   const [chapterId, setChapterId] = useState<string>("");
   const [goftarId, setGoftarId] = useState<string>("");
-  const [atomId, setAtomId] = useState<string>("");
-  const [microId, setMicroId] = useState<string>("");
+  const [selectedCount, setSelectedCount] = useState<number>(10);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("mixed");
 
   const [phase, setPhase] = useState<Phase>("setup");
   const [questions, setQuestions] = useState<ContentQuestion[]>([]);
@@ -80,6 +89,8 @@ function ExamPage() {
   const [answers, setAnswers] = useState<Record<string, number | string>>({});
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [questionsError, setQuestionsError] = useState<string | null>(null);
+  const [submitResult, setSubmitResult] = useState<ExamSubmitResult | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const subjectsQ = useQuery({
     queryKey: ["content", "subjects"],
@@ -98,28 +109,23 @@ function ExamPage() {
     enabled: !!chapterId,
     staleTime: 5 * 60_000,
   });
-  const atomsQ = useQuery({
-    queryKey: ["content", "atoms", goftarId],
-    queryFn: () => listAtomsByGoftar(goftarId),
-    enabled: !!goftarId,
-    staleTime: 5 * 60_000,
-  });
-  const microsQ = useQuery({
-    queryKey: ["content", "micros", atomId],
-    queryFn: () => listMicroAtomsByAtom(atomId),
-    enabled: !!atomId,
-    staleTime: 5 * 60_000,
-  });
 
   async function startExam() {
-    if (!microId) return;
+    if (!goftarId) return;
     setLoadingQuestions(true);
     setQuestionsError(null);
     try {
-      const qs = await listQuestionsByMicroAtom(microId);
+      const qs = await searchQuestionBank({
+        goftar_id: goftarId,
+        count: selectedCount,
+        difficulty:
+          selectedDifficulty !== "mixed" ? selectedDifficulty : undefined,
+      });
       setQuestions(qs);
       setCurrent(0);
       setAnswers({});
+      setSubmitResult(null);
+      setSubmitError(null);
       setPhase("taking");
     } catch {
       setQuestionsError("دریافت سؤالات با خطا روبه‌رو شد.");
@@ -128,11 +134,40 @@ function ExamPage() {
     }
   }
 
+  async function finishExam() {
+    setPhase("submitting");
+    setSubmitError(null);
+    const studentId =
+      (typeof window !== "undefined" &&
+        window.localStorage.getItem("atomia_user_id")) ||
+      "1";
+    // Use the first question's microAtomId as a representative value.
+    const microAtomId = questions[0]?.microAtomId || undefined;
+    const payloadAnswers = questions.map((q) => ({
+      questionId: q.id,
+      answer: answers[q.id] ?? "",
+    }));
+    try {
+      const result = await submitExam({
+        studentId,
+        microAtomId,
+        answers: payloadAnswers,
+      });
+      setSubmitResult(result);
+    } catch {
+      setSubmitError("ثبت آزمون با خطا روبه‌رو شد.");
+    } finally {
+      setPhase("done");
+    }
+  }
+
   function resetToSetup() {
     setPhase("setup");
     setQuestions([]);
     setCurrent(0);
     setAnswers({});
+    setSubmitResult(null);
+    setSubmitError(null);
   }
 
   return (
@@ -144,7 +179,7 @@ function ExamPage() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-800">آزمون</h1>
           <p className="text-sm text-slate-500">
-            درس، فصل و میکرواتم را انتخاب کن و آزمون را شروع کن.
+            درس، فصل و گفتار را انتخاب کن و آزمون را شروع کن.
           </p>
         </div>
       </header>
@@ -162,8 +197,6 @@ function ExamPage() {
                 setSubjectId(v);
                 setChapterId("");
                 setGoftarId("");
-                setAtomId("");
-                setMicroId("");
               }}
               disabled={false}
               loading={subjectsQ.isLoading}
@@ -176,8 +209,6 @@ function ExamPage() {
               onChange={(v) => {
                 setChapterId(v);
                 setGoftarId("");
-                setAtomId("");
-                setMicroId("");
               }}
               disabled={!subjectId}
               loading={chaptersQ.isLoading}
@@ -187,37 +218,53 @@ function ExamPage() {
             <PickerRow
               label="گفتار"
               value={goftarId}
-              onChange={(v) => {
-                setGoftarId(v);
-                setAtomId("");
-                setMicroId("");
-              }}
+              onChange={setGoftarId}
               disabled={!chapterId}
               loading={goftarsQ.isLoading}
               options={(goftarsQ.data ?? []).map((g) => ({ id: g.id, title: g.title }))}
               placeholder="یک گفتار انتخاب کن"
             />
-            <PickerRow
-              label="اتم"
-              value={atomId}
-              onChange={(v) => {
-                setAtomId(v);
-                setMicroId("");
-              }}
-              disabled={!goftarId}
-              loading={atomsQ.isLoading}
-              options={(atomsQ.data ?? []).map((a) => ({ id: a.id, title: a.title }))}
-              placeholder="یک اتم انتخاب کن"
-            />
-            <PickerRow
-              label="میکرواتم"
-              value={microId}
-              onChange={setMicroId}
-              disabled={!atomId}
-              loading={microsQ.isLoading}
-              options={(microsQ.data ?? []).map((m) => ({ id: m.id, title: m.title }))}
-              placeholder="یک میکرواتم انتخاب کن"
-            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm text-slate-700">تعداد سؤال</Label>
+                <Select
+                  value={String(selectedCount)}
+                  onValueChange={(v) => setSelectedCount(Number(v))}
+                  dir="rtl"
+                >
+                  <SelectTrigger className="rounded-xl bg-white border-slate-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNT_OPTIONS.map((n) => (
+                      <SelectItem key={n} value={String(n)}>
+                        {n}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm text-slate-700">سطح سختی</Label>
+                <Select
+                  value={selectedDifficulty}
+                  onValueChange={setSelectedDifficulty}
+                  dir="rtl"
+                >
+                  <SelectTrigger className="rounded-xl bg-white border-slate-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DIFFICULTY_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
             {questionsError && (
               <div className="text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl p-3">
@@ -228,7 +275,7 @@ function ExamPage() {
             <div className="flex justify-end pt-2">
               <Button
                 onClick={startExam}
-                disabled={!microId || loadingQuestions}
+                disabled={!goftarId || loadingQuestions}
                 className="rounded-full bg-violet-600 hover:bg-violet-700 text-white px-6"
               >
                 {loadingQuestions ? (
@@ -248,21 +295,44 @@ function ExamPage() {
           setCurrent={setCurrent}
           answers={answers}
           setAnswers={setAnswers}
-          onFinish={() => setPhase("done")}
+          onFinish={finishExam}
           onExit={resetToSetup}
         />
       )}
 
+      {phase === "submitting" && (
+        <Card className="border-0 rounded-3xl shadow-sm bg-white">
+          <CardContent className="py-10 text-center space-y-3">
+            <Loader2 className="h-8 w-8 animate-spin text-violet-600 mx-auto" />
+            <p className="text-sm text-slate-600">در حال ثبت پاسخ‌ها…</p>
+          </CardContent>
+        </Card>
+      )}
+
       {phase === "done" && (
         <Card className="border-0 rounded-3xl shadow-sm bg-white">
-          <CardContent className="py-10 text-center space-y-4">
+          <CardContent className="py-8 text-center space-y-4">
             <div className="mx-auto h-14 w-14 rounded-2xl bg-emerald-100 text-emerald-600 grid place-items-center">
               <CheckCircle2 className="h-7 w-7" />
             </div>
             <p className="text-lg font-bold text-slate-800">آزمون تمام شد</p>
-            <p className="text-sm text-slate-500">
-              پاسخ‌های شما ثبت شده. تحلیل و امتیازدهی در گام بعدی اضافه می‌شود.
-            </p>
+
+            {submitResult ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-lg mx-auto pt-2">
+                <ResultCell label="نمره" value={`${submitResult.score} از ${questions.length}`} />
+                <ResultCell label="درصد" value={`${submitResult.percentage}٪`} />
+                <ResultCell label="پاسخ درست" value={String(submitResult.correctCount)} tone="ok" />
+                <ResultCell label="پاسخ غلط" value={String(submitResult.wrongCount)} tone="bad" />
+                <ResultCell label="بدون پاسخ" value={String(submitResult.blankCount)} tone="muted" />
+              </div>
+            ) : null}
+
+            {submitError && (
+              <div className="text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl p-3 max-w-lg mx-auto">
+                {submitError}
+              </div>
+            )}
+
             <div className="flex justify-center gap-2 pt-2">
               <Button
                 variant="outline"
@@ -275,6 +345,31 @@ function ExamPage() {
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
+
+function ResultCell({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "ok" | "bad" | "muted";
+}) {
+  const toneClass =
+    tone === "ok"
+      ? "bg-emerald-50 text-emerald-700"
+      : tone === "bad"
+        ? "bg-rose-50 text-rose-700"
+        : tone === "muted"
+          ? "bg-slate-50 text-slate-600"
+          : "bg-violet-50 text-violet-700";
+  return (
+    <div className={`rounded-2xl p-3 ${toneClass}`}>
+      <p className="text-xs opacity-80">{label}</p>
+      <p className="text-lg font-bold mt-1">{value}</p>
     </div>
   );
 }
@@ -347,7 +442,7 @@ function TakingView({
             loading={false}
             error={false}
             empty
-            emptyMessage="هنوز سؤالی برای این میکرواتم ثبت نشده است."
+            emptyMessage="سؤالی برای این انتخاب پیدا نشد."
           />
           <div className="flex justify-end">
             <Button variant="outline" onClick={onExit} className="rounded-full">
