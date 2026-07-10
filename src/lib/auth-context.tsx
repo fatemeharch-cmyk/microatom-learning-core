@@ -10,10 +10,12 @@ import {
 import { ROLES, type RoleId } from "./roles";
 import {
   login as apiLogin,
+  signup as apiSignup,
   logout as apiLogout,
   getCurrentUser as apiGetCurrentUser,
+  type SignupInput,
 } from "./api/auth";
-import { getAuthToken, setAuthToken } from "./api/client";
+import { getAuthToken, setAuthToken, ApiError } from "./api/client";
 
 /**
  * AuthProvider — real authentication for Atomia via Xano.
