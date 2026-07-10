@@ -185,28 +185,37 @@ function SmartReviewPage() {
             <p className="text-lg font-bold text-slate-800">نسخه هوشمند تمام شد</p>
 
             {submitResult ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-lg mx-auto pt-2">
-                <ResultCell
-                  label="نمره"
-                  value={`${submitResult.score} از ${questions.length}`}
-                />
-                <ResultCell label="درصد" value={`${submitResult.percentage}٪`} />
-                <ResultCell
-                  label="پاسخ درست"
-                  value={String(submitResult.correctCount)}
-                  tone="ok"
-                />
-                <ResultCell
-                  label="پاسخ غلط"
-                  value={String(submitResult.wrongCount)}
-                  tone="bad"
-                />
-                <ResultCell
-                  label="بدون پاسخ"
-                  value={String(submitResult.blankCount)}
-                  tone="muted"
-                />
-              </div>
+              <>
+                {submitResult.learningHealthIncreased && (
+                  <div className="mx-auto max-w-lg rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-center">
+                    <p className="text-base font-extrabold text-emerald-700">
+                      🎉 تبریک!
+                    </p>
+                    <p className="text-sm text-emerald-700 mt-1 leading-7">
+                      شاخص سلامت یادگیری شما افزایش پیدا کرد.
+                    </p>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto pt-2">
+                  <ResultCell label="درصد" value={`${submitResult.percentage}٪`} />
+                  <ResultCell
+                    label="تعداد صحیح"
+                    value={String(submitResult.correctCount)}
+                    tone="ok"
+                  />
+                  <ResultCell
+                    label="تعداد غلط"
+                    value={String(submitResult.wrongCount)}
+                    tone="bad"
+                  />
+                  {submitResult.learningHealth !== undefined && (
+                    <ResultCell
+                      label="شاخص سلامت یادگیری"
+                      value={String(submitResult.learningHealth)}
+                    />
+                  )}
+                </div>
+              </>
             ) : null}
 
             {submitError && (
