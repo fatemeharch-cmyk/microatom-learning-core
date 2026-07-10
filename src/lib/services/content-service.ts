@@ -227,6 +227,7 @@ export async function searchQuestionBank(
 
 export interface ExamSubmitResult {
   success: boolean;
+  examId?: string;
   score: number;
   percentage: number;
   correctCount: number;
@@ -238,6 +239,7 @@ export interface ExamSubmitResult {
   learningHealthChange?: number;
   learningHealthIncreased?: boolean;
 }
+
 
 export async function submitExam(payload: {
   studentId: string;
