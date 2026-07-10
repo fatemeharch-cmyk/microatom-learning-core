@@ -128,6 +128,10 @@ function TodayPage() {
     void navigate({ to: `/student/exam?${qs}` as string });
   }, [goftarId, navigate]);
 
+  const startSuggestion = useCallback(() => {
+    void navigate({ to: `/student/exam?autostart=1&count=5` as string });
+  }, [navigate]);
+
   const trophyMessage =
     healthScore >= 70
       ? "وضعیت شما عالی است! در مسیر درستی قرار داری، ادامه بده."
@@ -303,7 +307,7 @@ function TodayPage() {
             </div>
           </div>
           <Button
-            onClick={startCheckup}
+            onClick={startSuggestion}
             className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
           >
             شروع ۵ سؤال

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, ClipboardList, ChevronRight, ChevronLeft as ChevronLeftIcon, CheckCircle2 } from "lucide-react";
 
@@ -25,7 +25,18 @@ import {
   type ExamSubmitResult,
 } from "@/lib/services/content-service";
 
+interface ExamSearch {
+  autostart?: string;
+  count?: string;
+  goftarId?: string;
+}
+
 export const Route = createFileRoute("/student/exam")({
+  validateSearch: (search: Record<string, unknown>): ExamSearch => ({
+    autostart: typeof search.autostart === "string" ? search.autostart : undefined,
+    count: typeof search.count === "string" ? search.count : undefined,
+    goftarId: typeof search.goftarId === "string" ? search.goftarId : undefined,
+  }),
   component: ExamPage,
 });
 
@@ -77,6 +88,7 @@ const DIFFICULTY_OPTIONS = [
 const COUNT_OPTIONS = [5, 10, 15, 20];
 
 function ExamPage() {
+  const search = Route.useSearch();
   const [subjectId, setSubjectId] = useState<string>("");
   const [chapterId, setChapterId] = useState<string>("");
   const [goftarId, setGoftarId] = useState<string>("");
@@ -109,6 +121,34 @@ function ExamPage() {
     enabled: !!chapterId,
     staleTime: 5 * 60_000,
   });
+
+  const autostartedRef = useRef(false);
+  useEffect(() => {
+    if (autostartedRef.current) return;
+    if (search.autostart !== "1") return;
+    autostartedRef.current = true;
+    const count = search.count ? Number(search.count) : 5;
+    const safeCount = Number.isFinite(count) && count > 0 ? count : 5;
+    setLoadingQuestions(true);
+    setPhase("taking");
+    searchQuestionBank({
+      goftar_id: search.goftarId || undefined,
+      question_count: safeCount,
+    })
+      .then((qs) => {
+        setQuestions(qs);
+        setCurrent(0);
+        setAnswers({});
+        setSubmitResult(null);
+        setSubmitError(null);
+      })
+      .catch(() => {
+        setQuestionsError("دریافت سؤالات با خطا روبه‌رو شد.");
+        setPhase("setup");
+      })
+      .finally(() => setLoadingQuestions(false));
+  }, [search.autostart, search.count, search.goftarId]);
+
 
   async function startExam() {
     if (!goftarId) return;
@@ -288,7 +328,16 @@ function ExamPage() {
         </Card>
       )}
 
-      {phase === "taking" && (
+      {phase === "taking" && loadingQuestions && (
+        <Card className="border-0 rounded-3xl shadow-sm bg-white">
+          <CardContent className="py-10 text-center space-y-3">
+            <Loader2 className="h-8 w-8 animate-spin text-violet-600 mx-auto" />
+            <p className="text-sm text-slate-600">در حال آماده‌سازی سؤالات…</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {phase === "taking" && !loadingQuestions && (
         <TakingView
           questions={questions}
           current={current}
