@@ -412,6 +412,11 @@ function TodayPage() {
               )}
             </div>
           )}
+          {suggestionError && (
+            <div className="mt-3 text-xs text-rose-700 bg-rose-50 border border-rose-100 rounded-2xl p-3 text-right">
+              {suggestionError}
+            </div>
+          )}
         </CardContent>
       </Card>
 
