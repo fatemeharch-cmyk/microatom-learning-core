@@ -244,22 +244,84 @@ export async function login(
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  try {
-    const res = await apiClient.get<Record<string, unknown>>(endpoints.auth.me);
-    const payload = res.data ?? {};
-    const normalized = normalizeRole((payload.role as string) ?? "");
-    if (!normalized) return null;
-    return {
-      id: String(payload.id ?? payload.user_id ?? ""),
-      username: pickUsername(payload),
-      name: pickName(payload),
-      role: normalized,
-      email: (payload.email as string) ?? undefined,
-      avatarUrl: (payload.avatar_url as string) ?? undefined,
-    };
-  } catch {
-    return null;
+  const res = await apiClient.get<Record<string, unknown>>(endpoints.auth.me);
+  const payload = res.data ?? {};
+  const normalized = normalizeRole((payload.role as string) ?? "");
+  if (!normalized) return null;
+  return {
+    id: String(payload.id ?? payload.user_id ?? ""),
+    username: pickUsername(payload),
+    name: pickName(payload),
+    role: normalized,
+    email: (payload.email as string) ?? undefined,
+    avatarUrl: (payload.avatar_url as string) ?? undefined,
+  };
+}
+
+export interface SignupInput {
+  name: string;
+  username: string;
+  password: string;
+  phone?: string | null;
+  email?: string | null;
+}
+
+/**
+ * POST /auth/signup — creates a user and returns { authToken, user_id }.
+ * Empty phone/email values are coerced to null (never sent as "").
+ */
+export async function signup(
+  input: SignupInput,
+): Promise<{ user: AuthUser; token: string }> {
+  const cleanPhone =
+    typeof input.phone === "string" && input.phone.trim() !== ""
+      ? input.phone.trim()
+      : null;
+  const cleanEmail =
+    typeof input.email === "string" && input.email.trim() !== ""
+      ? input.email.trim()
+      : null;
+
+  const body = {
+    name: input.name.trim(),
+    username: input.username.trim(),
+    phone: cleanPhone,
+    email: cleanEmail,
+    password: input.password,
+  };
+
+  const res = await apiClient.post<LoginResponse>(endpoints.auth.signup, body, {
+    skipAuth: true,
+  });
+  const { authToken, user_id, role } = res.data ?? ({} as LoginResponse);
+  if (!authToken) {
+    throw new Error("پاسخ نامعتبر از سرور: توکن دریافت نشد");
   }
+
+  setAuthToken(authToken);
+  if (user_id !== undefined && user_id !== null) persistUserId(user_id);
+
+  let normalized = role ? normalizeRole(role) : null;
+  let profile: Record<string, unknown> = {};
+  try {
+    const me = await apiClient.get<Record<string, unknown>>(endpoints.auth.me);
+    profile = me.data ?? {};
+    if (!normalized) normalized = normalizeRole((profile.role as string) ?? "");
+  } catch {
+    /* ignore */
+  }
+  if (!normalized) normalized = "student"; // safe default so we can still route
+  persistRole(normalized);
+
+  const user: AuthUser = {
+    id: String(profile.id ?? profile.user_id ?? user_id ?? ""),
+    username: pickUsername({ ...profile, username: body.username }),
+    name: pickName({ ...profile, name: body.name }),
+    role: normalized,
+    email: (profile.email as string) ?? cleanEmail ?? undefined,
+    avatarUrl: (profile.avatar_url as string) ?? undefined,
+  };
+  return { user, token: authToken };
 }
 
 export async function logout(): Promise<{ ok: true }> {
