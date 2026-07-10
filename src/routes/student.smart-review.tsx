@@ -158,6 +158,8 @@ function SmartReviewPage() {
           setAnswers={setAnswers}
           onFinish={finish}
           onExit={() => navigate({ to: "/student" })}
+          finishLabel="پایان مرور"
+          showMeta
         />
       )}
 
