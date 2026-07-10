@@ -7,7 +7,7 @@
  */
 
 export type ApiEnvironment = "development" | "staging" | "production";
-export type ApiGroup = "auth" | "content" | "supervisor";
+export type ApiGroup = "auth" | "content" | "supervisor" | "question-bank";
 
 export interface ApiConfig {
   baseUrl: string;
