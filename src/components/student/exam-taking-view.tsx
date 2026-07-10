@@ -162,7 +162,7 @@ export function ExamTakingView({
               onClick={onFinish}
               className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              پایان آزمون
+              {finishLabel}
               <CheckCircle2 className="h-4 w-4 mr-1" />
             </Button>
           ) : (
