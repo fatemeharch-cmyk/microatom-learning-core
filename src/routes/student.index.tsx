@@ -199,25 +199,26 @@ function TodayPage() {
           />
         </ClinicCard>
 
-        {/* Card 2 – Learning pulse */}
-        <ClinicCard emoji="❤️" title="نبض یادگیری" accent="from-rose-500 to-pink-500">
+        {/* Card 2 – Learning health index */}
+        <ClinicCard emoji="❤️" title="شاخص سلامت یادگیری" accent="from-rose-500 to-pink-500">
           <div className="text-right">
-            <p className="text-[11px] text-slate-500">شاخص سلامت یادگیری</p>
+            <p className="text-[11px] text-slate-500">امتیاز کلی</p>
             <div className="flex items-baseline gap-2 justify-end mt-1">
               <span className="text-3xl font-extrabold text-slate-800">
                 {toFa(healthScore)}
               </span>
               <span className="text-xs text-emerald-600 font-semibold">
-                {trendLabel}
+                در حال رشد
               </span>
             </div>
           </div>
           <CardCta
             onClick={() => void navigate({ to: "/student/health-report" })}
-            label="مشاهده جزئیات"
+            label="مشاهده پرونده سلامت"
             variant="outline"
           />
         </ClinicCard>
+
 
         {/* Card 3 – Last exam */}
         <ClinicCard emoji="🔬" title="آخرین کاوش" accent="from-sky-500 to-violet-500">
