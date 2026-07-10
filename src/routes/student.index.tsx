@@ -122,14 +122,21 @@ function TodayPage() {
 
   const goftarId = mission?.goftarId ?? "";
   const startCheckup = useCallback(() => {
-    const params: Record<string, string> = { count: "5", autostart: "1" };
-    if (goftarId) params.goftarId = goftarId;
-    const qs = new URLSearchParams(params).toString();
-    void navigate({ to: `/student/exam?${qs}` as string });
+    void navigate({
+      to: "/student/exam",
+      search: {
+        autostart: "1",
+        count: "5",
+        goftarId: goftarId || undefined,
+      },
+    });
   }, [goftarId, navigate]);
 
   const startSuggestion = useCallback(() => {
-    void navigate({ to: `/student/exam?autostart=1&count=5` as string });
+    void navigate({
+      to: "/student/exam",
+      search: { autostart: "1", count: "5" },
+    });
   }, [navigate]);
 
   const trophyMessage =
