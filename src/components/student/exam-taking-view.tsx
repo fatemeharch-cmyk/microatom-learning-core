@@ -19,6 +19,8 @@ export function ExamTakingView({
   onFinish,
   onExit,
   exitLabel = "خروج",
+  finishLabel = "پایان آزمون",
+  showMeta = false,
 }: {
   questions: ContentQuestion[];
   current: number;
@@ -28,6 +30,8 @@ export function ExamTakingView({
   onFinish: () => void;
   onExit: () => void;
   exitLabel?: string;
+  finishLabel?: string;
+  showMeta?: boolean;
 }) {
   const total = questions.length;
 
