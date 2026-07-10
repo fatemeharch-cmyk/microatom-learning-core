@@ -1,0 +1,66 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="trunkGrad" x1="250" y1="90" x2="250" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1565c0"/>
+      <stop offset="1" stop-color="#16a085"/>
+    </linearGradient>
+    <linearGradient id="leftGrad" x1="60" y1="120" x2="260" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1cd28a"/>
+      <stop offset="1" stop-color="#12b886"/>
+    </linearGradient>
+    <linearGradient id="rightGrad" x1="440" y1="120" x2="240" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1e88e5"/>
+      <stop offset="1" stop-color="#1565c0"/>
+    </linearGradient>
+    <radialGradient id="nodeBlue" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#4fa8f5"/>
+      <stop offset="1" stop-color="#1565c0"/>
+    </radialGradient>
+    <radialGradient id="nodeGreen" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#5eeab0"/>
+      <stop offset="1" stop-color="#12b886"/>
+    </radialGradient>
+    <radialGradient id="nodeTeal" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#4fd8c9"/>
+      <stop offset="1" stop-color="#1595a8"/>
+    </radialGradient>
+  </defs>
+
+  <!-- circuit branches -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- trunk -->
+    <path d="M 250 325 L 250 90" stroke="url(#trunkGrad)" stroke-width="10"/>
+    <!-- left branches -->
+    <path d="M 250 240 L 195 240 L 195 150" stroke="url(#leftGrad)" stroke-width="9"/>
+    <path d="M 250 278 L 140 278 L 140 215" stroke="url(#leftGrad)" stroke-width="9"/>
+    <path d="M 250 308 L 95 308 L 95 275" stroke="url(#leftGrad)" stroke-width="9"/>
+    <!-- right branches -->
+    <path d="M 250 240 L 305 240 L 305 150" stroke="url(#rightGrad)" stroke-width="9"/>
+    <path d="M 250 278 L 360 278 L 360 215" stroke="url(#rightGrad)" stroke-width="9"/>
+    <path d="M 250 308 L 405 308 L 405 275" stroke="url(#rightGrad)" stroke-width="9"/>
+  </g>
+
+  <!-- nodes -->
+  <circle cx="250" cy="90" r="26" fill="url(#nodeBlue)"/>
+  <circle cx="250" cy="195" r="22" fill="url(#nodeBlue)"/>
+  <circle cx="195" cy="150" r="20" fill="url(#nodeTeal)"/>
+  <circle cx="305" cy="150" r="20" fill="url(#nodeBlue)"/>
+  <circle cx="140" cy="215" r="20" fill="url(#nodeGreen)"/>
+  <circle cx="360" cy="215" r="20" fill="url(#nodeBlue)"/>
+  <circle cx="95" cy="275" r="20" fill="url(#nodeGreen)"/>
+  <circle cx="405" cy="275" r="20" fill="url(#nodeTeal)"/>
+
+  <!-- open book -->
+  <g fill="#12224a">
+    <path d="M 250 405
+             C 230 375 150 345 55 355
+             L 68 400
+             C 150 392 215 415 250 445
+             Z"/>
+    <path d="M 250 405
+             C 270 375 350 345 445 355
+             L 432 400
+             C 350 392 285 415 250 445
+             Z"/>
+  </g>
+</svg>
