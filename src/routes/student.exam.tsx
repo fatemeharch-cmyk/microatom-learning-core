@@ -116,8 +116,10 @@ function ExamPage() {
     setQuestionsError(null);
     try {
       const qs = await searchQuestionBank({
+        subject_id: subjectId || undefined,
+        chapter_id: chapterId || undefined,
         goftar_id: goftarId,
-        count: selectedCount,
+        question_count: selectedCount,
         difficulty:
           selectedDifficulty !== "mixed" ? selectedDifficulty : undefined,
       });
@@ -141,8 +143,6 @@ function ExamPage() {
       (typeof window !== "undefined" &&
         window.localStorage.getItem("atomia_user_id")) ||
       "1";
-    // Use the first question's microAtomId as a representative value.
-    const microAtomId = questions[0]?.microAtomId || undefined;
     const payloadAnswers = questions.map((q) => ({
       questionId: q.id,
       answer: answers[q.id] ?? "",
@@ -150,7 +150,6 @@ function ExamPage() {
     try {
       const result = await submitExam({
         studentId,
-        microAtomId,
         answers: payloadAnswers,
       });
       setSubmitResult(result);
@@ -160,6 +159,7 @@ function ExamPage() {
       setPhase("done");
     }
   }
+
 
   function resetToSetup() {
     setPhase("setup");
