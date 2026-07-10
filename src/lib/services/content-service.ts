@@ -203,7 +203,6 @@ export interface QuestionBankFilters {
   difficulty?: string;
   question_type?: string;
   count?: number;
-  question_count?: number;
 }
 
 
