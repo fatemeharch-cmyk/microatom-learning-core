@@ -122,6 +122,34 @@ function ExamPage() {
     staleTime: 5 * 60_000,
   });
 
+  const autostartedRef = useRef(false);
+  useEffect(() => {
+    if (autostartedRef.current) return;
+    if (search.autostart !== "1") return;
+    autostartedRef.current = true;
+    const count = search.count ? Number(search.count) : 5;
+    const safeCount = Number.isFinite(count) && count > 0 ? count : 5;
+    setLoadingQuestions(true);
+    setPhase("taking");
+    searchQuestionBank({
+      goftar_id: search.goftarId || undefined,
+      question_count: safeCount,
+    })
+      .then((qs) => {
+        setQuestions(qs);
+        setCurrent(0);
+        setAnswers({});
+        setSubmitResult(null);
+        setSubmitError(null);
+      })
+      .catch(() => {
+        setQuestionsError("دریافت سؤالات با خطا روبه‌رو شد.");
+        setPhase("setup");
+      })
+      .finally(() => setLoadingQuestions(false));
+  }, [search.autostart, search.count, search.goftarId]);
+
+
   async function startExam() {
     if (!goftarId) return;
     setLoadingQuestions(true);
