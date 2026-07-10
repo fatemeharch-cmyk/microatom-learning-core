@@ -17,8 +17,9 @@ import {
   Circle,
   Loader2,
   Sparkles,
-  ArrowLeft,
 } from "lucide-react";
+
+
 import { useAuth } from "@/lib/auth-context";
 import {
   getTodayCheckin,
@@ -162,32 +163,19 @@ function TodayPage() {
             <p className="text-sm md:text-base text-white/85 mt-2">
               امروز مسیر رشدت منتظر توست.
             </p>
-            <div className="mt-5">
-              <Button
-                onClick={continueToday}
-                disabled={loading || allDone}
-                className="rounded-full bg-white text-violet-700 hover:bg-white/90 font-bold px-6 h-11 shadow-md"
-              >
-                {allDone ? "امروز کامل شد 🎉" : "ادامه نسخه امروز"}
-                {!allDone && <ArrowLeft className="mr-2 h-4 w-4" />}
-              </Button>
-            </div>
           </div>
 
           <div className="flex items-center gap-4 md:gap-5 justify-center md:justify-end">
-            <RingProgress percent={percent} />
+            <RingProgress percent={healthScore} size={120} />
             <div className="text-right">
-              <p className="text-xs text-white/75">نسخه امروز</p>
-              <p className="text-3xl font-extrabold mt-1">{toFa(percent)}٪</p>
-              <p className="text-xs text-white/85 mt-1">
-                {allDone
-                  ? "همه فعالیت‌ها انجام شد"
-                  : `${toFa(remaining)} فعالیت باقی مانده`}
-              </p>
+              <p className="text-xs text-white/80">شاخص سلامت یادگیری</p>
+              <p className="text-3xl font-extrabold mt-1">{toFa(healthScore)}٪</p>
+              <p className="text-xs text-white/80 mt-1">پرونده سلامت یادگیری</p>
             </div>
           </div>
         </div>
       </section>
+
 
       {error && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs p-3 text-right">
@@ -211,25 +199,26 @@ function TodayPage() {
           />
         </ClinicCard>
 
-        {/* Card 2 – Learning pulse */}
-        <ClinicCard emoji="❤️" title="نبض یادگیری" accent="from-rose-500 to-pink-500">
+        {/* Card 2 – Learning health index */}
+        <ClinicCard emoji="❤️" title="شاخص سلامت یادگیری" accent="from-rose-500 to-pink-500">
           <div className="text-right">
-            <p className="text-[11px] text-slate-500">شاخص سلامت یادگیری</p>
+            <p className="text-[11px] text-slate-500">امتیاز کلی</p>
             <div className="flex items-baseline gap-2 justify-end mt-1">
               <span className="text-3xl font-extrabold text-slate-800">
                 {toFa(healthScore)}
               </span>
               <span className="text-xs text-emerald-600 font-semibold">
-                {trendLabel}
+                در حال رشد
               </span>
             </div>
           </div>
           <CardCta
             onClick={() => void navigate({ to: "/student/health-report" })}
-            label="مشاهده جزئیات"
+            label="مشاهده پرونده سلامت"
             variant="outline"
           />
         </ClinicCard>
+
 
         {/* Card 3 – Last exam */}
         <ClinicCard emoji="🔬" title="آخرین کاوش" accent="from-sky-500 to-violet-500">
@@ -290,22 +279,21 @@ function TodayPage() {
               <Sparkles className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-xs font-semibold text-violet-700">پیشنهاد آتومیا</p>
+              <p className="text-sm font-semibold text-violet-700">پیشنهاد آتومیا ✨</p>
               <p className="text-sm text-slate-700 mt-1 leading-6">
-                {checkinDone
-                  ? "برای شروع مطالعه، یک چکاپ ۵ سوالی کوتاه انجام بده تا نقاط ضعف امروزت مشخص شود."
-                  : "پیشنهاد می‌کنیم قبل از شروع مطالعه، یک چکاپ ۵ سوالی انجام دهید."}
+                هوش آتومیا بر اساس آخرین آزمون شما، ۵ سؤال از مباحثی که بیشتر اشتباه داشته‌اید آماده کرده است.
               </p>
             </div>
           </div>
           <Button
-            onClick={startCheckup}
+            onClick={() => void navigate({ to: "/student/review" })}
             className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
           >
-            شروع چکاپ
+            شروع مرور هوشمند
           </Button>
         </CardContent>
       </Card>
+
 
       <CheckinDialog
         open={checkinOpen}
@@ -335,9 +323,9 @@ function TodayPage() {
 // Presentational bits
 // ---------------------------------------------------------------------------
 
-function RingProgress({ percent }: { percent: number }) {
-  const size = 96;
+function RingProgress({ percent, size = 96 }: { percent: number; size?: number }) {
   const stroke = 10;
+
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const offset = c - (Math.max(0, Math.min(100, percent)) / 100) * c;
