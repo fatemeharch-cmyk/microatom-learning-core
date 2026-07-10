@@ -720,17 +720,25 @@ function ActionCard({
 }
 
 
-const WEEK_DATA = [
-  { day: "شنبه", v: 42 },
-  { day: "یکشنبه", v: 55 },
-  { day: "دوشنبه", v: 48 },
-  { day: "سه‌شنبه", v: 68 },
-  { day: "چهارشنبه", v: 72 },
-  { day: "پنجشنبه", v: 65 },
-  { day: "جمعه", v: 80 },
-];
+function SkeletonLine() {
+  return (
+    <div className="space-y-1.5">
+      <div className="h-3 w-3/4 rounded bg-slate-200 animate-pulse" />
+      <div className="h-3 w-1/2 rounded bg-slate-200 animate-pulse" />
+    </div>
+  );
+}
 
-function TrendCard({ onClick }: { onClick: () => void }) {
+function TrendCard({
+  data,
+  loading,
+  onClick,
+}: {
+  data: Array<{ day: string; value: number }>;
+  loading: boolean;
+  onClick: () => void;
+}) {
+  const chartData = data.map((d) => ({ day: d.day, v: d.value }));
   return (
     <Card className="border-0 rounded-[22px] shadow-sm bg-white hover:shadow-md transition h-full">
       <CardContent className="p-4 flex flex-col gap-2 h-full">
@@ -738,41 +746,46 @@ function TrendCard({ onClick }: { onClick: () => void }) {
           <span className="h-9 w-9 rounded-xl grid place-items-center text-white bg-gradient-to-br from-violet-500 to-fuchsia-500">
             📈
           </span>
-          <div className="flex items-center gap-2">
-            <SampleBadge />
-            <h3 className="text-sm font-bold text-slate-800">روند هفتگی</h3>
-          </div>
+          <h3 className="text-sm font-bold text-slate-800">روند هفتگی</h3>
         </div>
         <div className="h-16 -mx-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={WEEK_DATA} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
-              <defs>
-                <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.5} />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="day" hide />
-              <Tooltip
-                cursor={{ stroke: "#c4b5fd", strokeWidth: 1 }}
-                contentStyle={{
-                  borderRadius: 10,
-                  border: "1px solid #e5e7eb",
-                  fontSize: 11,
-                  direction: "rtl",
-                }}
-                labelStyle={{ color: "#6b7280" }}
-                formatter={(v: number) => [`${toFa(v)}٪`, "امتیاز"]}
-              />
-              <Area
-                type="monotone"
-                dataKey="v"
-                stroke="#7c3aed"
-                strokeWidth={2}
-                fill="url(#trendGrad)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {loading ? (
+            <div className="h-full w-full rounded bg-slate-100 animate-pulse" />
+          ) : chartData.length === 0 ? (
+            <div className="h-full grid place-items-center text-[11px] text-slate-500 px-2 text-center">
+              با ثبت فعالیت‌ها، روند هفتگی شما نمایش داده می‌شود.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="day" hide />
+                <Tooltip
+                  cursor={{ stroke: "#c4b5fd", strokeWidth: 1 }}
+                  contentStyle={{
+                    borderRadius: 10,
+                    border: "1px solid #e5e7eb",
+                    fontSize: 11,
+                    direction: "rtl",
+                  }}
+                  labelStyle={{ color: "#6b7280" }}
+                  formatter={(v: number) => [`${toFa(v)}٪`, "امتیاز"]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="v"
+                  stroke="#7c3aed"
+                  strokeWidth={2}
+                  fill="url(#trendGrad)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
         <Button
           onClick={onClick}
@@ -784,6 +797,7 @@ function TrendCard({ onClick }: { onClick: () => void }) {
     </Card>
   );
 }
+
 
 // ---------------------------------------------------------------------------
 // Check-in Dialog
