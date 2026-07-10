@@ -323,9 +323,9 @@ function TodayPage() {
 // Presentational bits
 // ---------------------------------------------------------------------------
 
-function RingProgress({ percent }: { percent: number }) {
-  const size = 96;
+function RingProgress({ percent, size = 96 }: { percent: number; size?: number }) {
   const stroke = 10;
+
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const offset = c - (Math.max(0, Math.min(100, percent)) / 100) * c;
