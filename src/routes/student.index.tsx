@@ -200,7 +200,7 @@ function TodayPage() {
 
             <div className="mt-3 flex flex-wrap items-center gap-3 justify-end">
               <Button
-                onClick={comingSoon}
+                onClick={() => navigate({ to: "/student/health-learning-report" })}
                 className="rounded-full bg-white text-violet-700 hover:bg-white/90 font-semibold px-4 h-9"
               >
                 📂 مشاهده پرونده سلامت یادگیری
