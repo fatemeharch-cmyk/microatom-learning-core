@@ -223,11 +223,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const signup = useCallback<AuthContextValue["signup"]>(async (input) => {
+    if (!input.username?.trim() || !input.password) {
+      return { ok: false, message: "نام کاربری و رمز عبور الزامی است." };
+    }
+    try {
+      const { user: nextUser } = await apiSignup(input);
+      persistUser(nextUser);
+      setUser(nextUser);
+      return { ok: true, user: nextUser };
+    } catch (err) {
+      setAuthToken(null);
+      // eslint-disable-next-line no-console
+      console.error("[auth] signup failed:", err);
+      const raw = err instanceof Error ? err.message : String(err);
+      return { ok: false, message: raw || "ثبت‌نام ناموفق بود." };
+    }
+  }, []);
+
   const logout = useCallback(() => {
     void apiLogout();
     persistUser(null);
     if (typeof window !== "undefined") {
-      // Also clear the cached active role so the next user starts fresh.
       window.localStorage.removeItem("atomia.activeRole");
     }
     setUser(null);
@@ -252,10 +269,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!user,
       isHydrated,
       login,
+      signup,
       logout,
       setUserRole,
     }),
-    [user, isHydrated, login, logout, setUserRole],
+    [user, isHydrated, login, signup, logout, setUserRole],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
