@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, ClipboardList, ChevronRight, ChevronLeft as ChevronLeftIcon, CheckCircle2 } from "lucide-react";
 
@@ -25,7 +25,18 @@ import {
   type ExamSubmitResult,
 } from "@/lib/services/content-service";
 
+interface ExamSearch {
+  autostart?: string;
+  count?: string;
+  goftarId?: string;
+}
+
 export const Route = createFileRoute("/student/exam")({
+  validateSearch: (search: Record<string, unknown>): ExamSearch => ({
+    autostart: typeof search.autostart === "string" ? search.autostart : undefined,
+    count: typeof search.count === "string" ? search.count : undefined,
+    goftarId: typeof search.goftarId === "string" ? search.goftarId : undefined,
+  }),
   component: ExamPage,
 });
 
