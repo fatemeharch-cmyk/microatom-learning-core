@@ -30,13 +30,73 @@ import {
 } from "recharts";
 
 import { useAuth } from "@/lib/auth-context";
+import { apiClient } from "@/lib/api/client";
 import {
-  getTodayCheckin,
   submitCheckin,
-  getTodayMission,
   updateMissionProgress,
   type DailyMission,
 } from "@/lib/services/content-service";
+
+// ---------------------------------------------------------------------------
+// Dashboard summary — GET /student/dashboard-summary
+// ---------------------------------------------------------------------------
+interface DashboardSummary {
+  student?: { name?: string };
+  learning_health?: {
+    score?: number;
+    status?: string;
+    trend_percentage?: number;
+  };
+  today?: {
+    medical_history_completed?: boolean;
+    checkup_completed?: boolean;
+    mission_completed?: boolean;
+  };
+  latest_checkup?: {
+    exists?: boolean;
+    question_count?: number;
+    duration_minutes?: number;
+    subject?: string;
+    goftar_id?: string | number;
+    based_on_mission?: boolean;
+  };
+  latest_exploration?: {
+    exists?: boolean;
+    subject?: string;
+    correct?: number;
+    wrong?: number;
+    needs_review?: string;
+  };
+  today_mission?: {
+    exists?: boolean;
+    id?: string | number;
+    title?: string;
+    goftar_id?: string | number;
+    minutes_done?: number;
+    target_minutes?: number;
+    is_complete?: boolean;
+  };
+  next_school_exam?: {
+    exists?: boolean;
+    title?: string;
+    date_label?: string;
+  };
+  weekly_study?: {
+    total_text?: string;
+    delta_text?: string;
+  } | null;
+  class_comparison?: {
+    rank?: number | null;
+    total?: number | null;
+    percentile?: number | null;
+  } | null;
+  weekly_trend?: Array<{ day: string; value: number }>;
+  smart_review?: {
+    available?: boolean;
+    question_count?: number;
+    message?: string;
+  };
+}
 
 export const Route = createFileRoute("/student/")({
   component: TodayPage,
