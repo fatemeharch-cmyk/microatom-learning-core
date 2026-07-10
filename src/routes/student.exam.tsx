@@ -89,7 +89,9 @@ const COUNT_OPTIONS = [5, 10, 15, 20];
 
 function ExamPage() {
   const search = Route.useSearch();
+  const navigate = useNavigate();
   const [subjectId, setSubjectId] = useState<string>("");
+
   const [chapterId, setChapterId] = useState<string>("");
   const [goftarId, setGoftarId] = useState<string>("");
   const [selectedCount, setSelectedCount] = useState<number>(10);
