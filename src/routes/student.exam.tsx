@@ -328,7 +328,16 @@ function ExamPage() {
         </Card>
       )}
 
-      {phase === "taking" && (
+      {phase === "taking" && loadingQuestions && (
+        <Card className="border-0 rounded-3xl shadow-sm bg-white">
+          <CardContent className="py-10 text-center space-y-3">
+            <Loader2 className="h-8 w-8 animate-spin text-violet-600 mx-auto" />
+            <p className="text-sm text-slate-600">در حال آماده‌سازی سؤالات…</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {phase === "taking" && !loadingQuestions && (
         <TakingView
           questions={questions}
           current={current}
