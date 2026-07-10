@@ -339,6 +339,7 @@ export async function logout(): Promise<{ ok: true }> {
 
 export const auth = {
   login,
+  signup,
   logout,
   getCurrentUser,
   normalizeRole,
