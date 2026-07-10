@@ -59,6 +59,7 @@ import { Route as StudentNextStepRouteImport } from './routes/student.next-step'
 import { Route as StudentLessonsRouteImport } from './routes/student.lessons'
 import { Route as StudentHomeworkRouteImport } from './routes/student.homework'
 import { Route as StudentHealthReportRouteImport } from './routes/student.health-report'
+import { Route as StudentHealthLearningReportRouteImport } from './routes/student.health-learning-report'
 import { Route as StudentGrowthRouteImport } from './routes/student.growth'
 import { Route as StudentExamsRouteImport } from './routes/student.exams'
 import { Route as StudentExamRouteImport } from './routes/student.exam'
@@ -345,6 +346,12 @@ const StudentHealthReportRoute = StudentHealthReportRouteImport.update({
   path: '/health-report',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentHealthLearningReportRoute =
+  StudentHealthLearningReportRouteImport.update({
+    id: '/health-learning-report',
+    path: '/health-learning-report',
+    getParentRoute: () => StudentRoute,
+  } as any)
 const StudentGrowthRoute = StudentGrowthRouteImport.update({
   id: '/growth',
   path: '/growth',
@@ -565,6 +572,7 @@ export interface FileRoutesByFullPath {
   '/student/exam': typeof StudentExamRoute
   '/student/exams': typeof StudentExamsRoute
   '/student/growth': typeof StudentGrowthRoute
+  '/student/health-learning-report': typeof StudentHealthLearningReportRoute
   '/student/health-report': typeof StudentHealthReportRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
@@ -645,6 +653,7 @@ export interface FileRoutesByTo {
   '/student/exam': typeof StudentExamRoute
   '/student/exams': typeof StudentExamsRoute
   '/student/growth': typeof StudentGrowthRoute
+  '/student/health-learning-report': typeof StudentHealthLearningReportRoute
   '/student/health-report': typeof StudentHealthReportRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
@@ -733,6 +742,7 @@ export interface FileRoutesById {
   '/student/exam': typeof StudentExamRoute
   '/student/exams': typeof StudentExamsRoute
   '/student/growth': typeof StudentGrowthRoute
+  '/student/health-learning-report': typeof StudentHealthLearningReportRoute
   '/student/health-report': typeof StudentHealthReportRoute
   '/student/homework': typeof StudentHomeworkRoute
   '/student/lessons': typeof StudentLessonsRoute
@@ -822,6 +832,7 @@ export interface FileRouteTypes {
     | '/student/exam'
     | '/student/exams'
     | '/student/growth'
+    | '/student/health-learning-report'
     | '/student/health-report'
     | '/student/homework'
     | '/student/lessons'
@@ -902,6 +913,7 @@ export interface FileRouteTypes {
     | '/student/exam'
     | '/student/exams'
     | '/student/growth'
+    | '/student/health-learning-report'
     | '/student/health-report'
     | '/student/homework'
     | '/student/lessons'
@@ -989,6 +1001,7 @@ export interface FileRouteTypes {
     | '/student/exam'
     | '/student/exams'
     | '/student/growth'
+    | '/student/health-learning-report'
     | '/student/health-report'
     | '/student/homework'
     | '/student/lessons'
@@ -1401,6 +1414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentHealthReportRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/health-learning-report': {
+      id: '/student/health-learning-report'
+      path: '/health-learning-report'
+      fullPath: '/student/health-learning-report'
+      preLoaderRoute: typeof StudentHealthLearningReportRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/growth': {
       id: '/student/growth'
       path: '/growth'
@@ -1757,6 +1777,7 @@ interface StudentRouteChildren {
   StudentExamRoute: typeof StudentExamRoute
   StudentExamsRoute: typeof StudentExamsRoute
   StudentGrowthRoute: typeof StudentGrowthRoute
+  StudentHealthLearningReportRoute: typeof StudentHealthLearningReportRoute
   StudentHealthReportRoute: typeof StudentHealthReportRoute
   StudentHomeworkRoute: typeof StudentHomeworkRoute
   StudentLessonsRoute: typeof StudentLessonsRoute
@@ -1781,6 +1802,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentExamRoute: StudentExamRoute,
   StudentExamsRoute: StudentExamsRoute,
   StudentGrowthRoute: StudentGrowthRoute,
+  StudentHealthLearningReportRoute: StudentHealthLearningReportRoute,
   StudentHealthReportRoute: StudentHealthReportRoute,
   StudentHomeworkRoute: StudentHomeworkRoute,
   StudentLessonsRoute: StudentLessonsRoute,
