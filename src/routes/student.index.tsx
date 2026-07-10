@@ -342,12 +342,20 @@ function TodayPage() {
       {/* --------------------------- SUGGESTION --------------------------- */}
       <Card className="border-0 rounded-[22px] shadow-sm bg-gradient-to-l from-violet-50 to-fuchsia-50">
         <CardContent className="p-5">
-          {suggestionLoading ? (
+          {loading && !summary ? (
+            <div className="space-y-2">
+              <div className="h-4 w-40 rounded bg-slate-200 animate-pulse" />
+              <div className="h-3 w-full rounded bg-slate-200 animate-pulse" />
+              <div className="h-3 w-2/3 rounded bg-slate-200 animate-pulse" />
+            </div>
+          ) : suggestionLoading ? (
             <div className="flex flex-col items-center justify-center py-4 text-center gap-2">
               <Loader2 className="h-7 w-7 animate-spin text-violet-600" />
               <p className="text-base font-bold text-violet-700 mt-1">نسخه هوشمند</p>
               <p className="text-xs text-slate-600">
-                ۵ سؤال اختصاصی — بر اساس اشتباهات شما
+                {smartReview?.question_count
+                  ? `${toFa(smartReview.question_count)} سؤال اختصاصی — بر اساس اشتباهات شما`
+                  : "بر اساس اشتباهات شما"}
               </p>
             </div>
           ) : (
@@ -361,16 +369,21 @@ function TodayPage() {
                     ✨ پیشنهاد آتومیا
                   </p>
                   <p className="text-sm text-slate-700 mt-1 leading-6">
-                    برای مرور بیشتر و تثبیت یادگیری، هوش آتومیا بر اساس آخرین عملکرد شما یک نسخه اختصاصی آماده کرده است.
+                    {smartReviewAvailable
+                      ? `برای مرور بیشتر، ${toFa(smartReview?.question_count ?? 0)} سؤال از اشتباهات اخیر شما آماده شده است.`
+                      : smartReview?.message ||
+                        "در حال حاضر نسخه هوشمندی برای مرور در دسترس نیست."}
                   </p>
                 </div>
               </div>
-              <Button
-                onClick={startSuggestion}
-                className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
-              >
-                🧠 دریافت نسخه هوشمند
-              </Button>
+              {smartReviewAvailable && (
+                <Button
+                  onClick={startSuggestion}
+                  className="rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 self-end sm:self-auto"
+                >
+                  🧠 دریافت نسخه هوشمند
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
@@ -382,7 +395,15 @@ function TodayPage() {
           emoji="❤️"
           accent="from-rose-500 to-pink-500"
           title="شرح حال امروز"
-          status={checkinDone ? "ثبت شده ✅" : "هنوز ثبت نشده"}
+          status={
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : checkinDone ? (
+              "ثبت شده ✅"
+            ) : (
+              "هنوز ثبت نشده"
+            )
+          }
           buttonLabel={checkinDone ? "مشاهده و ویرایش" : "شروع"}
           onClick={() => setCheckinOpen(true)}
         />
@@ -390,17 +411,28 @@ function TodayPage() {
           emoji="🩺"
           accent="from-sky-500 to-violet-500"
           title="چکاپ امروز"
+          tone={checkupDone ? "green" : undefined}
           status={
-            <div className="space-y-0.5">
-              <p className="text-[11px] text-slate-500">چکاپ روزانه</p>
-              <p className="text-[11px] text-slate-500">بر اساس مأموریت</p>
-              <p className="text-sm font-semibold text-slate-700">
-                ۵ سؤال · ۳ دقیقه
-              </p>
-            </div>
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.latest_checkup?.exists ? (
+              <div className="space-y-0.5">
+                <p className="text-[11px] text-slate-500">چکاپ روزانه</p>
+                {summary?.latest_checkup?.based_on_mission && (
+                  <p className="text-[11px] text-slate-500">بر اساس مأموریت</p>
+                )}
+                <p className="text-sm font-semibold text-slate-700">
+                  {toFa(summary?.latest_checkup?.question_count ?? 5)} سؤال ·{" "}
+                  {toFa(summary?.latest_checkup?.duration_minutes ?? 3)} دقیقه
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-600">چکاپ روزانه آماده شروع است.</p>
+            )
           }
-          buttonLabel="شروع چکاپ"
+          buttonLabel={checkupDone ? "انجام شد ✅" : "شروع چکاپ"}
           onClick={startCheckup}
+          disabled={checkupDone}
         />
         <ActionCard
           emoji="🎯"
@@ -408,11 +440,13 @@ function TodayPage() {
           title="مأموریت امروز"
           tone={missionDone ? "green" : undefined}
           status={
-            mission
-              ? `${mission.title} — ${toFa(mission.minutesDone)}/${toFa(mission.targetMinutes)} دقیقه`
-              : loading
-                ? "در حال بارگذاری…"
-                : "ماموریتی برای امروز نداری"
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : mission ? (
+              `${mission.title} — ${toFa(mission.minutesDone)}/${toFa(mission.targetMinutes)} دقیقه`
+            ) : (
+              "برای امروز مأموریتی ثبت نشده است."
+            )
           }
           buttonLabel={missionDone ? "انجام شد ✅" : "شروع"}
           onClick={() => setMissionOpen(true)}
@@ -422,10 +456,26 @@ function TodayPage() {
           emoji="📋"
           accent="from-indigo-500 to-violet-500"
           title="آزمون‌های مدرسه"
-          status="بعدی: ریاضی - فصل ۳"
+          status={
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.next_school_exam?.exists ? (
+              <div className="space-y-0.5">
+                <p className="text-sm font-semibold text-slate-700">
+                  {summary?.next_school_exam?.title ?? "—"}
+                </p>
+                {summary?.next_school_exam?.date_label && (
+                  <p className="text-xs text-slate-600">
+                    {summary.next_school_exam.date_label}
+                  </p>
+                )}
+              </div>
+            ) : (
+              "آزمون پیش‌رویی ثبت نشده است."
+            )
+          }
           buttonLabel="مشاهده همه"
           onClick={comingSoon}
-          sample
         />
       </section>
 
@@ -436,42 +486,82 @@ function TodayPage() {
           accent="from-fuchsia-500 to-violet-500"
           title="آخرین گزارش تشخیصی"
           status={
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-slate-700">
-                زیست‌شناسی - گفتار ۲
-              </p>
-              <p className="text-xs text-slate-600">
-                درست: ۱۸ · غلط: ۷
-              </p>
-              <p className="text-xs text-amber-700">
-                نیاز به مرور: گفتار ۲
-              </p>
-            </div>
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.latest_exploration?.exists ? (
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-slate-700">
+                  {summary?.latest_exploration?.subject ?? "—"}
+                </p>
+                <p className="text-xs text-slate-600">
+                  درست: {toFa(summary?.latest_exploration?.correct ?? 0)} · غلط:{" "}
+                  {toFa(summary?.latest_exploration?.wrong ?? 0)}
+                </p>
+                {summary?.latest_exploration?.needs_review && (
+                  <p className="text-xs text-amber-700">
+                    نیاز به مرور: {summary.latest_exploration.needs_review}
+                  </p>
+                )}
+              </div>
+            ) : (
+              "هنوز کاوشی انجام نشده است."
+            )
           }
           buttonLabel="تحلیل آزمون"
           onClick={comingSoon}
-          sample
         />
-        <TrendCard onClick={comingSoon} />
+        <TrendCard
+          data={summary?.weekly_trend ?? []}
+          loading={loading && !summary}
+          onClick={comingSoon}
+        />
         <ActionCard
           emoji="⏱️"
           accent="from-amber-500 to-orange-500"
           title="زمان مطالعه این هفته"
-          status="۷ ساعت و ۴۵ دقیقه · +۲ ساعت نسبت به هفته قبل"
+          status={
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.weekly_study?.total_text ? (
+              `${summary.weekly_study.total_text}${
+                summary.weekly_study.delta_text
+                  ? ` · ${summary.weekly_study.delta_text}`
+                  : ""
+              }`
+            ) : (
+              "با ثبت فعالیت‌ها، مجموع زمان مطالعه نمایش داده می‌شود."
+            )
+          }
           buttonLabel="جزئیات بیشتر"
           onClick={comingSoon}
-          sample
         />
         <ActionCard
           emoji="👥"
           accent="from-cyan-500 to-sky-500"
           title="جایگاه در کلاس"
-          status="۳ از ۳۳ نفر · بهتر از ۹۱٪ کلاس"
+          status={
+            loading && !summary ? (
+              <SkeletonLine />
+            ) : summary?.class_comparison &&
+              summary.class_comparison.rank != null ? (
+              `${toFa(summary.class_comparison.rank)}${
+                summary.class_comparison.total
+                  ? ` از ${toFa(summary.class_comparison.total)} نفر`
+                  : ""
+              }${
+                summary.class_comparison.percentile != null
+                  ? ` · بهتر از ${toFa(summary.class_comparison.percentile)}٪ کلاس`
+                  : ""
+              }`
+            ) : (
+              "پس از ثبت نتایج کلاس، جایگاه شما محاسبه می‌شود."
+            )
+          }
           buttonLabel="مشاهده رتبه‌ها"
           onClick={comingSoon}
-          sample
         />
       </section>
+
 
 
       {/* Dialogs */}
