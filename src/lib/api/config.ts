@@ -7,7 +7,7 @@
  */
 
 export type ApiEnvironment = "development" | "staging" | "production";
-export type ApiGroup = "auth" | "content" | "supervisor";
+export type ApiGroup = "auth" | "content" | "supervisor" | "question-bank";
 
 export interface ApiConfig {
   baseUrl: string;
@@ -32,6 +32,7 @@ export const API_GROUP_BASE_URLS: Record<ApiGroup, string> = {
   auth: AUTH_BASE_URL,
   content: CONTENT_BASE_URL,
   supervisor: SUPERVISOR_BASE_URL,
+  "question-bank": "https://x8ki-letl-twmt.n7.xano.io/api:question-bank",
 };
 
 const ENV_CONFIG: Record<ApiEnvironment, ApiConfig> = {

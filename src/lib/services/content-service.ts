@@ -42,6 +42,7 @@ export interface ContentMicroAtom {
 }
 export interface ContentQuestion {
   id: string;
+  microAtomId: string;
   questionText: string;
   questionType: string;
   option1: string;
@@ -161,8 +162,22 @@ export async function listQuestionsByMicroAtom(
   const raw = Array.isArray(payload?.questions)
     ? (payload!.questions as Record<string, unknown>[])
     : [];
-  return raw.map((r) => ({
+  return raw.map((r) => mapQuestion(r, microAtomId));
+}
+
+function mapQuestion(
+  r: Record<string, unknown>,
+  fallbackMicroAtomId?: string,
+): ContentQuestion {
+  const microAtomId = s(
+    r.micro_atom_id ??
+      (r as { microAtomId?: unknown }).microAtomId ??
+      fallbackMicroAtomId ??
+      "",
+  );
+  return {
     id: s(r.id),
+    microAtomId,
     questionText: s(r.question_text ?? (r as { questionText?: unknown }).questionText),
     questionType: s(r.question_type ?? (r as { questionType?: unknown }).questionType),
     option1: s(r.option1),
@@ -176,10 +191,76 @@ export async function listQuestionsByMicroAtom(
         : typeof (r as { estimatedTime?: unknown }).estimatedTime === "number"
           ? ((r as { estimatedTime: number }).estimatedTime)
           : null,
-  }));
+  };
 }
 
+export interface QuestionBankFilters {
+  subject_id?: string | number;
+  chapter_id?: string | number;
+  goftar_id?: string | number;
+  atom_id?: string | number;
+  micro_atom_id?: string | number;
+  difficulty?: string;
+  question_type?: string;
+  count?: number;
+}
 
+export async function searchQuestionBank(
+  filters: QuestionBankFilters,
+): Promise<ContentQuestion[]> {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(filters)) {
+    if (v === undefined || v === null) continue;
+    const str = String(v).trim();
+    if (str === "") continue;
+    params.set(k, str);
+  }
+  const qs = params.toString();
+  const path = qs ? `search?${qs}` : "search";
+  const res = await apiClient.get<unknown>(
+    buildApiUrlFor("question-bank", path),
+  );
+  const raw = listFrom(res.data);
+  return raw.map((r) => mapQuestion(r));
+}
+
+export interface ExamSubmitResult {
+  success: boolean;
+  score: number;
+  percentage: number;
+  correctCount: number;
+  wrongCount: number;
+  blankCount: number;
+}
+
+export async function submitExam(payload: {
+  studentId: string;
+  microAtomId?: string;
+  answers: { questionId: string; answer: number | string }[];
+}): Promise<ExamSubmitResult> {
+  const body = {
+    student_id: Number(payload.studentId),
+    micro_atom_id: payload.microAtomId ? Number(payload.microAtomId) : null,
+    answers: payload.answers.map((a) => ({
+      question_id: Number(a.questionId),
+      answer: a.answer,
+    })),
+  };
+  const res = await apiClient.post<Record<string, unknown>>(
+    buildApiUrlFor("content", "exam/submit"),
+    body,
+  );
+  const d = (res.data ?? {}) as Record<string, unknown>;
+  const num = (v: unknown) => (typeof v === "number" ? v : Number(v) || 0);
+  return {
+    success: Boolean(d.success),
+    score: num(d.score),
+    percentage: num(d.percentage),
+    correctCount: num(d.correct_count ?? (d as { correctCount?: unknown }).correctCount),
+    wrongCount: num(d.wrong_count ?? (d as { wrongCount?: unknown }).wrongCount),
+    blankCount: num(d.blank_count ?? (d as { blankCount?: unknown }).blankCount),
+  };
+}
 
 /** Find the Biology subject by Persian title heuristic, falling back to the first subject. */
 export async function findBiologySubject(): Promise<ContentSubject | null> {
