@@ -6,11 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
 import { ROLES, type RoleId } from "@/lib/roles";
-import {
-  lastLoginDebug,
-  fetchUserRoles,
-  type LoginDebugInfo,
-} from "@/lib/api/auth";
+import { fetchUserRoles } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -130,7 +126,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [debug, setDebug] = useState<LoginDebugInfo | null>(null);
+  
   const [roleChoices, setRoleChoices] = useState<RoleId[] | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [applyingRole, setApplyingRole] = useState<RoleId | null>(null);
@@ -153,7 +149,7 @@ function LoginPage() {
     setMessage(null);
     setPending(true);
     const result = await login(username, password);
-    setDebug(lastLoginDebug);
+    
     if (!result.ok) {
       setPending(false);
       setMessage(localizeLoginError(result.message));
@@ -287,20 +283,6 @@ function LoginPage() {
             </Link>
           </p>
 
-      {debug && import.meta.env.DEV ? (
-        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-900 font-mono space-y-1 break-all">
-          <div className="font-bold text-amber-700 mb-1">Debug</div>
-          <div>URL: {debug.url}</div>
-          <div>Status: {debug.status}</div>
-          <div>Keys: {debug.responseKeys.join(", ") || "—"}</div>
-          <div>Token: {debug.authTokenExists ? "true" : "false"}</div>
-          <div>Role: {debug.role ?? "—"}</div>
-          <div>
-            Redirect: {debug.role ? ROLES[debug.role].landing : "—"}
-          </div>
-          <div>Error: {message ?? "—"}</div>
-        </div>
-      ) : null}
         </div>
       </div>
     </div>
