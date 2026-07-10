@@ -51,6 +51,9 @@ export interface ContentQuestion {
   option4: string;
   difficulty: string;
   estimatedTime: number | null;
+  subject?: string;
+  chapter?: string;
+  goftar?: string;
 }
 
 function s(v: unknown): string {
