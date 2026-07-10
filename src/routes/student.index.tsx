@@ -163,32 +163,19 @@ function TodayPage() {
             <p className="text-sm md:text-base text-white/85 mt-2">
               امروز مسیر رشدت منتظر توست.
             </p>
-            <div className="mt-5">
-              <Button
-                onClick={continueToday}
-                disabled={loading || allDone}
-                className="rounded-full bg-white text-violet-700 hover:bg-white/90 font-bold px-6 h-11 shadow-md"
-              >
-                {allDone ? "امروز کامل شد 🎉" : "ادامه نسخه امروز"}
-                {!allDone && <ArrowLeft className="mr-2 h-4 w-4" />}
-              </Button>
-            </div>
           </div>
 
           <div className="flex items-center gap-4 md:gap-5 justify-center md:justify-end">
-            <RingProgress percent={percent} />
+            <RingProgress percent={healthScore} size={120} />
             <div className="text-right">
-              <p className="text-xs text-white/75">نسخه امروز</p>
-              <p className="text-3xl font-extrabold mt-1">{toFa(percent)}٪</p>
-              <p className="text-xs text-white/85 mt-1">
-                {allDone
-                  ? "همه فعالیت‌ها انجام شد"
-                  : `${toFa(remaining)} فعالیت باقی مانده`}
-              </p>
+              <p className="text-xs text-white/80">شاخص سلامت یادگیری</p>
+              <p className="text-3xl font-extrabold mt-1">{toFa(healthScore)}٪</p>
+              <p className="text-xs text-white/80 mt-1">پرونده سلامت یادگیری</p>
             </div>
           </div>
         </div>
       </section>
+
 
       {error && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs p-3 text-right">
