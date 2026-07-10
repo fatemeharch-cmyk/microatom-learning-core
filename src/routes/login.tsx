@@ -135,6 +135,19 @@ function LoginPage() {
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [applyingRole, setApplyingRole] = useState<RoleId | null>(null);
 
+  function localizeLoginError(raw: string): string {
+    const s = (raw ?? "").toString().toLowerCase();
+    if (
+      s.includes("invalid credentials") ||
+      s.includes("unauthorized") ||
+      s.includes("401") ||
+      s.includes("403")
+    ) {
+      return "نام کاربری یا رمز عبور اشتباه است";
+    }
+    return "ورود انجام نشد. لطفاً دوباره تلاش کنید";
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setMessage(null);
@@ -143,7 +156,7 @@ function LoginPage() {
     setDebug(lastLoginDebug);
     if (!result.ok) {
       setPending(false);
-      setMessage(result.message);
+      setMessage(localizeLoginError(result.message));
       return;
     }
 
