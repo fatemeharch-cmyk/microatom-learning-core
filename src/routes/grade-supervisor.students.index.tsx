@@ -236,13 +236,32 @@ function StudentsPage() {
     setLoadingList(true);
     setListError(null);
     try {
-      const data = await xanoFetch<
-        ApiStudent[] | { students?: ApiStudent[]; success?: unknown }
-      >("/students");
-      const list = Array.isArray(data) ? data : (data?.students ?? []);
+      const data = await xanoFetch<unknown>("/students");
+      let list: ApiStudent[] = [];
+      if (Array.isArray(data)) {
+        list = data as ApiStudent[];
+      } else if (data && typeof data === "object") {
+        const obj = data as Record<string, unknown>;
+        const raw = obj.students ?? obj.data ?? obj.items ?? obj.result;
+        if (Array.isArray(raw)) {
+          list = raw as ApiStudent[];
+        } else if (typeof raw === "string") {
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) list = parsed as ApiStudent[];
+          } catch {
+            /* ignore */
+          }
+        }
+      }
       setStudents(list);
-    } catch {
-      setListError("دریافت فهرست دانش‌آموزان با خطا مواجه شد.");
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setListError(
+        msg
+          ? `دریافت فهرست دانش‌آموزان با خطا مواجه شد: ${msg}`
+          : "دریافت فهرست دانش‌آموزان با خطا مواجه شد.",
+      );
       setStudents([]);
     } finally {
       setLoadingList(false);
