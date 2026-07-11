@@ -13,6 +13,9 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  Pencil,
+  RefreshCw,
 } from "lucide-react";
 import { getAuthToken } from "@/lib/api/client";
 
@@ -119,6 +122,9 @@ interface ApiStudent {
   grade_level?: string;
   major?: string;
   class_name?: string;
+  student_mobile?: string;
+  mobile?: string;
+  phone?: string;
   status?: string;
 }
 interface ImportResponse {
@@ -418,6 +424,19 @@ function StudentsPage() {
   function removeRow(idx: number) {
     if (!validated) return;
     setValidated(validated.filter((_, i) => i !== idx));
+  }
+
+  async function handleDeleteStudent(s: ApiStudent) {
+    if (s.id == null) return;
+    const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "این دانش‌آموز";
+    if (!window.confirm(`آیا از حذف ${name} مطمئن هستید؟`)) return;
+    try {
+      await xanoFetch(`/students/${s.id}`, { method: "DELETE" });
+      await loadStudents();
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      window.alert(msg ? `حذف با خطا مواجه شد: ${msg}` : "حذف با خطا مواجه شد.");
+    }
   }
 
   function downloadCredentialsFile(
@@ -942,7 +961,17 @@ function StudentsPage() {
             در حال بارگذاری...
           </div>
         ) : listError ? (
-          <div className="p-10 text-center text-sm text-rose-600">{listError}</div>
+          <div className="p-10 text-center text-sm text-rose-600 space-y-3">
+            <p>{listError}</p>
+            <button
+              type="button"
+              onClick={loadStudents}
+              className="inline-flex items-center gap-1.5 h-10 px-4 rounded-2xl bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition"
+            >
+              <RefreshCw className="h-4 w-4" />
+              تلاش مجدد
+            </button>
+          </div>
         ) : filteredStudents.length === 0 ? (
           <div className="p-10 text-center text-sm text-slate-400">
             هنوز دانش‌آموزی برای پایه یازدهم تجربی ثبت نشده است.
@@ -958,8 +987,9 @@ function StudentsPage() {
                   <Th>پایه</Th>
                   <Th>رشته</Th>
                   <Th>کلاس</Th>
+                  <Th>موبایل دانش‌آموز</Th>
                   <Th>وضعیت</Th>
-                  <Th> </Th>
+                  <Th>عملیات</Th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -975,6 +1005,7 @@ function StudentsPage() {
                     <Td>{s.grade ?? s.grade_level ?? "—"}</Td>
                     <Td>{s.major ?? "—"}</Td>
                     <Td>{s.class_name ?? "—"}</Td>
+                    <Td>{s.student_mobile ?? s.mobile ?? s.phone ?? "—"}</Td>
                     <Td>
                       <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px]">
                         {s.status ?? "فعال"}
@@ -982,14 +1013,34 @@ function StudentsPage() {
                     </Td>
                     <Td>
                       {s.id != null && (
-                        <Link
-                          to="/grade-supervisor/students/$id"
-                          params={{ id: String(s.id) }}
-                          className="inline-flex items-center gap-1 text-violet-600 hover:text-violet-700 font-semibold"
-                        >
-                          پرونده
-                          <ChevronLeft className="h-3 w-3" />
-                        </Link>
+                        <div className="inline-flex items-center gap-1">
+                          <Link
+                            to="/grade-supervisor/students/$id"
+                            params={{ id: String(s.id) }}
+                            className="h-7 w-7 rounded-lg bg-violet-50 hover:bg-violet-100 text-violet-600 grid place-items-center"
+                            title="مشاهده"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              window.alert("ویرایش دانش‌آموز به‌زودی فعال می‌شود.")
+                            }
+                            className="h-7 w-7 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 grid place-items-center"
+                            title="ویرایش"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteStudent(s)}
+                            className="h-7 w-7 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-600 grid place-items-center"
+                            title="حذف"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       )}
                     </Td>
                   </tr>
@@ -999,6 +1050,7 @@ function StudentsPage() {
           </div>
         )}
       </section>
+
     </div>
   );
 }
