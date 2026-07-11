@@ -492,10 +492,16 @@ function StudentsPage() {
       setExcel(null);
       setMapping([]);
       setFile(null);
+      setPreviewPage(1);
       if (fileRef.current) fileRef.current.value = "";
       await loadStudents();
-    } catch {
-      setImportError("افزودن دانش‌آموزان با خطا مواجه شد. لطفاً دوباره تلاش کنید.");
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setImportError(
+        msg
+          ? `افزودن دانش‌آموزان با خطا مواجه شد: ${msg}`
+          : "افزودن دانش‌آموزان با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
+      );
     } finally {
       setImporting(false);
     }
