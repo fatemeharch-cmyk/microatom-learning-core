@@ -14,7 +14,10 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { getAuthToken } from "@/lib/api/client";
-import { SUPERVISOR_BASE_URL } from "@/lib/api/config";
+
+// Xano API group for Grade Supervisor endpoints (from published API spec).
+const GRADE_SUPERVISOR_BASE_URL =
+  "https://x8ki-letl-twmt.n7.xano.io/api:grade-supervisor";
 
 export const Route = createFileRoute("/grade-supervisor/students/")({
   component: StudentsPage,
