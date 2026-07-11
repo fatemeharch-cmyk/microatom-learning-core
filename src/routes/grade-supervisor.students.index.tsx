@@ -279,6 +279,10 @@ function StudentsPage() {
   const validCount = parsed?.filter((r) => r.__errors.length === 0).length ?? 0;
   const invalidCount = parsed?.filter((r) => r.__errors.length > 0).length ?? 0;
 
+  const grades = useMemo(
+    () => Array.from(new Set((students ?? []).map((s) => s.grade).filter(Boolean))) as string[],
+    [students],
+  );
   const majors = useMemo(
     () => Array.from(new Set((students ?? []).map((s) => s.major).filter(Boolean))) as string[],
     [students],
@@ -290,6 +294,7 @@ function StudentsPage() {
 
   const filteredStudents = useMemo(() => {
     return (students ?? []).filter((s) => {
+      if (grade !== "all" && s.grade !== grade) return false;
       if (major !== "all" && s.major !== major) return false;
       if (className !== "all" && s.class_name !== className) return false;
       if (q) {
@@ -298,7 +303,7 @@ function StudentsPage() {
       }
       return true;
     });
-  }, [students, q, major, className]);
+  }, [students, q, grade, major, className]);
 
   return (
     <div dir="rtl" className="font-vazir space-y-6 text-right">
