@@ -228,15 +228,21 @@ function StudentsPage() {
   const [listError, setListError] = useState<string | null>(null);
 
   const [q, setQ] = useState("");
-  const [grade, setGrade] = useState("all");
-  const [major, setMajor] = useState("all");
   const [className, setClassName] = useState("all");
+
+  // Fixed scope for this Grade Supervisor
+  const FIXED_GRADE = "یازدهم";
+  const FIXED_MAJOR = "تجربی";
 
   async function loadStudents() {
     setLoadingList(true);
     setListError(null);
     try {
-      const data = await xanoFetch<unknown>("/students");
+      const qs = new URLSearchParams({
+        grade_level: FIXED_GRADE,
+        major: FIXED_MAJOR,
+      }).toString();
+      const data = await xanoFetch<unknown>(`/students?${qs}`);
       let list: ApiStudent[] = [];
       if (Array.isArray(data)) {
         list = data as ApiStudent[];
