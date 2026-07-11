@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { HealthReportView } from "@/components/health-report/health-report-view";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/student/health-report")({
   head: () => ({
@@ -16,5 +16,15 @@ export const Route = createFileRoute("/student/health-report")({
 });
 
 function StudentHealthReportPage() {
-  return <HealthReportView audience="student" />;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate({ to: "/student/health-learning-report", replace: true });
+  }, [navigate]);
+
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center text-muted-foreground">
+      در حال انتقال...
+    </div>
+  );
 }
