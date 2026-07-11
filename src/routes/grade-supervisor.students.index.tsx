@@ -215,6 +215,9 @@ function StudentsPage() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResponse | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [credentialsPayload, setCredentialsPayload] = useState<
+    { first_name: string; last_name: string; national_code: string }[] | null
+  >(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [students, setStudents] = useState<ApiStudent[] | null>(null);
