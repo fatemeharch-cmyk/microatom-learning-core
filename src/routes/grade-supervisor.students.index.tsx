@@ -483,7 +483,7 @@ function StudentsPage() {
       {/* Filters */}
       <section dir="rtl" className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
         <div dir="rtl" className="grid grid-cols-1 md:grid-cols-12 gap-3">
-          <div className="md:col-span-6 relative">
+          <div className="md:col-span-4 relative">
             <Search className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
             <input
               dir="rtl"
@@ -493,7 +493,8 @@ function StudentsPage() {
               className="w-full h-11 pr-10 pl-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-violet-200 focus:bg-white transition text-right"
             />
           </div>
-          <FilterSelect value={major} onChange={setMajor} label="همه رشته‌ها" options={majors} className="md:col-span-3" />
+          <FilterSelect value={grade} onChange={setGrade} label="همه پایه‌ها" options={grades} className="md:col-span-3" />
+          <FilterSelect value={major} onChange={setMajor} label="همه رشته‌ها" options={majors} className="md:col-span-2" />
           <FilterSelect value={className} onChange={setClassName} label="همه کلاس‌ها" options={classes} className="md:col-span-3" />
         </div>
       </section>
