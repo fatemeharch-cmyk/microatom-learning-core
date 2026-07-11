@@ -329,7 +329,7 @@ function StudentsPage() {
       setMapping(unique);
     } catch {
       setParseError(
-        "خواندن فایل اکسل امکان‌پذیر نبود. لطفاً از قالب نمونه استفاده کنید.",
+        "خواندن فایل اکسل امکان‌پذیر نبود. لطفاً از قالب اکسل ارائه‌شده استفاده کنید.",
       );
     }
   }
@@ -601,7 +601,7 @@ function StudentsPage() {
             className="md:col-span-3 h-11 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-700 inline-flex items-center justify-center gap-1.5 hover:bg-white transition"
           >
             <Download className="h-4 w-4" />
-            دانلود فایل نمونه
+            دانلود قالب اکسل
           </button>
 
           <button

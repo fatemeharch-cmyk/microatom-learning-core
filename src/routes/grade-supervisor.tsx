@@ -2,39 +2,29 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Users,
-  HeartPulse,
-  Stethoscope,
-  NotebookPen,
-  ScrollText,
-  Target,
-  CalendarDays,
-  ClipboardCheck,
   ClipboardList,
-  UserCircle2,
-  GraduationCap,
-  BarChart3,
-  Sparkles,
+  Activity,
 } from "lucide-react";
 import {
   SupervisorShell,
   type NavItem,
 } from "@/components/supervisor/supervisor-shell";
 
+// Only routes backed by real Xano endpoints are exposed in the sidebar.
+// Legacy /supervisor/* mock pages are hidden until their backends land.
 const items: NavItem[] = [
   { title: "داشبورد پایه", url: "/grade-supervisor", icon: LayoutDashboard },
   { title: "دانش‌آموزان", url: "/grade-supervisor/students", icon: Users },
-  { title: "دفتر مسئول پایه", url: "/grade-supervisor/notebook", icon: ClipboardList },
-  { title: "سلامت آموزشی", url: "/supervisor/grade", icon: HeartPulse },
-  { title: "چکاب‌ها", url: "/supervisor/sessions", icon: Stethoscope },
-  { title: "کلینیک یادگیری", url: "/supervisor/followups", icon: NotebookPen },
-  { title: "نسخه‌ها", url: "/supervisor/alerts", icon: ScrollText },
-  { title: "ماموریت‌ها", url: "/supervisor/teachers-hub", icon: Target },
-  { title: "قرار ملاقات‌ها", url: "/supervisor/calendar", icon: CalendarDays },
-  { title: "ویزیت هفتگی", url: "/supervisor/feedback", icon: ClipboardCheck },
-  { title: "اولیا", url: "/supervisor/parents", icon: UserCircle2 },
-  { title: "دبیران", url: "/supervisor/teachers", icon: GraduationCap },
-  { title: "گزارش‌ها", url: "/supervisor/analytics", icon: BarChart3 },
-  { title: "توربو همراه", url: "/supervisor/turbo", icon: Sparkles },
+  {
+    title: "دفتر مسئول پایه",
+    url: "/grade-supervisor/notebook",
+    icon: ClipboardList,
+  },
+  {
+    title: "پایش فصل اول",
+    url: "/grade-supervisor/chapter1-monitoring",
+    icon: Activity,
+  },
 ];
 
 function GradeSupervisorLayout() {
@@ -48,3 +38,4 @@ function GradeSupervisorLayout() {
 export const Route = createFileRoute("/grade-supervisor")({
   component: GradeSupervisorLayout,
 });
+

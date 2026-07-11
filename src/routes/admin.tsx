@@ -1,27 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  LayoutDashboard,
-  Users,
-  Layers,
-  CalendarRange,
-  CalendarDays,
-  ClipboardList,
-  MessageCircleHeart,
-  Settings,
-} from "lucide-react";
-import { AdminShell, type NavItem } from "@/components/admin/admin-shell";
-
-const items: NavItem[] = [
-  { title: "داشبورد مدیر", url: "/admin", icon: LayoutDashboard },
-  { title: "مدیریت کاربران", url: "/admin/users", icon: Users },
-  { title: "پایه‌ها و کلاس‌ها", url: "/admin/classes", icon: Layers },
-  { title: "برنامه هفتگی مدرسه", url: "/admin/schedule", icon: CalendarRange },
-  { title: "تقویم آموزشی", url: "/admin/calendar", icon: CalendarDays },
-  { title: "وضعیت ثبت کلاس‌ها", url: "/admin/registration", icon: ClipboardList },
-  { title: "بازخوردهای مدرسه", url: "/admin/feedback", icon: MessageCircleHeart },
-  { title: "تنظیمات سیستم", url: "/admin/system", icon: Settings },
-];
+import { ComingSoon } from "@/components/coming-soon";
 
 export const Route = createFileRoute("/admin")({
-  component: () => <AdminShell items={items} />,
+  head: () => ({
+    meta: [{ title: "فضای مدیر مدرسه — به‌زودی | آتومیا" }],
+  }),
+  component: () => (
+    <ComingSoon title="فضای کاری مدیر مدرسه" message="این بخش به‌زودی فعال خواهد شد." />
+  ),
 });

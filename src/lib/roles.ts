@@ -119,11 +119,12 @@ export const ROLE_ORDER: RoleId[] = [
 ];
 
 /**
- * MOCK auth state — what the "currently signed-in user" is allowed to use.
- * Replace with the role list returned by Xano on login. For now we allow
- * every role so the platform is fully demo-able.
+ * Roles that are currently enabled in production. Teacher, Parent and
+ * School Admin workspaces are locked behind a "coming soon" screen until
+ * their backend endpoints are wired to Xano.
  */
-export const MOCK_AVAILABLE_ROLES: RoleId[] = [...ROLE_ORDER];
+export const AVAILABLE_ROLES: RoleId[] = ["student", "supervisor"];
+
 
 export function getRole(id: RoleId): RoleDefinition {
   return ROLES[id];

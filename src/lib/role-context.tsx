@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import {
-  MOCK_AVAILABLE_ROLES,
+  AVAILABLE_ROLES,
   ROLES,
   hasPermission as _hasPermission,
   type Permission,
@@ -50,13 +50,13 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     const segments = window.location.pathname.split("/").filter(Boolean);
     const fromPath = segments[0] as RoleId | undefined;
-    if (fromPath && MOCK_AVAILABLE_ROLES.includes(fromPath)) {
+    if (fromPath && AVAILABLE_ROLES.includes(fromPath)) {
       setActiveRoleState(fromPath);
       window.localStorage.setItem(STORAGE_KEY, fromPath);
       return;
     }
     const stored = window.localStorage.getItem(STORAGE_KEY) as RoleId | null;
-    if (stored && MOCK_AVAILABLE_ROLES.includes(stored)) {
+    if (stored && AVAILABLE_ROLES.includes(stored)) {
       setActiveRoleState(stored);
     }
   }, []);
@@ -77,7 +77,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<RoleContextValue>(
     () => ({
-      availableRoles: MOCK_AVAILABLE_ROLES,
+      availableRoles: AVAILABLE_ROLES,
       activeRole,
       setActiveRole,
       hasPermission,
