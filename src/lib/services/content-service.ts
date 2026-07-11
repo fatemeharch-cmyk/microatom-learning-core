@@ -745,8 +745,8 @@ export async function updateStudyPlanStatus(
   const body: Record<string, unknown> = {
     item_id: Number(itemId),
     status,
+    actual_minutes: actualMinutes !== undefined ? actualMinutes : null,
   };
-  if (actualMinutes !== undefined) body.actual_minutes = actualMinutes;
   const res = await apiClient.post<Record<string, unknown>>(
     contentUrl("student/study-plan/update-status"),
     body,
