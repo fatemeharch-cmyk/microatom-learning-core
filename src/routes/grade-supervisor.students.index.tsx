@@ -23,25 +23,110 @@ export const Route = createFileRoute("/grade-supervisor/students/")({
   component: StudentsPage,
 });
 
-// ---------------- Types ----------------
-interface StudentRow {
-  first_name: string;
-  last_name: string;
-  national_code: string;
-  grade: string;
-  major: string;
-  class_name: string;
-}
-interface ParsedRow extends StudentRow {
-  __rowIndex: number;
-  __errors: string[];
-}
+// ---------------- Mapping options ----------------
+type FieldKey =
+  | "first_name"
+  | "last_name"
+  | "national_code"
+  | "student_mobile"
+  | "father_mobile"
+  | "mother_mobile"
+  | "major"
+  | "grade_level"
+  | "class_name"
+  | "academic_year"
+  | "username"
+  | "password";
+
+type MappingValue = "" | "__ignore__" | FieldKey;
+
+const MAPPING_OPTIONS: { value: MappingValue; label: string }[] = [
+  { value: "", label: "--" },
+  { value: "first_name", label: "نام" },
+  { value: "last_name", label: "نام خانوادگی" },
+  { value: "national_code", label: "کد ملی" },
+  { value: "student_mobile", label: "موبایل دانش‌آموز" },
+  { value: "father_mobile", label: "موبایل پدر" },
+  { value: "mother_mobile", label: "موبایل مادر" },
+  { value: "major", label: "رشته" },
+  { value: "grade_level", label: "پایه" },
+  { value: "class_name", label: "کلاس" },
+  { value: "academic_year", label: "سال تحصیلی" },
+  { value: "username", label: "نام کاربری" },
+  { value: "password", label: "رمز عبور" },
+  { value: "__ignore__", label: "نادیده گرفتن ستون" },
+];
+
+const REQUIRED_FIELDS: FieldKey[] = [
+  "first_name",
+  "last_name",
+  "national_code",
+  "grade_level",
+  "major",
+  "class_name",
+];
+
+const TEXT_FIELDS: FieldKey[] = [
+  "national_code",
+  "student_mobile",
+  "father_mobile",
+  "mother_mobile",
+  "username",
+  "password",
+];
+
+const FIELD_LABEL: Record<FieldKey, string> = {
+  first_name: "نام",
+  last_name: "نام خانوادگی",
+  national_code: "کد ملی",
+  student_mobile: "موبایل دانش‌آموز",
+  father_mobile: "موبایل پدر",
+  mother_mobile: "موبایل مادر",
+  major: "رشته",
+  grade_level: "پایه",
+  class_name: "کلاس",
+  academic_year: "سال تحصیلی",
+  username: "نام کاربری",
+  password: "رمز عبور",
+};
+
+// header aliases → FieldKey
+const HEADER_ALIASES: Record<string, FieldKey> = {
+  "نام": "first_name",
+  "نام دانش آموز": "first_name",
+  "نام دانش‌آموز": "first_name",
+  "نام خانوادگی": "last_name",
+  "فامیلی": "last_name",
+  "کد ملی": "national_code",
+  "کدملی": "national_code",
+  "موبایل دانش آموز": "student_mobile",
+  "موبایل دانش‌آموز": "student_mobile",
+  "شماره دانش آموز": "student_mobile",
+  "شماره دانش‌آموز": "student_mobile",
+  "شماره موبایل دانش آموز": "student_mobile",
+  "شماره موبایل دانش‌آموز": "student_mobile",
+  "موبایل پدر": "father_mobile",
+  "شماره پدر": "father_mobile",
+  "موبایل مادر": "mother_mobile",
+  "شماره مادر": "mother_mobile",
+  "رشته": "major",
+  "پایه": "grade_level",
+  "کلاس": "class_name",
+  "نام کلاس": "class_name",
+  "سال تحصیلی": "academic_year",
+  "نام کاربری": "username",
+  "username": "username",
+  "رمز عبور": "password",
+  "password": "password",
+};
+
 interface ApiStudent {
   id?: number | string;
   first_name?: string;
   last_name?: string;
   national_code?: string;
   grade?: string;
+  grade_level?: string;
   major?: string;
   class_name?: string;
   status?: string;
@@ -69,25 +154,6 @@ interface ImportResponse {
   }> | null;
 }
 
-// ---------------- Column mapping ----------------
-const COLUMN_MAP: Record<string, keyof StudentRow> = {
-  "نام": "first_name",
-  "نام خانوادگی": "last_name",
-  "کد ملی": "national_code",
-  "پایه": "grade",
-  "رشته": "major",
-  "کلاس": "class_name",
-};
-
-const REQUIRED_FIELDS: (keyof StudentRow)[] = [
-  "first_name",
-  "last_name",
-  "national_code",
-  "grade",
-  "major",
-  "class_name",
-];
-
 function normalizeHeader(h: string): string {
   return String(h ?? "")
     .replace(/\u200c/g, " ")
@@ -95,15 +161,10 @@ function normalizeHeader(h: string): string {
     .trim();
 }
 
-function validateRow(r: StudentRow): string[] {
-  const errs: string[] = [];
-  for (const f of REQUIRED_FIELDS) {
-    if (!String(r[f] ?? "").trim()) errs.push("فیلد الزامی خالی است");
-  }
-  if (r.national_code && !/^\d{8,10}$/.test(String(r.national_code).trim())) {
-    errs.push("کد ملی معتبر نیست");
-  }
-  return errs;
+function toEnDigits(s: string): string {
+  return s
+    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
 }
 
 // ---------------- API ----------------
@@ -145,9 +206,22 @@ function downloadSampleFile() {
 }
 
 // ---------------- Component ----------------
+interface ExcelParseState {
+  headers: string[];
+  rows: string[][]; // as strings, preserving text
+}
+interface ValidatedRow {
+  data: Partial<Record<FieldKey, string>>;
+  errors: string[];
+  __rowIndex: number;
+}
+
 function StudentsPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [parsed, setParsed] = useState<ParsedRow[] | null>(null);
+  const [excel, setExcel] = useState<ExcelParseState | null>(null);
+  const [mapping, setMapping] = useState<MappingValue[]>([]);
+  const [mappingWarning, setMappingWarning] = useState<string | null>(null);
+  const [validated, setValidated] = useState<ValidatedRow[] | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResponse | null>(null);
@@ -184,52 +258,54 @@ function StudentsPage() {
     loadStudents();
   }, []);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
     setFile(f);
-    setParsed(null);
+    setExcel(null);
+    setMapping([]);
+    setValidated(null);
     setParseError(null);
     setImportResult(null);
     setImportError(null);
-  }
-
-  async function handleParse() {
-    if (!file) {
-      setParseError("لطفاً ابتدا فایل اکسل را انتخاب کنید.");
-      return;
-    }
-    setParseError(null);
+    setMappingWarning(null);
+    if (!f) return;
     try {
-      const buf = await file.arrayBuffer();
+      const buf = await f.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
-      const firstSheet = wb.SheetNames[0];
-      if (!firstSheet) throw new Error("empty");
-      const ws = wb.Sheets[firstSheet];
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, {
+      const first = wb.SheetNames[0];
+      if (!first) throw new Error("empty");
+      const ws = wb.Sheets[first];
+      // read as array-of-arrays, all as strings to preserve leading zeros
+      const aoa = XLSX.utils.sheet_to_json<unknown[]>(ws, {
+        header: 1,
         defval: "",
         raw: false,
+        blankrows: false,
       });
-      if (rows.length === 0) {
+      if (aoa.length === 0) {
         setParseError("فایل انتخابی هیچ ردیفی ندارد.");
-        setParsed([]);
         return;
       }
-      const mapped: ParsedRow[] = rows.map((row, i) => {
-        const out: StudentRow = {
-          first_name: "",
-          last_name: "",
-          national_code: "",
-          grade: "",
-          major: "",
-          class_name: "",
-        };
-        for (const [k, v] of Object.entries(row)) {
-          const key = COLUMN_MAP[normalizeHeader(k)];
-          if (key) out[key] = String(v ?? "").trim();
-        }
-        return { ...out, __rowIndex: i + 2, __errors: validateRow(out) };
+      const headerRow = (aoa[0] as unknown[]).map((h) =>
+        normalizeHeader(String(h ?? "")),
+      );
+      const dataRows = aoa.slice(1).map((r) =>
+        headerRow.map((_, i) => String((r as unknown[])[i] ?? "").trim()),
+      );
+      const auto: MappingValue[] = headerRow.map((h) => {
+        const key = HEADER_ALIASES[h];
+        return key ? (key as MappingValue) : "";
       });
-      setParsed(mapped);
+      // ensure uniqueness in auto-map (first occurrence wins)
+      const seen = new Set<string>();
+      const unique = auto.map((v) => {
+        if (!v || v === "__ignore__") return v;
+        if (seen.has(v)) return "" as MappingValue;
+        seen.add(v);
+        return v;
+      });
+      setExcel({ headers: headerRow, rows: dataRows });
+      setMapping(unique);
     } catch {
       setParseError(
         "خواندن فایل اکسل امکان‌پذیر نبود. لطفاً از قالب نمونه استفاده کنید.",
@@ -237,14 +313,84 @@ function StudentsPage() {
     }
   }
 
+  function updateMapping(colIdx: number, value: MappingValue) {
+    setMappingWarning(null);
+    setMapping((prev) => {
+      const next = [...prev];
+      if (value && value !== "__ignore__") {
+        // Reset any other column that had the same field
+        for (let i = 0; i < next.length; i++) {
+          if (i !== colIdx && next[i] === value) {
+            next[i] = "";
+            setMappingWarning(
+              `ستون قبلی متناظر با «${FIELD_LABEL[value as FieldKey]}» پاک شد. هر فیلد فقط می‌تواند به یک ستون اختصاص یابد.`,
+            );
+          }
+        }
+      }
+      next[colIdx] = value;
+      return next;
+    });
+    setValidated(null);
+  }
+
+  const missingRequired = useMemo<FieldKey[]>(() => {
+    const chosen = new Set(mapping.filter(Boolean));
+    return REQUIRED_FIELDS.filter((f) => !chosen.has(f));
+  }, [mapping]);
+
+  function validateRowData(
+    data: Partial<Record<FieldKey, string>>,
+  ): string[] {
+    const errs: string[] = [];
+    for (const f of REQUIRED_FIELDS) {
+      if (!String(data[f] ?? "").trim()) {
+        errs.push(`فیلد «${FIELD_LABEL[f]}» خالی است`);
+      }
+    }
+    const nc = String(data.national_code ?? "").trim();
+    if (nc && !/^\d{8,10}$/.test(toEnDigits(nc))) {
+      errs.push("کد ملی معتبر نیست");
+    }
+    return errs;
+  }
+
+  function handleValidate() {
+    if (!excel) return;
+    if (missingRequired.length > 0) {
+      setValidated(null);
+      setImportError(null);
+      setMappingWarning(
+        "لطفاً ستون‌های نام، نام خانوادگی، کد ملی، پایه، رشته و کلاس را مشخص کنید.",
+      );
+      return;
+    }
+    setMappingWarning(null);
+    const out: ValidatedRow[] = excel.rows.map((row, i) => {
+      const data: Partial<Record<FieldKey, string>> = {};
+      mapping.forEach((m, colIdx) => {
+        if (!m || m === "__ignore__") return;
+        const key = m as FieldKey;
+        let val = String(row[colIdx] ?? "").trim();
+        if (TEXT_FIELDS.includes(key)) {
+          // keep as text, normalize to EN digits for storage
+          val = toEnDigits(val);
+        }
+        data[key] = val;
+      });
+      return { data, errors: validateRowData(data), __rowIndex: i + 2 };
+    });
+    setValidated(out);
+  }
+
   function removeRow(idx: number) {
-    if (!parsed) return;
-    setParsed(parsed.filter((_, i) => i !== idx));
+    if (!validated) return;
+    setValidated(validated.filter((_, i) => i !== idx));
   }
 
   async function handleImport() {
-    if (!parsed) return;
-    const valid = parsed.filter((r) => r.__errors.length === 0);
+    if (!validated) return;
+    const valid = validated.filter((r) => r.errors.length === 0);
     if (valid.length === 0) {
       setImportError("هیچ ردیف معتبری برای افزودن وجود ندارد.");
       return;
@@ -254,18 +400,16 @@ function StudentsPage() {
     setImportResult(null);
     try {
       const payload = {
-        students: valid.map(({ __rowIndex, __errors, ...s }) => {
-          void __rowIndex;
-          void __errors;
-          return s;
-        }),
+        students: valid.map((r) => r.data),
       };
       const res = await xanoFetch<ImportResponse>("/students/import", {
         method: "POST",
         body: JSON.stringify(payload),
       });
       setImportResult(res ?? {});
-      setParsed(null);
+      setValidated(null);
+      setExcel(null);
+      setMapping([]);
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";
       await loadStudents();
@@ -276,25 +420,39 @@ function StudentsPage() {
     }
   }
 
-  const validCount = parsed?.filter((r) => r.__errors.length === 0).length ?? 0;
-  const invalidCount = parsed?.filter((r) => r.__errors.length > 0).length ?? 0;
+  const validCount = validated?.filter((r) => r.errors.length === 0).length ?? 0;
+  const invalidCount = validated?.filter((r) => r.errors.length > 0).length ?? 0;
 
   const grades = useMemo(
-    () => Array.from(new Set((students ?? []).map((s) => s.grade).filter(Boolean))) as string[],
+    () =>
+      Array.from(
+        new Set(
+          (students ?? [])
+            .map((s) => s.grade ?? s.grade_level)
+            .filter(Boolean) as string[],
+        ),
+      ),
     [students],
   );
   const majors = useMemo(
-    () => Array.from(new Set((students ?? []).map((s) => s.major).filter(Boolean))) as string[],
+    () =>
+      Array.from(
+        new Set((students ?? []).map((s) => s.major).filter(Boolean)),
+      ) as string[],
     [students],
   );
   const classes = useMemo(
-    () => Array.from(new Set((students ?? []).map((s) => s.class_name).filter(Boolean))) as string[],
+    () =>
+      Array.from(
+        new Set((students ?? []).map((s) => s.class_name).filter(Boolean)),
+      ) as string[],
     [students],
   );
 
   const filteredStudents = useMemo(() => {
     return (students ?? []).filter((s) => {
-      if (grade !== "all" && s.grade !== grade) return false;
+      const g = s.grade ?? s.grade_level;
+      if (grade !== "all" && g !== grade) return false;
       if (major !== "all" && s.major !== major) return false;
       if (className !== "all" && s.class_name !== className) return false;
       if (q) {
@@ -304,6 +462,9 @@ function StudentsPage() {
       return true;
     });
   }, [students, q, grade, major, className]);
+
+  const previewRows = excel?.rows.slice(0, 8) ?? [];
+  const canValidate = !!excel && missingRequired.length === 0;
 
   return (
     <div dir="rtl" className="font-vazir space-y-6 text-right">
@@ -317,7 +478,10 @@ function StudentsPage() {
       </div>
 
       {/* Import section */}
-      <section dir="rtl" className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-5 space-y-4">
+      <section
+        dir="rtl"
+        className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-5 space-y-4"
+      >
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 text-violet-600 grid place-items-center">
             <FileSpreadsheet className="h-4 w-4" />
@@ -353,8 +517,8 @@ function StudentsPage() {
 
           <button
             type="button"
-            onClick={handleParse}
-            disabled={!file}
+            onClick={handleValidate}
+            disabled={!canValidate}
             className="md:col-span-2 h-11 rounded-2xl bg-teal-600 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             <CheckCircle2 className="h-4 w-4" />
@@ -364,7 +528,7 @@ function StudentsPage() {
           <button
             type="button"
             onClick={handleImport}
-            disabled={!parsed || validCount === 0 || importing}
+            disabled={!validated || validCount === 0 || importing}
             className="md:col-span-2 h-11 rounded-2xl bg-violet-600 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {importing ? (
@@ -381,43 +545,91 @@ function StudentsPage() {
             {parseError}
           </div>
         )}
+        {mappingWarning && (
+          <div className="rounded-2xl bg-amber-50 text-amber-800 text-xs px-4 py-3 border border-amber-100">
+            {mappingWarning}
+          </div>
+        )}
         {importError && (
           <div className="rounded-2xl bg-rose-50 text-rose-700 text-xs px-4 py-3 border border-rose-100">
             {importError}
           </div>
         )}
 
-        {importResult && (
-          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 space-y-3">
-            <p className="text-sm font-bold text-emerald-800">
-              {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
+        {/* Mapping + preview */}
+        {excel && excel.headers.length > 0 && (
+          <div className="space-y-3">
+            <p className="text-xs text-slate-500">
+              برای هر ستون اکسل، فیلد متناظر را از منوی بالای ستون انتخاب کنید.
+              ستون‌های غیرضروری را روی «نادیده گرفتن ستون» بگذارید.
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-              <ResultChip label="ایجاد شده" value={importResult.summary?.created ?? importResult.created ?? 0} tone="emerald" />
-              <ResultChip label="به‌روزرسانی" value={importResult.summary?.updated ?? importResult.updated ?? 0} tone="teal" />
-              <ResultChip label="نادیده گرفته شده" value={importResult.summary?.skipped ?? importResult.skipped ?? 0} tone="amber" />
-              <ResultChip label="ناموفق" value={importResult.summary?.failed ?? importResult.failed ?? 0} tone="rose" />
-            </div>
-            {Array.isArray(importResult.errors) && importResult.errors.length > 0 && (
-              <div className="rounded-xl bg-white border border-rose-100 p-3">
-                <p className="text-xs font-bold text-rose-700 mb-2">خطاهای ردیف‌ها</p>
-                <ul className="space-y-1 text-xs text-rose-700 max-h-48 overflow-auto">
-                  {importResult.errors.map((e, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className="font-semibold shrink-0">
-                        {e.row != null ? `ردیف ${Number(e.row).toLocaleString("fa-IR")}` : "—"}
-                        {e.national_code ? ` • کد ملی ${e.national_code}` : ""}
-                      </span>
-                      <span>{e.message ?? e.error ?? e.reason ?? "خطای نامشخص"}</span>
-                    </li>
+            <div dir="rtl" className="overflow-auto rounded-2xl border border-slate-100">
+              <table dir="rtl" className="min-w-full text-xs text-right">
+                <thead className="bg-slate-50">
+                  <tr>
+                    {excel.headers.map((_, colIdx) => (
+                      <th key={colIdx} className="px-3 py-2 align-bottom">
+                        <select
+                          dir="rtl"
+                          value={mapping[colIdx] ?? ""}
+                          onChange={(e) =>
+                            updateMapping(colIdx, e.target.value as MappingValue)
+                          }
+                          className="w-full h-9 px-2 rounded-xl bg-white border border-slate-200 text-[11px] text-slate-700 focus:outline-none focus:border-violet-300 text-right"
+                        >
+                          {MAPPING_OPTIONS.map((o) => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+                      </th>
+                    ))}
+                  </tr>
+                  <tr className="text-slate-600">
+                    {excel.headers.map((h, i) => (
+                      <th
+                        key={i}
+                        className="text-right px-3 py-2 font-bold text-[11px] whitespace-nowrap border-t border-slate-100"
+                      >
+                        {h || `ستون ${(i + 1).toLocaleString("fa-IR")}`}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {previewRows.map((row, ri) => (
+                    <tr key={ri}>
+                      {excel.headers.map((_, ci) => (
+                        <td
+                          key={ci}
+                          className="px-3 py-2 text-slate-700 whitespace-nowrap text-right"
+                        >
+                          {row[ci] ?? ""}
+                        </td>
+                      ))}
+                    </tr>
                   ))}
-                </ul>
-              </div>
+                </tbody>
+              </table>
+            </div>
+            {excel.rows.length > previewRows.length && (
+              <p className="text-[11px] text-slate-400">
+                نمایش {previewRows.length.toLocaleString("fa-IR")} ردیف از{" "}
+                {excel.rows.length.toLocaleString("fa-IR")} ردیف
+              </p>
+            )}
+            {missingRequired.length > 0 && (
+              <p className="text-xs text-amber-700">
+                فیلدهای الزامی بدون ستون:{" "}
+                {missingRequired.map((f) => FIELD_LABEL[f]).join("، ")}
+              </p>
             )}
           </div>
         )}
 
-        {parsed && parsed.length > 0 && (
+        {/* Validation result */}
+        {validated && validated.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-3 flex-wrap text-xs">
               <span className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 inline-flex items-center gap-1.5">
@@ -445,20 +657,25 @@ function StudentsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
-                  {parsed.map((r, i) => (
-                    <tr key={i} className={r.__errors.length ? "bg-rose-50/40" : ""}>
-                      <Td>{r.first_name}</Td>
-                      <Td>{r.last_name}</Td>
-                      <Td>{r.national_code}</Td>
-                      <Td>{r.grade}</Td>
-                      <Td>{r.major}</Td>
-                      <Td>{r.class_name}</Td>
+                  {validated.map((r, i) => (
+                    <tr key={i} className={r.errors.length ? "bg-rose-50/40" : ""}>
+                      <Td>{r.data.first_name ?? ""}</Td>
+                      <Td>{r.data.last_name ?? ""}</Td>
+                      <Td>{r.data.national_code ?? ""}</Td>
+                      <Td>{r.data.grade_level ?? ""}</Td>
+                      <Td>{r.data.major ?? ""}</Td>
+                      <Td>{r.data.class_name ?? ""}</Td>
                       <Td>
-                        {r.__errors.length === 0 ? (
-                          <span className="text-emerald-600 font-semibold">معتبر</span>
+                        {r.errors.length === 0 ? (
+                          <span className="text-emerald-600 font-semibold">
+                            معتبر
+                          </span>
                         ) : (
-                          <span className="text-rose-600" title={r.__errors.join("، ")}>
-                            نامعتبر
+                          <span
+                            className="text-rose-600"
+                            title={r.errors.join("، ")}
+                          >
+                            {r.errors.join("، ")}
                           </span>
                         )}
                       </Td>
@@ -478,10 +695,63 @@ function StudentsPage() {
             </div>
           </div>
         )}
+
+        {importResult && (
+          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 space-y-3">
+            <p className="text-sm font-bold text-emerald-800">
+              {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              <ResultChip
+                label="ایجاد شده"
+                value={importResult.summary?.created ?? importResult.created ?? 0}
+                tone="emerald"
+              />
+              <ResultChip
+                label="به‌روزرسانی"
+                value={importResult.summary?.updated ?? importResult.updated ?? 0}
+                tone="teal"
+              />
+              <ResultChip
+                label="نادیده گرفته شده"
+                value={importResult.summary?.skipped ?? importResult.skipped ?? 0}
+                tone="amber"
+              />
+              <ResultChip
+                label="ناموفق"
+                value={importResult.summary?.failed ?? importResult.failed ?? 0}
+                tone="rose"
+              />
+            </div>
+            {Array.isArray(importResult.errors) && importResult.errors.length > 0 && (
+              <div className="rounded-xl bg-white border border-rose-100 p-3">
+                <p className="text-xs font-bold text-rose-700 mb-2">
+                  خطاهای ردیف‌ها
+                </p>
+                <ul className="space-y-1 text-xs text-rose-700 max-h-48 overflow-auto">
+                  {importResult.errors.map((e, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="font-semibold shrink-0">
+                        {e.row != null
+                          ? `ردیف ${Number(e.row).toLocaleString("fa-IR")}`
+                          : "—"}
+                        {e.national_code ? ` • کد ملی ${e.national_code}` : ""}
+                      </span>
+                      <span>{e.message ?? e.error ?? e.reason ?? "خطای نامشخص"}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Filters */}
-      <section dir="rtl" className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
+      <section
+        dir="rtl"
+        className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4"
+      >
         <div dir="rtl" className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-4 relative">
             <Search className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
@@ -493,14 +763,35 @@ function StudentsPage() {
               className="w-full h-11 pr-10 pl-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-violet-200 focus:bg-white transition text-right"
             />
           </div>
-          <FilterSelect value={grade} onChange={setGrade} label="همه پایه‌ها" options={grades} className="md:col-span-3" />
-          <FilterSelect value={major} onChange={setMajor} label="همه رشته‌ها" options={majors} className="md:col-span-2" />
-          <FilterSelect value={className} onChange={setClassName} label="همه کلاس‌ها" options={classes} className="md:col-span-3" />
+          <FilterSelect
+            value={grade}
+            onChange={setGrade}
+            label="همه پایه‌ها"
+            options={grades}
+            className="md:col-span-3"
+          />
+          <FilterSelect
+            value={major}
+            onChange={setMajor}
+            label="همه رشته‌ها"
+            options={majors}
+            className="md:col-span-2"
+          />
+          <FilterSelect
+            value={className}
+            onChange={setClassName}
+            label="همه کلاس‌ها"
+            options={classes}
+            className="md:col-span-3"
+          />
         </div>
       </section>
 
       {/* Student list */}
-      <section dir="rtl" className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 overflow-hidden">
+      <section
+        dir="rtl"
+        className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 overflow-hidden"
+      >
         {loadingList ? (
           <div className="p-10 text-center text-sm text-slate-400 inline-flex items-center justify-center gap-2 w-full">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -530,10 +821,14 @@ function StudentsPage() {
               <tbody className="divide-y divide-slate-100 bg-white">
                 {filteredStudents.map((s, i) => (
                   <tr key={s.id ?? i} className="hover:bg-slate-50/60">
-                    <Td className="font-semibold text-slate-800">{s.first_name ?? "—"}</Td>
-                    <Td className="font-semibold text-slate-800">{s.last_name ?? "—"}</Td>
+                    <Td className="font-semibold text-slate-800">
+                      {s.first_name ?? "—"}
+                    </Td>
+                    <Td className="font-semibold text-slate-800">
+                      {s.last_name ?? "—"}
+                    </Td>
                     <Td>{s.national_code ?? "—"}</Td>
-                    <Td>{s.grade ?? "—"}</Td>
+                    <Td>{s.grade ?? s.grade_level ?? "—"}</Td>
                     <Td>{s.major ?? "—"}</Td>
                     <Td>{s.class_name ?? "—"}</Td>
                     <Td>
