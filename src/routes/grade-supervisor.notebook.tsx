@@ -364,11 +364,31 @@ function NotebookPage() {
     setFollowUp(false);
     setParentWho("مادر");
     setParentChannel("تماس تلفنی");
+    setSessionType(SESSION_TYPES[0]);
+    setOverallRank("");
+    setRatings({
+      motivation: 0,
+      focus: 0,
+      timeManagement: 0,
+      sleep: 0,
+      familyCooperation: 0,
+    });
+    setActionsTaken([]);
+    setExamMcqNote("");
+    setExamDescriptiveNote("");
+    setShortNote("");
+    setRecommendation("");
   }
 
   function toggleTopic(t: string) {
     setTopics((prev) =>
       prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
+    );
+  }
+
+  function toggleAction(a: string) {
+    setActionsTaken((prev) =>
+      prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a],
     );
   }
 
