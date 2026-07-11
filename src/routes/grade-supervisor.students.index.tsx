@@ -760,28 +760,28 @@ function StudentsPage() {
             <p className="text-sm font-bold text-emerald-800">
               {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <ResultChip
-                label="ایجاد شده"
+                label="تعداد دانش‌آموزان ایجاد شده"
                 value={importResult.summary?.created ?? importResult.created ?? 0}
                 tone="emerald"
               />
               <ResultChip
-                label="به‌روزرسانی"
-                value={importResult.summary?.updated ?? importResult.updated ?? 0}
-                tone="teal"
-              />
-              <ResultChip
-                label="نادیده گرفته شده"
-                value={importResult.summary?.skipped ?? importResult.skipped ?? 0}
-                tone="amber"
-              />
-              <ResultChip
-                label="ناموفق"
+                label="تعداد ردیف‌های نامعتبر"
                 value={importResult.summary?.failed ?? importResult.failed ?? 0}
                 tone="rose"
               />
             </div>
+            {credentialsPayload && credentialsPayload.length > 0 && (
+              <button
+                type="button"
+                onClick={() => downloadCredentialsFile(credentialsPayload)}
+                className="h-10 px-4 rounded-2xl bg-emerald-600 text-white text-xs font-semibold inline-flex items-center gap-1.5 hover:bg-emerald-700 transition"
+              >
+                <Download className="h-4 w-4" />
+                دانلود فایل اطلاعات ورود دانش‌آموزان
+              </button>
+            )}
             {Array.isArray(importResult.errors) && importResult.errors.length > 0 && (
               <div className="rounded-xl bg-white border border-rose-100 p-3">
                 <p className="text-xs font-bold text-rose-700 mb-2">
