@@ -833,15 +833,33 @@ function StudentsPage() {
             <p className="text-sm font-bold text-emerald-800">
               {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
             </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
               <ResultChip
-                label="تعداد دانش‌آموزان ایجاد شده"
+                label="ایجاد شده"
                 value={importResult.summary?.created ?? importResult.created ?? 0}
                 tone="emerald"
               />
               <ResultChip
-                label="تعداد ردیف‌های نامعتبر"
+                label="به‌روزرسانی شده"
+                value={
+                  (importResult.summary as { updated?: number } | undefined)?.updated ??
+                  (importResult as { updated?: number }).updated ??
+                  0
+                }
+                tone="emerald"
+              />
+              <ResultChip
+                label="نامعتبر"
                 value={importResult.summary?.failed ?? importResult.failed ?? 0}
+                tone="rose"
+              />
+              <ResultChip
+                label="نادیده گرفته شده"
+                value={
+                  (importResult.summary as { skipped?: number } | undefined)?.skipped ??
+                  (importResult as { skipped?: number }).skipped ??
+                  0
+                }
                 tone="rose"
               />
             </div>
