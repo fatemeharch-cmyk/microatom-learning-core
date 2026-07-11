@@ -262,7 +262,26 @@ function Chip({
         active
           ? { background: "#1F8A6D", borderColor: "#1F8A6D" }
           : { borderColor: "#E4ECE9" }
-      }
+}
+
+function SubSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="mb-4 rounded-xl border bg-slate-50/60 p-4"
+      style={{ borderColor: "#E4ECE9" }}
+    >
+      <div className="mb-3 text-sm font-semibold" style={{ color: "#123B32" }}>
+        {title}
+      </div>
+      {children}
+    </div>
+  );
     >
       {children}
     </button>
