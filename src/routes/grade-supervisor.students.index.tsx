@@ -220,6 +220,8 @@ function StudentsPage() {
     { first_name: string; last_name: string; national_code: string }[] | null
   >(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [previewPage, setPreviewPage] = useState(1);
+  const PREVIEW_PAGE_SIZE = 8;
 
   const [students, setStudents] = useState<ApiStudent[] | null>(null);
   const [loadingList, setLoadingList] = useState(true);
