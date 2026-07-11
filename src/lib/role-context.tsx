@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import {
-  MOCK_AVAILABLE_ROLES,
+  AVAILABLE_ROLES,
   ROLES,
   hasPermission as _hasPermission,
   type Permission,
