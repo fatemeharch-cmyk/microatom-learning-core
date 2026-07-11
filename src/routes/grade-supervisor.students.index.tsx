@@ -106,10 +106,7 @@ const HEADER_ALIASES: Record<string, FieldKey> = {
   "کلاس": "class_name",
   "نام کلاس": "class_name",
   "سال تحصیلی": "academic_year",
-  "نام کاربری": "username",
-  "username": "username",
-  "رمز عبور": "password",
-  "password": "password",
+
 };
 
 interface ApiStudent {
