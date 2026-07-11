@@ -1,293 +1,624 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import * as XLSX from "xlsx";
 import {
+  Upload,
+  Download,
+  FileSpreadsheet,
+  CheckCircle2,
+  AlertTriangle,
+  Trash2,
   Search,
-  HeartPulse,
-  AlertOctagon,
-  Activity,
-  ShieldCheck,
-  Stethoscope,
-  ScrollText,
-  Target,
+  UserPlus,
+  Loader2,
   ChevronLeft,
-  Sparkles,
 } from "lucide-react";
-import {
-  MONITORING,
-  MONITORING_SUMMARY,
-  GROUP_META,
-  RISK_META,
-  CLASSES,
-  type MonitoringGroup,
-  type MonitoringStudent,
-} from "@/lib/mock/grade-students";
+import { getAuthToken } from "@/lib/api/client";
+import { SUPERVISOR_BASE_URL } from "@/lib/api/config";
 
 export const Route = createFileRoute("/grade-supervisor/students/")({
-  component: MonitoringCenter,
+  component: StudentsPage,
 });
 
-function toFa(n: number | string) {
-  return Number(n).toLocaleString("fa-IR");
+// ---------------- Types ----------------
+interface StudentRow {
+  first_name: string;
+  last_name: string;
+  student_code: string;
+  national_code: string;
+  grade: string;
+  major: string;
+  class_name: string;
+}
+interface ParsedRow extends StudentRow {
+  __rowIndex: number;
+  __errors: string[];
+}
+interface ApiStudent {
+  id?: number | string;
+  first_name?: string;
+  last_name?: string;
+  student_code?: string;
+  national_code?: string;
+  grade?: string;
+  major?: string;
+  class_name?: string;
+  status?: string;
+}
+interface ImportResponse {
+  message?: string;
+  created?: number;
+  updated?: number;
+  skipped?: number;
+  failed?: number;
 }
 
-type StatusFilter = "all" | MonitoringGroup;
+// ---------------- Column mapping ----------------
+const COLUMN_MAP: Record<string, keyof StudentRow> = {
+  "نام": "first_name",
+  "نام خانوادگی": "last_name",
+  "کد دانش‌آموزی": "student_code",
+  "کد دانش آموزی": "student_code",
+  "کد دانشجویی": "student_code",
+  "کد ملی": "national_code",
+  "پایه": "grade",
+  "رشته": "major",
+  "کلاس": "class_name",
+};
 
-function MonitoringCenter() {
-  const [query, setQuery] = useState("");
-  const [cls, setCls] = useState<string>("all");
-  const [status, setStatus] = useState<StatusFilter>("all");
+const REQUIRED_FIELDS: (keyof StudentRow)[] = [
+  "first_name",
+  "last_name",
+  "student_code",
+  "national_code",
+  "grade",
+  "major",
+  "class_name",
+];
 
-  const filtered = useMemo(() => {
-    return MONITORING.filter((s) => {
-      if (cls !== "all" && s.className !== cls) return false;
-      if (status !== "all" && s.group !== status) return false;
-      if (query && !s.name.includes(query)) return false;
+function normalizeHeader(h: string): string {
+  return String(h ?? "")
+    .replace(/\u200c/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function validateRow(r: StudentRow): string[] {
+  const errs: string[] = [];
+  for (const f of REQUIRED_FIELDS) {
+    if (!String(r[f] ?? "").trim()) errs.push(`فیلد الزامی خالی است`);
+  }
+  if (r.national_code && !/^\d{8,10}$/.test(String(r.national_code).trim())) {
+    errs.push("کد ملی معتبر نیست");
+  }
+  return errs;
+}
+
+// ---------------- API ----------------
+async function xanoFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getAuthToken();
+  const res = await fetch(`${SUPERVISOR_BASE_URL}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers ?? {}),
+    },
+  });
+  const text = await res.text();
+  const data = text ? (JSON.parse(text) as unknown) : null;
+  if (!res.ok) {
+    const msg =
+      (data && typeof data === "object" && "message" in data
+        ? String((data as { message: unknown }).message ?? "")
+        : "") || "";
+    throw new Error(msg);
+  }
+  return data as T;
+}
+
+// ---------------- Sample file ----------------
+function downloadSampleFile() {
+  const headers = [
+    "نام",
+    "نام خانوادگی",
+    "کد دانش‌آموزی",
+    "کد ملی",
+    "پایه",
+    "رشته",
+    "کلاس",
+  ];
+  const sample = [
+    ["علی", "رضایی", "1001", "0012345678", "یازدهم", "تجربی", "الف"],
+    ["زهرا", "کریمی", "1002", "0087654321", "یازدهم", "تجربی", "ب"],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...sample]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "دانش‌آموزان");
+  XLSX.writeFile(wb, "atomia-students-sample.xlsx");
+}
+
+// ---------------- Component ----------------
+function StudentsPage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [parsed, setParsed] = useState<ParsedRow[] | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResponse | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const [students, setStudents] = useState<ApiStudent[] | null>(null);
+  const [loadingList, setLoadingList] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
+
+  const [q, setQ] = useState("");
+  const [grade, setGrade] = useState("all");
+  const [major, setMajor] = useState("all");
+  const [className, setClassName] = useState("all");
+
+  async function loadStudents() {
+    setLoadingList(true);
+    setListError(null);
+    try {
+      const data = await xanoFetch<ApiStudent[] | { students?: ApiStudent[] }>(
+        "/grade-supervisor/students",
+      );
+      const list = Array.isArray(data) ? data : (data?.students ?? []);
+      setStudents(list);
+    } catch {
+      setListError("دریافت فهرست دانش‌آموزان با خطا مواجه شد.");
+      setStudents([]);
+    } finally {
+      setLoadingList(false);
+    }
+  }
+
+  useEffect(() => {
+    loadStudents();
+  }, []);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null;
+    setFile(f);
+    setParsed(null);
+    setParseError(null);
+    setImportResult(null);
+    setImportError(null);
+  }
+
+  async function handleParse() {
+    if (!file) {
+      setParseError("لطفاً ابتدا فایل اکسل را انتخاب کنید.");
+      return;
+    }
+    setParseError(null);
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const firstSheet = wb.SheetNames[0];
+      if (!firstSheet) throw new Error("empty");
+      const ws = wb.Sheets[firstSheet];
+      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, {
+        defval: "",
+        raw: false,
+      });
+      if (rows.length === 0) {
+        setParseError("فایل انتخابی هیچ ردیفی ندارد.");
+        setParsed([]);
+        return;
+      }
+      const mapped: ParsedRow[] = rows.map((row, i) => {
+        const out: StudentRow = {
+          first_name: "",
+          last_name: "",
+          student_code: "",
+          national_code: "",
+          grade: "",
+          major: "",
+          class_name: "",
+        };
+        for (const [k, v] of Object.entries(row)) {
+          const key = COLUMN_MAP[normalizeHeader(k)];
+          if (key) out[key] = String(v ?? "").trim();
+        }
+        return { ...out, __rowIndex: i + 2, __errors: validateRow(out) };
+      });
+      setParsed(mapped);
+    } catch {
+      setParseError(
+        "خواندن فایل اکسل امکان‌پذیر نبود. لطفاً از قالب نمونه استفاده کنید.",
+      );
+    }
+  }
+
+  function removeRow(idx: number) {
+    if (!parsed) return;
+    setParsed(parsed.filter((_, i) => i !== idx));
+  }
+
+  async function handleImport() {
+    if (!parsed) return;
+    const valid = parsed.filter((r) => r.__errors.length === 0);
+    if (valid.length === 0) {
+      setImportError("هیچ ردیف معتبری برای افزودن وجود ندارد.");
+      return;
+    }
+    setImporting(true);
+    setImportError(null);
+    setImportResult(null);
+    try {
+      const payload = {
+        students: valid.map(({ __rowIndex, __errors, ...s }) => {
+          void __rowIndex;
+          void __errors;
+          return s;
+        }),
+      };
+      const res = await xanoFetch<ImportResponse>(
+        "/grade-supervisor/students/import",
+        { method: "POST", body: JSON.stringify(payload) },
+      );
+      setImportResult(res ?? {});
+      setParsed(null);
+      setFile(null);
+      if (fileRef.current) fileRef.current.value = "";
+      await loadStudents();
+    } catch {
+      setImportError("افزودن دانش‌آموزان با خطا مواجه شد. لطفاً دوباره تلاش کنید.");
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  const validCount = parsed?.filter((r) => r.__errors.length === 0).length ?? 0;
+  const invalidCount = parsed?.filter((r) => r.__errors.length > 0).length ?? 0;
+
+  const grades = useMemo(
+    () => Array.from(new Set((students ?? []).map((s) => s.grade).filter(Boolean))) as string[],
+    [students],
+  );
+  const majors = useMemo(
+    () => Array.from(new Set((students ?? []).map((s) => s.major).filter(Boolean))) as string[],
+    [students],
+  );
+  const classes = useMemo(
+    () => Array.from(new Set((students ?? []).map((s) => s.class_name).filter(Boolean))) as string[],
+    [students],
+  );
+
+  const filteredStudents = useMemo(() => {
+    return (students ?? []).filter((s) => {
+      if (grade !== "all" && s.grade !== grade) return false;
+      if (major !== "all" && s.major !== major) return false;
+      if (className !== "all" && s.class_name !== className) return false;
+      if (q) {
+        const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim();
+        if (!name.includes(q)) return false;
+      }
       return true;
     });
-  }, [query, cls, status]);
-
-  const groups: MonitoringGroup[] = ["urgent", "follow", "stable"];
+  }, [students, q, grade, major, className]);
 
   return (
     <div dir="rtl" className="font-vazir space-y-6">
-      {/* Header */}
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-800">مرکز پایش دانش‌آموزان</h1>
+        <h1 className="text-2xl font-extrabold text-slate-800">
+          مدیریت دانش‌آموزان
+        </h1>
         <p className="text-sm text-slate-500 mt-1">
-          دانش‌آموزان را بر اساس ریسک، نبض یادگیری، چکاب‌ها و ماموریت‌ها پایش کن.
+          فایل اکسل دانش‌آموزان را بارگذاری کن یا فهرست را مدیریت کن.
         </p>
       </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <SummaryCard
-          icon={<AlertOctagon className="h-4 w-4" />}
-          tone="from-rose-100 to-pink-100 text-rose-600"
-          label="نیازمند اقدام فوری"
-          value={MONITORING_SUMMARY.urgent}
-        />
-        <SummaryCard
-          icon={<Activity className="h-4 w-4" />}
-          tone="from-amber-100 to-yellow-100 text-amber-600"
-          label="نیازمند پیگیری"
-          value={MONITORING_SUMMARY.follow}
-        />
-        <SummaryCard
-          icon={<ShieldCheck className="h-4 w-4" />}
-          tone="from-emerald-100 to-teal-100 text-emerald-600"
-          label="وضعیت پایدار"
-          value={MONITORING_SUMMARY.stable}
-        />
-        <SummaryCard
-          icon={<HeartPulse className="h-4 w-4" />}
-          tone="from-violet-100 to-pink-100 text-violet-600"
-          label="میانگین نبض یادگیری"
-          value={MONITORING_SUMMARY.avgPulse}
-          suffix="٪"
-        />
-      </div>
+      {/* Import section */}
+      <section className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 text-violet-600 grid place-items-center">
+            <FileSpreadsheet className="h-4 w-4" />
+          </div>
+          <h2 className="text-base font-extrabold text-slate-800">
+            افزودن دانش‌آموزان از فایل اکسل
+          </h2>
+        </div>
 
-      {/* Controls */}
-      <div className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+          <label className="md:col-span-5 h-11 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-sm text-slate-600 flex items-center gap-2 px-4 cursor-pointer hover:bg-white transition">
+            <Upload className="h-4 w-4 text-slate-400" />
+            <span className="truncate">
+              {file ? file.name : "انتخاب فایل اکسل"}
+            </span>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+
+          <button
+            type="button"
+            onClick={downloadSampleFile}
+            className="md:col-span-3 h-11 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-700 inline-flex items-center justify-center gap-1.5 hover:bg-white transition"
+          >
+            <Download className="h-4 w-4" />
+            دانلود فایل نمونه
+          </button>
+
+          <button
+            type="button"
+            onClick={handleParse}
+            disabled={!file}
+            className="md:col-span-2 h-11 rounded-2xl bg-teal-600 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            بررسی فایل
+          </button>
+
+          <button
+            type="button"
+            onClick={handleImport}
+            disabled={!parsed || validCount === 0 || importing}
+            className="md:col-span-2 h-11 rounded-2xl bg-violet-600 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {importing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <UserPlus className="h-4 w-4" />
+            )}
+            افزودن دانش‌آموزان
+          </button>
+        </div>
+
+        {parseError && (
+          <div className="rounded-2xl bg-rose-50 text-rose-700 text-xs px-4 py-3 border border-rose-100">
+            {parseError}
+          </div>
+        )}
+        {importError && (
+          <div className="rounded-2xl bg-rose-50 text-rose-700 text-xs px-4 py-3 border border-rose-100">
+            {importError}
+          </div>
+        )}
+
+        {importResult && (
+          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 space-y-2">
+            <p className="text-sm font-bold text-emerald-800">
+              {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              <ResultChip label="ایجاد شده" value={importResult.created ?? 0} tone="emerald" />
+              <ResultChip label="به‌روزرسانی" value={importResult.updated ?? 0} tone="teal" />
+              <ResultChip label="نادیده گرفته شده" value={importResult.skipped ?? 0} tone="amber" />
+              <ResultChip label="ناموفق" value={importResult.failed ?? 0} tone="rose" />
+            </div>
+          </div>
+        )}
+
+        {parsed && parsed.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 flex-wrap text-xs">
+              <span className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                {validCount.toLocaleString("fa-IR")} ردیف معتبر
+              </span>
+              <span className="px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100 inline-flex items-center gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                {invalidCount.toLocaleString("fa-IR")} ردیف نامعتبر
+              </span>
+            </div>
+
+            <div className="overflow-auto rounded-2xl border border-slate-100">
+              <table className="min-w-full text-xs">
+                <thead className="bg-slate-50 text-slate-600">
+                  <tr>
+                    <Th>ردیف</Th>
+                    <Th>نام</Th>
+                    <Th>نام خانوادگی</Th>
+                    <Th>کد دانش‌آموزی</Th>
+                    <Th>کد ملی</Th>
+                    <Th>پایه</Th>
+                    <Th>رشته</Th>
+                    <Th>کلاس</Th>
+                    <Th>وضعیت</Th>
+                    <Th> </Th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {parsed.map((r, i) => (
+                    <tr key={i} className={r.__errors.length ? "bg-rose-50/40" : ""}>
+                      <Td>{r.__rowIndex.toLocaleString("fa-IR")}</Td>
+                      <Td>{r.first_name}</Td>
+                      <Td>{r.last_name}</Td>
+                      <Td>{r.student_code}</Td>
+                      <Td>{r.national_code}</Td>
+                      <Td>{r.grade}</Td>
+                      <Td>{r.major}</Td>
+                      <Td>{r.class_name}</Td>
+                      <Td>
+                        {r.__errors.length === 0 ? (
+                          <span className="text-emerald-600 font-semibold">معتبر</span>
+                        ) : (
+                          <span className="text-rose-600" title={r.__errors.join("، ")}>
+                            نامعتبر
+                          </span>
+                        )}
+                      </Td>
+                      <Td>
+                        <button
+                          onClick={() => removeRow(i)}
+                          className="h-7 w-7 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-600 grid place-items-center"
+                          title="حذف ردیف"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Filters */}
+      <section className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-5 relative">
             <Search className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
             <input
               dir="rtl"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="جستجوی دانش‌آموز"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="جست‌وجوی نام"
               className="w-full h-11 pr-10 pl-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-violet-200 focus:bg-white transition"
             />
           </div>
-          <select
-            value={cls}
-            onChange={(e) => setCls(e.target.value)}
-            className="md:col-span-4 h-11 px-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 focus:outline-none focus:border-violet-200 focus:bg-white transition"
-          >
-            <option value="all">همه کلاس‌ها</option>
-            {CLASSES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as StatusFilter)}
-            className="md:col-span-3 h-11 px-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 focus:outline-none focus:border-violet-200 focus:bg-white transition"
-          >
-            <option value="all">همه</option>
-            <option value="urgent">نیازمند اقدام فوری</option>
-            <option value="follow">نیازمند پیگیری</option>
-            <option value="stable">وضعیت پایدار</option>
-          </select>
+          <FilterSelect value={grade} onChange={setGrade} label="همه پایه‌ها" options={grades} className="md:col-span-3" />
+          <FilterSelect value={major} onChange={setMajor} label="همه رشته‌ها" options={majors} className="md:col-span-2" />
+          <FilterSelect value={className} onChange={setClassName} label="همه کلاس‌ها" options={classes} className="md:col-span-2" />
         </div>
-      </div>
+      </section>
 
-      {/* Grouped student cards */}
-      <div className="space-y-8">
-        {groups.map((g) => {
-          const items = filtered.filter((s) => s.group === g);
-          if (items.length === 0) return null;
-          const meta = GROUP_META[g];
-          return (
-            <section key={g} className="space-y-3">
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full ${meta.dot}`} />
-                  <h2 className="text-base font-extrabold text-slate-800">{meta.title}</h2>
-                  <span className={`text-[10px] px-2.5 py-1 rounded-full border ${meta.chip}`}>
-                    {toFa(items.length)} دانش‌آموز
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500">{meta.subtitle}</p>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {items.map((s) => (
-                  <StudentMonitoringCard key={s.id} s={s} />
+      {/* Student list */}
+      <section className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 overflow-hidden">
+        {loadingList ? (
+          <div className="p-10 text-center text-sm text-slate-400 inline-flex items-center justify-center gap-2 w-full">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            در حال بارگذاری...
+          </div>
+        ) : listError ? (
+          <div className="p-10 text-center text-sm text-rose-600">{listError}</div>
+        ) : filteredStudents.length === 0 ? (
+          <div className="p-10 text-center text-sm text-slate-400">
+            هنوز دانش‌آموزی به این پایه اضافه نشده است.
+          </div>
+        ) : (
+          <div className="overflow-auto">
+            <table className="min-w-full text-xs">
+              <thead className="bg-slate-50 text-slate-600">
+                <tr>
+                  <Th>نام و نام خانوادگی</Th>
+                  <Th>کد دانش‌آموزی</Th>
+                  <Th>کد ملی</Th>
+                  <Th>پایه</Th>
+                  <Th>رشته</Th>
+                  <Th>کلاس</Th>
+                  <Th>وضعیت</Th>
+                  <Th> </Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {filteredStudents.map((s, i) => (
+                  <tr key={s.id ?? i} className="hover:bg-slate-50/60">
+                    <Td className="font-semibold text-slate-800">
+                      {`${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "—"}
+                    </Td>
+                    <Td>{s.student_code ?? "—"}</Td>
+                    <Td>{s.national_code ?? "—"}</Td>
+                    <Td>{s.grade ?? "—"}</Td>
+                    <Td>{s.major ?? "—"}</Td>
+                    <Td>{s.class_name ?? "—"}</Td>
+                    <Td>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px]">
+                        {s.status ?? "فعال"}
+                      </span>
+                    </Td>
+                    <Td>
+                      {s.id != null && (
+                        <Link
+                          to="/grade-supervisor/students/$id"
+                          params={{ id: String(s.id) }}
+                          className="inline-flex items-center gap-1 text-violet-600 hover:text-violet-700 font-semibold"
+                        >
+                          پرونده
+                          <ChevronLeft className="h-3 w-3" />
+                        </Link>
+                      )}
+                    </Td>
+                  </tr>
                 ))}
-              </div>
-            </section>
-          );
-        })}
-
-        {filtered.length === 0 && (
-          <div className="bg-white rounded-3xl border border-slate-100 p-10 text-center text-sm text-slate-400">
-            دانش‌آموزی با این فیلتر یافت نشد.
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
 
-function SummaryCard({
-  icon,
-  tone,
+function Th({ children }: { children: React.ReactNode }) {
+  return (
+    <th className="text-right px-4 py-3 font-bold text-[11px] whitespace-nowrap">
+      {children}
+    </th>
+  );
+}
+function Td({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <td className={`px-4 py-3 text-slate-700 whitespace-nowrap ${className}`}>
+      {children}
+    </td>
+  );
+}
+
+function ResultChip({
   label,
   value,
-  suffix,
+  tone,
 }: {
-  icon: React.ReactNode;
-  tone: string;
   label: string;
   value: number;
-  suffix?: string;
+  tone: "emerald" | "teal" | "amber" | "rose";
 }) {
+  const map: Record<string, string> = {
+    emerald: "bg-emerald-100 text-emerald-800",
+    teal: "bg-teal-100 text-teal-800",
+    amber: "bg-amber-100 text-amber-800",
+    rose: "bg-rose-100 text-rose-800",
+  };
   return (
-    <div className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
-      <div className="flex items-center gap-3">
-        <div className={`h-10 w-10 rounded-2xl bg-gradient-to-br ${tone} grid place-items-center`}>
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <p className="text-[11px] text-slate-500">{label}</p>
-          <p className="text-xl font-extrabold text-slate-800 mt-0.5">
-            {toFa(value)}
-            {suffix && <span className="text-sm font-bold mr-0.5">{suffix}</span>}
-          </p>
-        </div>
-      </div>
+    <div className={`rounded-xl px-3 py-2 ${map[tone]}`}>
+      <p className="text-[10px] opacity-80">{label}</p>
+      <p className="text-sm font-extrabold">{value.toLocaleString("fa-IR")}</p>
     </div>
   );
 }
 
-function StudentMonitoringCard({ s }: { s: MonitoringStudent }) {
-  const g = GROUP_META[s.group];
-  const r = RISK_META[s.risk];
-
-  return (
-    <div className={`bg-white rounded-3xl border ${g.ring} shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] overflow-hidden`}>
-      <div className={`bg-gradient-to-l ${g.soft} px-5 py-4 flex items-center gap-3`}>
-        <div className={`h-12 w-12 rounded-2xl bg-gradient-to-br ${s.avatarColor} grid place-items-center text-lg font-extrabold text-slate-700`}>
-          {s.name.charAt(0)}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm font-extrabold text-slate-800">{s.name}</h3>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full border ${r.pill} inline-flex items-center gap-1`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${r.dot}`} />
-              {r.label}
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">کلاس: {s.className}</p>
-        </div>
-      </div>
-
-      <div className="p-5 space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <Metric
-            icon={<HeartPulse className="h-3.5 w-3.5" />}
-            tone="bg-violet-50 text-violet-600"
-            label="نبض یادگیری"
-            value={`${toFa(s.learningPulse)}٪`}
-          />
-          <Metric
-            icon={<Stethoscope className="h-3.5 w-3.5" />}
-            tone="bg-teal-50 text-teal-600"
-            label="آخرین چکاب"
-            value={`${toFa(s.lastCheckup)}٪`}
-          />
-          <Metric
-            icon={<Target className="h-3.5 w-3.5" />}
-            tone="bg-amber-50 text-amber-600"
-            label="ماموریت‌ها"
-            value={`${toFa(s.missionsDone)} از ${toFa(s.missionsTotal)}`}
-          />
-          <Metric
-            icon={<ScrollText className="h-3.5 w-3.5" />}
-            tone="bg-pink-50 text-pink-600"
-            label="وضعیت نسخه"
-            value={s.prescriptionStatus}
-          />
-        </div>
-
-        <div className="bg-slate-50/70 rounded-2xl p-3">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Sparkles className="h-3.5 w-3.5 text-slate-500" />
-            <p className="text-[11px] font-bold text-slate-600">هشدارهای هوشمند</p>
-          </div>
-          <ul className="space-y-1.5">
-            {s.alerts.map((a, i) => (
-              <li key={i} className="flex items-start gap-2 text-[12px] text-slate-700">
-                <span className={`mt-1.5 h-1.5 w-1.5 rounded-full ${g.dot}`} />
-                <span>{a}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <Link
-          to="/grade-supervisor/students/$id"
-          params={{ id: s.id }}
-          className="w-full inline-flex items-center justify-center gap-1.5 h-10 rounded-2xl bg-violet-600 text-white text-xs font-semibold shadow-sm hover:bg-violet-700 transition"
-        >
-          مشاهده پرونده
-          <ChevronLeft className="h-3.5 w-3.5" />
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function Metric({
-  icon,
-  tone,
-  label,
+function FilterSelect({
   value,
+  onChange,
+  label,
+  options,
+  className = "",
 }: {
-  icon: React.ReactNode;
-  tone: string;
-  label: string;
   value: string;
+  onChange: (v: string) => void;
+  label: string;
+  options: string[];
+  className?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-100 p-3">
-      <div className="flex items-center gap-2">
-        <span className={`h-6 w-6 rounded-lg grid place-items-center ${tone}`}>{icon}</span>
-        <p className="text-[10px] text-slate-500">{label}</p>
-      </div>
-      <p className="text-sm font-extrabold text-slate-800 mt-1.5">{value}</p>
-    </div>
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={`h-11 px-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 focus:outline-none focus:border-violet-200 focus:bg-white transition ${className}`}
+    >
+      <option value="all">{label}</option>
+      {options.map((o) => (
+        <option key={o} value={o}>
+          {o}
+        </option>
+      ))}
+    </select>
   );
 }
