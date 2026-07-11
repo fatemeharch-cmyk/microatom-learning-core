@@ -426,6 +426,19 @@ function StudentsPage() {
     setValidated(validated.filter((_, i) => i !== idx));
   }
 
+  async function handleDeleteStudent(s: ApiStudent) {
+    if (s.id == null) return;
+    const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "این دانش‌آموز";
+    if (!window.confirm(`آیا از حذف ${name} مطمئن هستید؟`)) return;
+    try {
+      await xanoFetch(`/students/${s.id}`, { method: "DELETE" });
+      await loadStudents();
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      window.alert(msg ? `حذف با خطا مواجه شد: ${msg}` : "حذف با خطا مواجه شد.");
+    }
+  }
+
   function downloadCredentialsFile(
     rows: { first_name: string; last_name: string; national_code: string }[],
   ) {
