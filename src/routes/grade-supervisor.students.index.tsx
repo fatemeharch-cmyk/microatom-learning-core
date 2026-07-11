@@ -34,9 +34,7 @@ type FieldKey =
   | "major"
   | "grade_level"
   | "class_name"
-  | "academic_year"
-  | "username"
-  | "password";
+  | "academic_year";
 
 type MappingValue = "" | "__ignore__" | FieldKey;
 
@@ -52,8 +50,6 @@ const MAPPING_OPTIONS: { value: MappingValue; label: string }[] = [
   { value: "grade_level", label: "پایه" },
   { value: "class_name", label: "کلاس" },
   { value: "academic_year", label: "سال تحصیلی" },
-  { value: "username", label: "نام کاربری" },
-  { value: "password", label: "رمز عبور" },
   { value: "__ignore__", label: "نادیده گرفتن ستون" },
 ];
 
@@ -71,8 +67,6 @@ const TEXT_FIELDS: FieldKey[] = [
   "student_mobile",
   "father_mobile",
   "mother_mobile",
-  "username",
-  "password",
 ];
 
 const FIELD_LABEL: Record<FieldKey, string> = {
@@ -86,8 +80,6 @@ const FIELD_LABEL: Record<FieldKey, string> = {
   grade_level: "پایه",
   class_name: "کلاس",
   academic_year: "سال تحصیلی",
-  username: "نام کاربری",
-  password: "رمز عبور",
 };
 
 // header aliases → FieldKey
@@ -114,10 +106,7 @@ const HEADER_ALIASES: Record<string, FieldKey> = {
   "کلاس": "class_name",
   "نام کلاس": "class_name",
   "سال تحصیلی": "academic_year",
-  "نام کاربری": "username",
-  "username": "username",
-  "رمز عبور": "password",
-  "password": "password",
+
 };
 
 interface ApiStudent {
@@ -226,6 +215,9 @@ function StudentsPage() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResponse | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [credentialsPayload, setCredentialsPayload] = useState<
+    { first_name: string; last_name: string; national_code: string }[] | null
+  >(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [students, setStudents] = useState<ApiStudent[] | null>(null);
@@ -366,21 +358,32 @@ function StudentsPage() {
       return;
     }
     setMappingWarning(null);
-    const out: ValidatedRow[] = excel.rows.map((row, i) => {
+    const rows: ValidatedRow[] = excel.rows.map((row, i) => {
       const data: Partial<Record<FieldKey, string>> = {};
       mapping.forEach((m, colIdx) => {
         if (!m || m === "__ignore__") return;
         const key = m as FieldKey;
         let val = String(row[colIdx] ?? "").trim();
         if (TEXT_FIELDS.includes(key)) {
-          // keep as text, normalize to EN digits for storage
           val = toEnDigits(val);
         }
         data[key] = val;
       });
       return { data, errors: validateRowData(data), __rowIndex: i + 2 };
     });
-    setValidated(out);
+    // Duplicate national_code detection across the sheet
+    const counts = new Map<string, number>();
+    rows.forEach((r) => {
+      const nc = String(r.data.national_code ?? "").trim();
+      if (nc) counts.set(nc, (counts.get(nc) ?? 0) + 1);
+    });
+    rows.forEach((r) => {
+      const nc = String(r.data.national_code ?? "").trim();
+      if (nc && (counts.get(nc) ?? 0) > 1) {
+        r.errors.push("کد ملی تکراری در فایل");
+      }
+    });
+    setValidated(rows);
   }
 
   function removeRow(idx: number) {
@@ -388,9 +391,34 @@ function StudentsPage() {
     setValidated(validated.filter((_, i) => i !== idx));
   }
 
+  function downloadCredentialsFile(
+    rows: { first_name: string; last_name: string; national_code: string }[],
+  ) {
+    const headers = [
+      "نام",
+      "نام خانوادگی",
+      "کد ملی",
+      "نام کاربری",
+      "رمز عبور",
+    ];
+    const body = rows.map((r) => [
+      r.first_name,
+      r.last_name,
+      r.national_code,
+      r.national_code,
+      r.national_code,
+    ]);
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...body]);
+    ws["!views"] = [{ RTL: true }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "اطلاعات ورود");
+    XLSX.writeFile(wb, "atomia-students-credentials.xlsx");
+  }
+
   async function handleImport() {
     if (!validated) return;
     const valid = validated.filter((r) => r.errors.length === 0);
+    const invalid = validated.filter((r) => r.errors.length > 0);
     if (valid.length === 0) {
       setImportError("هیچ ردیف معتبری برای افزودن وجود ندارد.");
       return;
@@ -399,14 +427,44 @@ function StudentsPage() {
     setImportError(null);
     setImportResult(null);
     try {
-      const payload = {
-        students: valid.map((r) => r.data),
-      };
+      const students = valid.map((r) => {
+        const nc = String(r.data.national_code ?? "").trim();
+        return {
+          ...r.data,
+          role: "student",
+          username: nc,
+          password: nc,
+          must_change_password: false,
+        };
+      });
+      const payload = { students };
       const res = await xanoFetch<ImportResponse>("/students/import", {
         method: "POST",
         body: JSON.stringify(payload),
       });
-      setImportResult(res ?? {});
+      const result: ImportResponse = {
+        ...(res ?? {}),
+        summary: {
+          ...(res?.summary ?? {}),
+          created:
+            res?.summary?.created ??
+            res?.created ??
+            valid.length,
+          failed:
+            res?.summary?.failed ??
+            res?.failed ??
+            invalid.length,
+        },
+      };
+      setImportResult(result);
+      // Build downloadable credentials file from what we sent
+      setCredentialsPayload(
+        students.map((s) => ({
+          first_name: String(s.first_name ?? ""),
+          last_name: String(s.last_name ?? ""),
+          national_code: String(s.national_code ?? ""),
+        })),
+      );
       setValidated(null);
       setExcel(null);
       setMapping([]);
@@ -419,6 +477,7 @@ function StudentsPage() {
       setImporting(false);
     }
   }
+
 
   const validCount = validated?.filter((r) => r.errors.length === 0).length ?? 0;
   const invalidCount = validated?.filter((r) => r.errors.length > 0).length ?? 0;
@@ -701,28 +760,28 @@ function StudentsPage() {
             <p className="text-sm font-bold text-emerald-800">
               {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <ResultChip
-                label="ایجاد شده"
+                label="تعداد دانش‌آموزان ایجاد شده"
                 value={importResult.summary?.created ?? importResult.created ?? 0}
                 tone="emerald"
               />
               <ResultChip
-                label="به‌روزرسانی"
-                value={importResult.summary?.updated ?? importResult.updated ?? 0}
-                tone="teal"
-              />
-              <ResultChip
-                label="نادیده گرفته شده"
-                value={importResult.summary?.skipped ?? importResult.skipped ?? 0}
-                tone="amber"
-              />
-              <ResultChip
-                label="ناموفق"
+                label="تعداد ردیف‌های نامعتبر"
                 value={importResult.summary?.failed ?? importResult.failed ?? 0}
                 tone="rose"
               />
             </div>
+            {credentialsPayload && credentialsPayload.length > 0 && (
+              <button
+                type="button"
+                onClick={() => downloadCredentialsFile(credentialsPayload)}
+                className="h-10 px-4 rounded-2xl bg-emerald-600 text-white text-xs font-semibold inline-flex items-center gap-1.5 hover:bg-emerald-700 transition"
+              >
+                <Download className="h-4 w-4" />
+                دانلود فایل اطلاعات ورود دانش‌آموزان
+              </button>
+            )}
             {Array.isArray(importResult.errors) && importResult.errors.length > 0 && (
               <div className="rounded-xl bg-white border border-rose-100 p-3">
                 <p className="text-xs font-bold text-rose-700 mb-2">
