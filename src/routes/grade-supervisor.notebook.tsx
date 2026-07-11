@@ -58,27 +58,51 @@ const TYPE_BADGE: Record<ReportType, string> = {
   dose: "bg-indigo-50 text-indigo-700 border-indigo-100",
 };
 
-const MOODS = [
-  { value: 5, label: "عالی" },
-  { value: 4, label: "خوب" },
-  { value: 3, label: "متوسط" },
-  { value: 2, label: "نگران" },
-  { value: 1, label: "توجه جدی" },
+const MOODS: { value: number; label: string; dot: string }[] = [
+  { value: 5, label: "عالی", dot: "#16a34a" },
+  { value: 4, label: "خوب", dot: "#16a34a" },
+  { value: 3, label: "متوسط", dot: "#f59e0b" },
+  { value: 2, label: "نگران", dot: "#f59e0b" },
+  { value: 1, label: "نیازمند توجه جدی", dot: "#dc2626" },
 ];
 
 const TOPICS = [
-  "زیست",
-  "شیمی",
-  "فیزیک",
-  "ریاضی",
-  "مطالعه",
-  "انگیزه",
-  "خانواده",
-  "خواب",
-  "تمرکز",
-  "امتحان",
-  "دوستان",
-  "سلامت",
+  "افت درسی",
+  "برنامه‌ریزی مطالعه",
+  "اضطراب امتحان",
+  "انگیزه و هدف",
+  "کنکور و انتخاب رشته",
+  "خانوادگی",
+  "ارتباط با همسالان",
+  "حضور و غیاب",
+  "سلامت و خواب",
+  "استفاده از موبایل",
+];
+
+const SESSION_TYPES = [
+  "مشاوره فردی",
+  "مشاوره با اولیا",
+  "مشاوره دانش‌آموز و اولیا",
+];
+
+const OVERALL_RANKS = ["C", "+C", "B", "+B", "A", "+A", "D"];
+
+const ACTIONS_TAKEN = [
+  "تماس با اولیا",
+  "برنامه مطالعاتی داده شد",
+  "ارجاع به مشاور مدرسه",
+  "پیگیری هفته آینده",
+  "هماهنگی با دبیر",
+  "تشویق و دلگرمی",
+  "تذکر",
+];
+
+const RATING_ROWS: { key: string; label: string }[] = [
+  { key: "motivation", label: "روحیه و انگیزه" },
+  { key: "focus", label: "تمرکز" },
+  { key: "timeManagement", label: "مدیریت زمان" },
+  { key: "sleep", label: "خواب و انرژی" },
+  { key: "familyCooperation", label: "همکاری خانواده" },
 ];
 
 const PARENT_WHO = ["پدر", "مادر", "سرپرست"];
