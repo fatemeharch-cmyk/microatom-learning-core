@@ -10,6 +10,7 @@ import {
   AlertCircle,
   UserRound,
   CalendarClock,
+  Star,
 } from "lucide-react";
 import { STUDENTS } from "@/lib/mock/grade-students";
 import { SUPERVISOR_BASE_URL } from "@/lib/api/config";
