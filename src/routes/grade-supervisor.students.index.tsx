@@ -166,9 +166,9 @@ function StudentsPage() {
     setLoadingList(true);
     setListError(null);
     try {
-      const data = await xanoFetch<ApiStudent[] | { students?: ApiStudent[] }>(
-        "/grade-supervisor/students",
-      );
+      const data = await xanoFetch<
+        ApiStudent[] | { students?: ApiStudent[]; success?: unknown }
+      >("/students");
       const list = Array.isArray(data) ? data : (data?.students ?? []);
       setStudents(list);
     } catch {
