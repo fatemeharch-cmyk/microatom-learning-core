@@ -630,19 +630,8 @@ function TodayPage() {
 // Presentational bits
 // ---------------------------------------------------------------------------
 
-function SampleBadge({ tone = "solid" }: { tone?: "solid" | "light" }) {
-  return (
-    <Badge
-      className={
-        tone === "light"
-          ? "bg-white/25 text-white border-white/30 hover:bg-white/25 rounded-full text-[10px] px-2 py-0.5 font-semibold"
-          : "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 rounded-full text-[10px] px-2 py-0.5 font-semibold"
-      }
-    >
-      نمونه
-    </Badge>
-  );
-}
+
+
 
 function StatPill({ label, value }: { label: string; value: string }) {
   return (
