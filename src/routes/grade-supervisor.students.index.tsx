@@ -159,6 +159,7 @@ function StudentsPage() {
   const [listError, setListError] = useState<string | null>(null);
 
   const [q, setQ] = useState("");
+  const [grade, setGrade] = useState("all");
   const [major, setMajor] = useState("all");
   const [className, setClassName] = useState("all");
 
