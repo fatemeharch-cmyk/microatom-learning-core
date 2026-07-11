@@ -12,7 +12,6 @@ import {
   FolderHeart,
   Trophy,
   FileHeart,
-  CalendarClock,
 
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
@@ -23,14 +22,13 @@ const medicalItems: NavItem[] = [
   { title: "کلینیک من", url: "/student", icon: Home },
   { title: "شرح حال", url: "/student/profile", icon: Stethoscope },
   { title: "نبض دانش", url: "/student/progress", icon: HeartPulse },
-  { title: "اسکن", url: "/student/tracking", icon: ScanLine },
+  { title: "اسکن", url: "/student/planner", icon: ScanLine },
   { title: "کلینیک یادگیری", url: "/student/notebook", icon: NotebookPen },
   { title: "مراقبت", url: "/student/schedule", icon: ShieldCheck },
   { title: "چکاب", url: "/student/exams", icon: CalendarCheck2 },
   { title: "آزمون", url: "/student/exam", icon: NotebookPen },
   { title: "کاوش", url: "/student/analytics", icon: Compass },
   { title: "ماموریت", url: "/student/homework", icon: Target },
-  { title: "برنامه‌ریز توربو", url: "/student/planner", icon: CalendarClock },
   { title: "پرونده رشد", url: "/student/growth", icon: FolderHeart },
   { title: "پرونده سلامت آموزشی", url: "/student/health-report", icon: FileHeart },
 ];
