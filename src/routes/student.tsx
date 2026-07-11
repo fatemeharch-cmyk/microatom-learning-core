@@ -12,6 +12,7 @@ import {
   FolderHeart,
   Trophy,
   FileHeart,
+  CalendarClock,
 
 } from "lucide-react";
 import { StudentShell, type NavItem } from "@/components/student/student-shell";
