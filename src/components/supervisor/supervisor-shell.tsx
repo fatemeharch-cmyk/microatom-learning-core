@@ -34,7 +34,11 @@ function SidebarBody({
       {/* Brand */}
       <div dir="rtl" className="flex flex-row items-center gap-3 pb-4 w-full">
         <div className="relative h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 grid place-items-center shrink-0">
-          <HeartPulse className="h-5 w-5 text-violet-600" />
+          <img
+            src={atomiaIcon}
+            alt="Atomia"
+            className="h-6 w-6 object-contain"
+          />
         </div>
         <div className="flex-1 text-right">
           <p className="text-base font-extrabold text-slate-800 leading-tight">Atomia</p>
