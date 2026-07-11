@@ -428,6 +428,19 @@ function NotebookPage() {
     try {
       const [gy, gm, gd] = jalaliToGregorian(jYear, jMonth, jDay);
       const iso = new Date(Date.UTC(gy, gm - 1, gd, 9, 0, 0)).toISOString();
+      const moodLabel =
+        MOODS.find((m) => m.value === mood)?.label ?? String(mood);
+      const combinedNotes = [
+        `نوع جلسه: ${sessionType}`,
+        `حال دانش‌آموز: ${moodLabel}`,
+        `رتبه کلی: ${overallRank || "ثبت نشده"}`,
+        `امتیازها: روحیه و انگیزه ${toFa(ratings.motivation)}/۵، تمرکز ${toFa(ratings.focus)}/۵، مدیریت زمان ${toFa(ratings.timeManagement)}/۵، خواب و انرژی ${toFa(ratings.sleep)}/۵، همکاری خانواده ${toFa(ratings.familyCooperation)}/۵`,
+        `اقدام انجام‌شده: ${actionsTaken.length ? actionsTaken.join("، ") : "—"}`,
+        `آزمون تستی: ${examMcqNote || "—"}`,
+        `آزمون تشریحی: ${examDescriptiveNote || "—"}`,
+        `یادداشت: ${shortNote || "—"}`,
+        `پیشنهاد: ${recommendation || "—"}`,
+      ].join("\n");
       const payload: Report = {
         ...(editingId != null ? { id: editingId } : {}),
         student_id: selectedStudent.id,
@@ -436,7 +449,7 @@ function NotebookPage() {
         date: iso,
         topics,
         mood,
-        notes,
+        notes: combinedNotes,
         follow_up: followUp,
         ...(reportType === "parent"
           ? { parent_who: parentWho, parent_channel: parentChannel }
