@@ -388,16 +388,32 @@ function StudentsPage() {
         )}
 
         {importResult && (
-          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 space-y-2">
+          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 space-y-3">
             <p className="text-sm font-bold text-emerald-800">
               {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-              <ResultChip label="ایجاد شده" value={importResult.created ?? 0} tone="emerald" />
-              <ResultChip label="به‌روزرسانی" value={importResult.updated ?? 0} tone="teal" />
-              <ResultChip label="نادیده گرفته شده" value={importResult.skipped ?? 0} tone="amber" />
-              <ResultChip label="ناموفق" value={importResult.failed ?? 0} tone="rose" />
+              <ResultChip label="ایجاد شده" value={importResult.summary?.created ?? importResult.created ?? 0} tone="emerald" />
+              <ResultChip label="به‌روزرسانی" value={importResult.summary?.updated ?? importResult.updated ?? 0} tone="teal" />
+              <ResultChip label="نادیده گرفته شده" value={importResult.summary?.skipped ?? importResult.skipped ?? 0} tone="amber" />
+              <ResultChip label="ناموفق" value={importResult.summary?.failed ?? importResult.failed ?? 0} tone="rose" />
             </div>
+            {Array.isArray(importResult.errors) && importResult.errors.length > 0 && (
+              <div className="rounded-xl bg-white border border-rose-100 p-3">
+                <p className="text-xs font-bold text-rose-700 mb-2">خطاهای ردیف‌ها</p>
+                <ul className="space-y-1 text-xs text-rose-700 max-h-48 overflow-auto">
+                  {importResult.errors.map((e, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="font-semibold shrink-0">
+                        {e.row != null ? `ردیف ${Number(e.row).toLocaleString("fa-IR")}` : "—"}
+                        {e.national_code ? ` • کد ملی ${e.national_code}` : ""}
+                      </span>
+                      <span>{e.message ?? e.error ?? e.reason ?? "خطای نامشخص"}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
