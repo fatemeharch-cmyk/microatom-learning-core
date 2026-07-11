@@ -705,11 +705,51 @@ function StudentsPage() {
                 </tbody>
               </table>
             </div>
-            {excel.rows.length > previewRows.length && (
-              <p className="text-[11px] text-slate-400">
-                نمایش {previewRows.length.toLocaleString("fa-IR")} ردیف از{" "}
-                {excel.rows.length.toLocaleString("fa-IR")} ردیف
-              </p>
+            {totalRows > 0 && (
+              <div dir="rtl" className="flex items-center justify-between flex-wrap gap-2">
+                <p className="text-[11px] text-slate-400">
+                  نمایش {previewRows.length.toLocaleString("fa-IR")} ردیف از{" "}
+                  {totalRows.toLocaleString("fa-IR")} ردیف
+                </p>
+                {totalPages > 1 && (
+                  <div dir="rtl" className="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="h-8 px-3 rounded-lg bg-slate-50 border border-slate-100 text-[11px] font-semibold text-slate-700 inline-flex items-center gap-1 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" />
+                      قبلی
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setPreviewPage(n)}
+                        className={`h-8 min-w-8 px-2 rounded-lg text-[11px] font-bold border transition ${
+                          n === currentPage
+                            ? "bg-violet-600 text-white border-violet-600"
+                            : "bg-white text-slate-600 border-slate-100 hover:bg-slate-50"
+                        }`}
+                      >
+                        {n.toLocaleString("fa-IR")}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPreviewPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="h-8 px-3 rounded-lg bg-slate-50 border border-slate-100 text-[11px] font-semibold text-slate-700 inline-flex items-center gap-1 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      بعدی
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
             {missingRequired.length > 0 && (
               <p className="text-xs text-amber-700">
