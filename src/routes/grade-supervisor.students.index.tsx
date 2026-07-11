@@ -122,6 +122,9 @@ interface ApiStudent {
   grade_level?: string;
   major?: string;
   class_name?: string;
+  student_mobile?: string;
+  mobile?: string;
+  phone?: string;
   status?: string;
 }
 interface ImportResponse {
