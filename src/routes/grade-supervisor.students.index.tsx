@@ -551,7 +551,11 @@ function StudentsPage() {
     });
   }, [students, q, grade, major, className]);
 
-  const previewRows = excel?.rows.slice(0, 8) ?? [];
+  const totalRows = excel?.rows.length ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalRows / PREVIEW_PAGE_SIZE));
+  const currentPage = Math.min(previewPage, totalPages);
+  const pageStart = (currentPage - 1) * PREVIEW_PAGE_SIZE;
+  const previewRows = excel?.rows.slice(pageStart, pageStart + PREVIEW_PAGE_SIZE) ?? [];
   const canValidate = !!excel && missingRequired.length === 0;
 
   return (
