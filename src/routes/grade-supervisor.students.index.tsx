@@ -259,10 +259,10 @@ function StudentsPage() {
           return s;
         }),
       };
-      const res = await xanoFetch<ImportResponse>(
-        "/grade-supervisor/students/import",
-        { method: "POST", body: JSON.stringify(payload) },
-      );
+      const res = await xanoFetch<ImportResponse>("/students/import", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
       setImportResult(res ?? {});
       setParsed(null);
       setFile(null);
