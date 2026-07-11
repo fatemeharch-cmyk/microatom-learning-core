@@ -20,13 +20,13 @@ export const Route = createFileRoute("/grade-supervisor/students/")({
   component: StudentsPage,
 });
 
+const FIXED_GRADE = "یازدهم";
+
 // ---------------- Types ----------------
 interface StudentRow {
   first_name: string;
   last_name: string;
-  student_code: string;
   national_code: string;
-  grade: string;
   major: string;
   class_name: string;
 }
@@ -38,7 +38,6 @@ interface ApiStudent {
   id?: number | string;
   first_name?: string;
   last_name?: string;
-  student_code?: string;
   national_code?: string;
   grade?: string;
   major?: string;
@@ -57,11 +56,7 @@ interface ImportResponse {
 const COLUMN_MAP: Record<string, keyof StudentRow> = {
   "نام": "first_name",
   "نام خانوادگی": "last_name",
-  "کد دانش‌آموزی": "student_code",
-  "کد دانش آموزی": "student_code",
-  "کد دانشجویی": "student_code",
   "کد ملی": "national_code",
-  "پایه": "grade",
   "رشته": "major",
   "کلاس": "class_name",
 };
@@ -69,9 +64,7 @@ const COLUMN_MAP: Record<string, keyof StudentRow> = {
 const REQUIRED_FIELDS: (keyof StudentRow)[] = [
   "first_name",
   "last_name",
-  "student_code",
   "national_code",
-  "grade",
   "major",
   "class_name",
 ];
@@ -120,20 +113,14 @@ async function xanoFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 // ---------------- Sample file ----------------
 function downloadSampleFile() {
-  const headers = [
-    "نام",
-    "نام خانوادگی",
-    "کد دانش‌آموزی",
-    "کد ملی",
-    "پایه",
-    "رشته",
-    "کلاس",
-  ];
+  const headers = ["نام", "نام خانوادگی", "کد ملی", "رشته", "کلاس"];
   const sample = [
-    ["علی", "رضایی", "1001", "0012345678", "یازدهم", "تجربی", "الف"],
-    ["زهرا", "کریمی", "1002", "0087654321", "یازدهم", "تجربی", "ب"],
+    ["علی", "رضایی", "0012345678", "تجربی", "الف"],
+    ["زهرا", "کریمی", "0087654321", "تجربی", "ب"],
   ];
   const ws = XLSX.utils.aoa_to_sheet([headers, ...sample]);
+  if (!ws["!cols"]) ws["!cols"] = [];
+  ws["!views"] = [{ RTL: true }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "دانش‌آموزان");
   XLSX.writeFile(wb, "atomia-students-sample.xlsx");
@@ -154,7 +141,6 @@ function StudentsPage() {
   const [listError, setListError] = useState<string | null>(null);
 
   const [q, setQ] = useState("");
-  const [grade, setGrade] = useState("all");
   const [major, setMajor] = useState("all");
   const [className, setClassName] = useState("all");
 
@@ -213,9 +199,7 @@ function StudentsPage() {
         const out: StudentRow = {
           first_name: "",
           last_name: "",
-          student_code: "",
           national_code: "",
-          grade: "",
           major: "",
           class_name: "",
         };
@@ -253,7 +237,7 @@ function StudentsPage() {
         students: valid.map(({ __rowIndex, __errors, ...s }) => {
           void __rowIndex;
           void __errors;
-          return s;
+          return { ...s, grade: FIXED_GRADE };
         }),
       };
       const res = await xanoFetch<ImportResponse>(
@@ -275,10 +259,6 @@ function StudentsPage() {
   const validCount = parsed?.filter((r) => r.__errors.length === 0).length ?? 0;
   const invalidCount = parsed?.filter((r) => r.__errors.length > 0).length ?? 0;
 
-  const grades = useMemo(
-    () => Array.from(new Set((students ?? []).map((s) => s.grade).filter(Boolean))) as string[],
-    [students],
-  );
   const majors = useMemo(
     () => Array.from(new Set((students ?? []).map((s) => s.major).filter(Boolean))) as string[],
     [students],
@@ -290,7 +270,6 @@ function StudentsPage() {
 
   const filteredStudents = useMemo(() => {
     return (students ?? []).filter((s) => {
-      if (grade !== "all" && s.grade !== grade) return false;
       if (major !== "all" && s.major !== major) return false;
       if (className !== "all" && s.class_name !== className) return false;
       if (q) {
@@ -299,16 +278,16 @@ function StudentsPage() {
       }
       return true;
     });
-  }, [students, q, grade, major, className]);
+  }, [students, q, major, className]);
 
   return (
-    <div dir="rtl" className="font-vazir space-y-6">
+    <div dir="rtl" className="font-vazir space-y-6 text-right">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-800">
           مدیریت دانش‌آموزان
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          فایل اکسل دانش‌آموزان را بارگذاری کن یا فهرست را مدیریت کن.
+          فایل اکسل دانش‌آموزان پایه یازدهم را بارگذاری کن یا فهرست را مدیریت کن.
         </p>
       </div>
 
@@ -319,7 +298,7 @@ function StudentsPage() {
             <FileSpreadsheet className="h-4 w-4" />
           </div>
           <h2 className="text-base font-extrabold text-slate-800">
-            افزودن دانش‌آموزان از فایل اکسل
+            افزودن دانش‌آموزان پایه یازدهم از فایل اکسل
           </h2>
         </div>
 
@@ -410,14 +389,13 @@ function StudentsPage() {
               </span>
             </div>
 
-            <div className="overflow-auto rounded-2xl border border-slate-100">
-              <table className="min-w-full text-xs">
+            <div dir="rtl" className="overflow-auto rounded-2xl border border-slate-100">
+              <table dir="rtl" className="min-w-full text-xs text-right">
                 <thead className="bg-slate-50 text-slate-600">
                   <tr>
                     <Th>ردیف</Th>
                     <Th>نام</Th>
                     <Th>نام خانوادگی</Th>
-                    <Th>کد دانش‌آموزی</Th>
                     <Th>کد ملی</Th>
                     <Th>پایه</Th>
                     <Th>رشته</Th>
@@ -432,9 +410,8 @@ function StudentsPage() {
                       <Td>{r.__rowIndex.toLocaleString("fa-IR")}</Td>
                       <Td>{r.first_name}</Td>
                       <Td>{r.last_name}</Td>
-                      <Td>{r.student_code}</Td>
                       <Td>{r.national_code}</Td>
-                      <Td>{r.grade}</Td>
+                      <Td>{FIXED_GRADE}</Td>
                       <Td>{r.major}</Td>
                       <Td>{r.class_name}</Td>
                       <Td>
@@ -466,25 +443,24 @@ function StudentsPage() {
 
       {/* Filters */}
       <section className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-          <div className="md:col-span-5 relative">
+        <div dir="rtl" className="grid grid-cols-1 md:grid-cols-12 gap-3">
+          <div className="md:col-span-6 relative">
             <Search className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
             <input
               dir="rtl"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="جست‌وجوی نام"
-              className="w-full h-11 pr-10 pl-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-violet-200 focus:bg-white transition"
+              className="w-full h-11 pr-10 pl-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-violet-200 focus:bg-white transition text-right"
             />
           </div>
-          <FilterSelect value={grade} onChange={setGrade} label="همه پایه‌ها" options={grades} className="md:col-span-3" />
-          <FilterSelect value={major} onChange={setMajor} label="همه رشته‌ها" options={majors} className="md:col-span-2" />
-          <FilterSelect value={className} onChange={setClassName} label="همه کلاس‌ها" options={classes} className="md:col-span-2" />
+          <FilterSelect value={major} onChange={setMajor} label="همه رشته‌ها" options={majors} className="md:col-span-3" />
+          <FilterSelect value={className} onChange={setClassName} label="همه کلاس‌ها" options={classes} className="md:col-span-3" />
         </div>
       </section>
 
       {/* Student list */}
-      <section className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 overflow-hidden">
+      <section dir="rtl" className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 overflow-hidden">
         {loadingList ? (
           <div className="p-10 text-center text-sm text-slate-400 inline-flex items-center justify-center gap-2 w-full">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -494,15 +470,14 @@ function StudentsPage() {
           <div className="p-10 text-center text-sm text-rose-600">{listError}</div>
         ) : filteredStudents.length === 0 ? (
           <div className="p-10 text-center text-sm text-slate-400">
-            هنوز دانش‌آموزی به این پایه اضافه نشده است.
+            هنوز دانش‌آموزی به پایه یازدهم اضافه نشده است.
           </div>
         ) : (
-          <div className="overflow-auto">
-            <table className="min-w-full text-xs">
+          <div dir="rtl" className="overflow-auto">
+            <table dir="rtl" className="min-w-full text-xs text-right">
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
                   <Th>نام و نام خانوادگی</Th>
-                  <Th>کد دانش‌آموزی</Th>
                   <Th>کد ملی</Th>
                   <Th>پایه</Th>
                   <Th>رشته</Th>
@@ -517,9 +492,8 @@ function StudentsPage() {
                     <Td className="font-semibold text-slate-800">
                       {`${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "—"}
                     </Td>
-                    <Td>{s.student_code ?? "—"}</Td>
                     <Td>{s.national_code ?? "—"}</Td>
-                    <Td>{s.grade ?? "—"}</Td>
+                    <Td>{FIXED_GRADE}</Td>
                     <Td>{s.major ?? "—"}</Td>
                     <Td>{s.class_name ?? "—"}</Td>
                     <Td>
@@ -565,7 +539,7 @@ function Td({
   className?: string;
 }) {
   return (
-    <td className={`px-4 py-3 text-slate-700 whitespace-nowrap ${className}`}>
+    <td className={`px-4 py-3 text-slate-700 whitespace-nowrap text-right ${className}`}>
       {children}
     </td>
   );
@@ -609,9 +583,10 @@ function FilterSelect({
 }) {
   return (
     <select
+      dir="rtl"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`h-11 px-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 focus:outline-none focus:border-violet-200 focus:bg-white transition ${className}`}
+      className={`h-11 px-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 focus:outline-none focus:border-violet-200 focus:bg-white transition text-right ${className}`}
     >
       <option value="all">{label}</option>
       {options.map((o) => (
