@@ -688,84 +688,23 @@ function NotebookPage() {
               )}
             </div>
 
-            {/* Report type chips */}
-            <div className="mb-4">
-              <div className="mb-2 text-xs text-slate-500">نوع گزارش</div>
+            {/* 1. Session type */}
+            <SubSection title="نوع جلسه">
               <div className="flex flex-wrap gap-2">
-                {REPORT_TYPES.map((t) => (
+                {SESSION_TYPES.map((t) => (
                   <Chip
-                    key={t.key}
-                    active={reportType === t.key}
-                    onClick={() => setReportType(t.key)}
+                    key={t}
+                    active={sessionType === t}
+                    onClick={() => setSessionType(t)}
                   >
-                    {t.label}
+                    {t}
                   </Chip>
                 ))}
               </div>
-            </div>
+            </SubSection>
 
-            {/* Jalali date */}
-            <div className="mb-4">
-              <div className="mb-2 text-xs text-slate-500">تاریخ</div>
-              <div className="grid grid-cols-3 gap-2">
-                <select
-                  value={jDay}
-                  onChange={(e) => setJDay(Number(e.target.value))}
-                  className="rounded-xl border bg-white px-3 py-2 text-sm"
-                  style={{ borderColor: "#E4ECE9" }}
-                >
-                  {dayOptions.map((d) => (
-                    <option key={d} value={d}>
-                      {toFa(d)}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={jMonth}
-                  onChange={(e) => setJMonth(Number(e.target.value))}
-                  className="rounded-xl border bg-white px-3 py-2 text-sm"
-                  style={{ borderColor: "#E4ECE9" }}
-                >
-                  {JALALI_MONTHS.map((m, i) => (
-                    <option key={m} value={i + 1}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={jYear}
-                  onChange={(e) => setJYear(Number(e.target.value))}
-                  className="rounded-xl border bg-white px-3 py-2 text-sm"
-                  style={{ borderColor: "#E4ECE9" }}
-                >
-                  {yearOptions.map((y) => (
-                    <option key={y} value={y}>
-                      {toFa(y)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Mood */}
-            <div className="mb-4">
-              <div className="mb-2 text-xs text-slate-500">وضعیت روحی/تحصیلی</div>
-              <div className="flex flex-wrap gap-2">
-                {MOODS.map((m) => (
-                  <Chip
-                    key={m.value}
-                    active={mood === m.value}
-                    onClick={() => setMood(m.value)}
-                  >
-                    {m.label}
-                  </Chip>
-                ))}
-              </div>
-            </div>
-
-            {/* Topics */}
-            <div className="mb-4">
-              <div className="mb-2 text-xs text-slate-500">موضوع‌ها</div>
+            {/* 2. Topics */}
+            <SubSection title="موضوعات جلسه (چندتا هم می‌شه)">
               <div className="flex flex-wrap gap-2">
                 {TOPICS.map((t) => (
                   <Chip
@@ -777,56 +716,163 @@ function NotebookPage() {
                   </Chip>
                 ))}
               </div>
-            </div>
+            </SubSection>
 
-            {/* Parent fields */}
-            {reportType === "parent" && (
-              <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div>
-                  <div className="mb-2 text-xs text-slate-500">طرف تماس</div>
-                  <div className="flex flex-wrap gap-2">
-                    {PARENT_WHO.map((p) => (
-                      <Chip
-                        key={p}
-                        active={parentWho === p}
-                        onClick={() => setParentWho(p)}
-                      >
-                        {p}
-                      </Chip>
-                    ))}
+            {/* 3. Mood */}
+            <SubSection title="حال و وضعیت دانش‌آموز">
+              <div className="flex flex-wrap gap-2">
+                {MOODS.map((m) => (
+                  <Chip
+                    key={m.value}
+                    active={mood === m.value}
+                    onClick={() => setMood(m.value)}
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <span
+                        className="inline-block h-2 w-2 rounded-full"
+                        style={{ background: m.dot }}
+                      />
+                      {m.label}
+                    </span>
+                  </Chip>
+                ))}
+              </div>
+            </SubSection>
+
+            {/* 4. Overall rank */}
+            <SubSection title="رتبه کلی دانش‌آموز (اختیاری)">
+              <div className="flex flex-wrap gap-2">
+                {OVERALL_RANKS.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() =>
+                      setOverallRank((prev) => (prev === r ? "" : r))
+                    }
+                    className={`min-w-[52px] rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+                      overallRank === r
+                        ? "text-white"
+                        : "bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+                    style={
+                      overallRank === r
+                        ? { background: "#1F8A6D", borderColor: "#1F8A6D" }
+                        : { borderColor: "#E4ECE9" }
+                    }
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </SubSection>
+
+            {/* 5. Star ratings */}
+            <SubSection title="وضعیت فعلی دانش‌آموز (امتیاز ۱ تا ۵ - اختیاری)">
+              <div className="space-y-3">
+                {RATING_ROWS.map((row) => (
+                  <div
+                    key={row.key}
+                    className="flex flex-wrap items-center justify-between gap-2"
+                  >
+                    <span className="text-sm text-slate-700">{row.label}</span>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((n) => {
+                        const filled = (ratings[row.key] ?? 0) >= n;
+                        return (
+                          <button
+                            key={n}
+                            type="button"
+                            onClick={() =>
+                              setRatings((prev) => ({
+                                ...prev,
+                                [row.key]: prev[row.key] === n ? 0 : n,
+                              }))
+                            }
+                            className="p-1"
+                            aria-label={`${row.label} ${n}`}
+                          >
+                            <Star
+                              className="h-5 w-5"
+                              color={filled ? "#f59e0b" : "#cbd5e1"}
+                              fill={filled ? "#f59e0b" : "none"}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
+                ))}
+              </div>
+            </SubSection>
+
+            {/* 6. Actions taken */}
+            <SubSection title="اقدام انجام‌شده">
+              <div className="flex flex-wrap gap-2">
+                {ACTIONS_TAKEN.map((a) => (
+                  <Chip
+                    key={a}
+                    active={actionsTaken.includes(a)}
+                    onClick={() => toggleAction(a)}
+                  >
+                    {a}
+                  </Chip>
+                ))}
+              </div>
+            </SubSection>
+
+            {/* 7. Exam notes */}
+            <SubSection title="وضعیت آزمون‌ها (اختیاری)">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <div className="mb-1.5 text-xs text-slate-500">آزمون تستی</div>
+                  <textarea
+                    value={examMcqNote}
+                    onChange={(e) => setExamMcqNote(e.target.value)}
+                    rows={3}
+                    placeholder="توضیحات مسئول پایه درباره عملکرد در آزمون‌های تستی..."
+                    className="w-full rounded-xl border bg-white p-3 text-sm outline-none"
+                    style={{ borderColor: "#E4ECE9" }}
+                  />
                 </div>
                 <div>
-                  <div className="mb-2 text-xs text-slate-500">کانال تماس</div>
-                  <div className="flex flex-wrap gap-2">
-                    {PARENT_CHANNELS.map((c) => (
-                      <Chip
-                        key={c}
-                        active={parentChannel === c}
-                        onClick={() => setParentChannel(c)}
-                      >
-                        {c}
-                      </Chip>
-                    ))}
-                  </div>
+                  <div className="mb-1.5 text-xs text-slate-500">آزمون تشریحی</div>
+                  <textarea
+                    value={examDescriptiveNote}
+                    onChange={(e) => setExamDescriptiveNote(e.target.value)}
+                    rows={3}
+                    placeholder="توضیحات مسئول پایه درباره عملکرد در آزمون‌های تشریحی..."
+                    className="w-full rounded-xl border bg-white p-3 text-sm outline-none"
+                    style={{ borderColor: "#E4ECE9" }}
+                  />
                 </div>
               </div>
-            )}
+            </SubSection>
 
-            {/* Notes */}
-            <div className="mb-4">
-              <div className="mb-2 text-xs text-slate-500">{notesLabel}</div>
+            {/* 8. Short note */}
+            <SubSection title="یادداشت کوتاه (اختیاری)">
               <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                placeholder="جزئیات مشاهدات و اقدامات را اینجا بنویسید..."
+                value={shortNote}
+                onChange={(e) => setShortNote(e.target.value)}
+                rows={3}
+                placeholder="مثلاً: قرار شد برنامه هفتگی رو شنبه بیاره..."
                 className="w-full rounded-xl border bg-white p-3 text-sm outline-none"
                 style={{ borderColor: "#E4ECE9" }}
               />
-            </div>
+            </SubSection>
 
-            {/* Follow-up */}
+            {/* 9. Recommendation */}
+            <SubSection title="پیشنهاد و توصیه مسئول پایه (اختیاری)">
+              <textarea
+                value={recommendation}
+                onChange={(e) => setRecommendation(e.target.value)}
+                rows={3}
+                placeholder="مثلاً: تمرکز بیشتر روی تست‌زنی زیست؛ پیگیری خواب منظم..."
+                className="w-full rounded-xl border bg-white p-3 text-sm outline-none"
+                style={{ borderColor: "#E4ECE9" }}
+              />
+            </SubSection>
+
+            {/* 10. Follow-up */}
             <label className="mb-4 flex items-center gap-2 text-sm text-slate-700">
               <input
                 type="checkbox"
@@ -836,6 +882,7 @@ function NotebookPage() {
               />
               نیاز به پیگیری دارد
             </label>
+
 
             {message && (
               <div className="mb-3 rounded-lg bg-emerald-50 p-2 text-sm text-emerald-700">
