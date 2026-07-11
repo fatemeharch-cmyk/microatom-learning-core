@@ -34,9 +34,7 @@ type FieldKey =
   | "major"
   | "grade_level"
   | "class_name"
-  | "academic_year"
-  | "username"
-  | "password";
+  | "academic_year";
 
 type MappingValue = "" | "__ignore__" | FieldKey;
 
@@ -52,8 +50,6 @@ const MAPPING_OPTIONS: { value: MappingValue; label: string }[] = [
   { value: "grade_level", label: "پایه" },
   { value: "class_name", label: "کلاس" },
   { value: "academic_year", label: "سال تحصیلی" },
-  { value: "username", label: "نام کاربری" },
-  { value: "password", label: "رمز عبور" },
   { value: "__ignore__", label: "نادیده گرفتن ستون" },
 ];
 
@@ -71,8 +67,6 @@ const TEXT_FIELDS: FieldKey[] = [
   "student_mobile",
   "father_mobile",
   "mother_mobile",
-  "username",
-  "password",
 ];
 
 const FIELD_LABEL: Record<FieldKey, string> = {
@@ -86,8 +80,6 @@ const FIELD_LABEL: Record<FieldKey, string> = {
   grade_level: "پایه",
   class_name: "کلاس",
   academic_year: "سال تحصیلی",
-  username: "نام کاربری",
-  password: "رمز عبور",
 };
 
 // header aliases → FieldKey
