@@ -945,7 +945,7 @@ function StudentsPage() {
           <div className="p-10 text-center text-sm text-rose-600">{listError}</div>
         ) : filteredStudents.length === 0 ? (
           <div className="p-10 text-center text-sm text-slate-400">
-            هنوز دانش‌آموزی اضافه نشده است.
+            هنوز دانش‌آموزی برای پایه یازدهم تجربی ثبت نشده است.
           </div>
         ) : (
           <div dir="rtl" className="overflow-auto">
