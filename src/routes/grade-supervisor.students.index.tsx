@@ -517,37 +517,28 @@ function StudentsPage() {
   const validCount = validated?.filter((r) => r.errors.length === 0).length ?? 0;
   const invalidCount = validated?.filter((r) => r.errors.length > 0).length ?? 0;
 
-  const grades = useMemo(
+  // Enforce fixed scope client-side too: never show students from other grades/majors.
+  const scopedStudents = useMemo(
     () =>
-      Array.from(
-        new Set(
-          (students ?? [])
-            .map((s) => s.grade ?? s.grade_level)
-            .filter(Boolean) as string[],
-        ),
-      ),
-    [students],
-  );
-  const majors = useMemo(
-    () =>
-      Array.from(
-        new Set((students ?? []).map((s) => s.major).filter(Boolean)),
-      ) as string[],
-    [students],
-  );
-  const classes = useMemo(
-    () =>
-      Array.from(
-        new Set((students ?? []).map((s) => s.class_name).filter(Boolean)),
-      ) as string[],
+      (students ?? []).filter((s) => {
+        const g = s.grade ?? s.grade_level;
+        if (g && g !== FIXED_GRADE) return false;
+        if (s.major && s.major !== FIXED_MAJOR) return false;
+        return true;
+      }),
     [students],
   );
 
+  const classes = useMemo(
+    () =>
+      Array.from(
+        new Set(scopedStudents.map((s) => s.class_name).filter(Boolean)),
+      ) as string[],
+    [scopedStudents],
+  );
+
   const filteredStudents = useMemo(() => {
-    return (students ?? []).filter((s) => {
-      const g = s.grade ?? s.grade_level;
-      if (grade !== "all" && g !== grade) return false;
-      if (major !== "all" && s.major !== major) return false;
+    return scopedStudents.filter((s) => {
       if (className !== "all" && s.class_name !== className) return false;
       if (q) {
         const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim();
@@ -555,7 +546,7 @@ function StudentsPage() {
       }
       return true;
     });
-  }, [students, q, grade, major, className]);
+  }, [scopedStudents, q, className]);
 
   const totalRows = excel?.rows.length ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalRows / PREVIEW_PAGE_SIZE));
