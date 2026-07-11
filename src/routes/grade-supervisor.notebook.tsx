@@ -262,6 +262,11 @@ function Chip({
         active
           ? { background: "#1F8A6D", borderColor: "#1F8A6D" }
           : { borderColor: "#E4ECE9" }
+      }
+    >
+      {children}
+    </button>
+  );
 }
 
 function SubSection({
@@ -281,10 +286,6 @@ function SubSection({
       </div>
       {children}
     </div>
-  );
-    >
-      {children}
-    </button>
   );
 }
 
