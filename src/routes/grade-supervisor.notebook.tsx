@@ -293,6 +293,22 @@ function NotebookPage() {
   const [parentChannel, setParentChannel] = useState("تماس تلفنی");
   const [editingId, setEditingId] = useState<string | number | null>(null);
 
+  // New structured form fields
+  const [sessionType, setSessionType] = useState<string>(SESSION_TYPES[0]);
+  const [overallRank, setOverallRank] = useState<string>("");
+  const [ratings, setRatings] = useState<Record<string, number>>({
+    motivation: 0,
+    focus: 0,
+    timeManagement: 0,
+    sleep: 0,
+    familyCooperation: 0,
+  });
+  const [actionsTaken, setActionsTaken] = useState<string[]>([]);
+  const [examMcqNote, setExamMcqNote] = useState("");
+  const [examDescriptiveNote, setExamDescriptiveNote] = useState("");
+  const [shortNote, setShortNote] = useState("");
+  const [recommendation, setRecommendation] = useState("");
+
   const [studentReports, setStudentReports] = useState<Report[]>([]);
   const [allReports, setAllReports] = useState<Report[]>([]);
   const [followUps, setFollowUps] = useState<Report[]>([]);
