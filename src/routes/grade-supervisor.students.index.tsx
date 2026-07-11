@@ -12,6 +12,7 @@ import {
   UserPlus,
   Loader2,
   ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { getAuthToken } from "@/lib/api/client";
 
