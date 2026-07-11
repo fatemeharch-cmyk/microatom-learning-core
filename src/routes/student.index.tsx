@@ -719,10 +719,8 @@ function ActionCard({
           >
             {emoji}
           </span>
-          <div className="flex items-center gap-2">
-            {sample && <SampleBadge />}
-            <h3 className="text-sm font-bold text-slate-800">{title}</h3>
-          </div>
+          <h3 className="text-sm font-bold text-slate-800">{title}</h3>
+
         </div>
         <div className="text-xs text-slate-600 text-right leading-6 flex-1">
           {status}
