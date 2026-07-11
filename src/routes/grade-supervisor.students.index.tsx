@@ -109,7 +109,7 @@ function validateRow(r: StudentRow): string[] {
 // ---------------- API ----------------
 async function xanoFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getAuthToken();
-  const res = await fetch(`${SUPERVISOR_BASE_URL}${path}`, {
+  const res = await fetch(`${GRADE_SUPERVISOR_BASE_URL}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
