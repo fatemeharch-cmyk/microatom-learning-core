@@ -228,15 +228,21 @@ function StudentsPage() {
   const [listError, setListError] = useState<string | null>(null);
 
   const [q, setQ] = useState("");
-  const [grade, setGrade] = useState("all");
-  const [major, setMajor] = useState("all");
   const [className, setClassName] = useState("all");
+
+  // Fixed scope for this Grade Supervisor
+  const FIXED_GRADE = "یازدهم";
+  const FIXED_MAJOR = "تجربی";
 
   async function loadStudents() {
     setLoadingList(true);
     setListError(null);
     try {
-      const data = await xanoFetch<unknown>("/students");
+      const qs = new URLSearchParams({
+        grade_level: FIXED_GRADE,
+        major: FIXED_MAJOR,
+      }).toString();
+      const data = await xanoFetch<unknown>(`/students?${qs}`);
       let list: ApiStudent[] = [];
       if (Array.isArray(data)) {
         list = data as ApiStudent[];
@@ -511,37 +517,28 @@ function StudentsPage() {
   const validCount = validated?.filter((r) => r.errors.length === 0).length ?? 0;
   const invalidCount = validated?.filter((r) => r.errors.length > 0).length ?? 0;
 
-  const grades = useMemo(
+  // Enforce fixed scope client-side too: never show students from other grades/majors.
+  const scopedStudents = useMemo(
     () =>
-      Array.from(
-        new Set(
-          (students ?? [])
-            .map((s) => s.grade ?? s.grade_level)
-            .filter(Boolean) as string[],
-        ),
-      ),
-    [students],
-  );
-  const majors = useMemo(
-    () =>
-      Array.from(
-        new Set((students ?? []).map((s) => s.major).filter(Boolean)),
-      ) as string[],
-    [students],
-  );
-  const classes = useMemo(
-    () =>
-      Array.from(
-        new Set((students ?? []).map((s) => s.class_name).filter(Boolean)),
-      ) as string[],
+      (students ?? []).filter((s) => {
+        const g = s.grade ?? s.grade_level;
+        if (g && g !== FIXED_GRADE) return false;
+        if (s.major && s.major !== FIXED_MAJOR) return false;
+        return true;
+      }),
     [students],
   );
 
+  const classes = useMemo(
+    () =>
+      Array.from(
+        new Set(scopedStudents.map((s) => s.class_name).filter(Boolean)),
+      ) as string[],
+    [scopedStudents],
+  );
+
   const filteredStudents = useMemo(() => {
-    return (students ?? []).filter((s) => {
-      const g = s.grade ?? s.grade_level;
-      if (grade !== "all" && g !== grade) return false;
-      if (major !== "all" && s.major !== major) return false;
+    return scopedStudents.filter((s) => {
       if (className !== "all" && s.class_name !== className) return false;
       if (q) {
         const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim();
@@ -549,7 +546,7 @@ function StudentsPage() {
       }
       return true;
     });
-  }, [students, q, grade, major, className]);
+  }, [scopedStudents, q, className]);
 
   const totalRows = excel?.rows.length ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalRows / PREVIEW_PAGE_SIZE));
@@ -902,8 +899,8 @@ function StudentsPage() {
         dir="rtl"
         className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4"
       >
-        <div dir="rtl" className="grid grid-cols-1 md:grid-cols-12 gap-3">
-          <div className="md:col-span-4 relative">
+        <div dir="rtl" className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="md:col-span-5 relative">
             <Search className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
             <input
               dir="rtl"
@@ -914,26 +911,23 @@ function StudentsPage() {
             />
           </div>
           <FilterSelect
-            value={grade}
-            onChange={setGrade}
-            label="همه پایه‌ها"
-            options={grades}
-            className="md:col-span-3"
-          />
-          <FilterSelect
-            value={major}
-            onChange={setMajor}
-            label="همه رشته‌ها"
-            options={majors}
-            className="md:col-span-2"
-          />
-          <FilterSelect
             value={className}
             onChange={setClassName}
             label="همه کلاس‌ها"
             options={classes}
             className="md:col-span-3"
           />
+          <div
+            dir="rtl"
+            className="md:col-span-4 flex items-center justify-end gap-2 text-[11px] font-bold"
+          >
+            <span className="inline-flex items-center h-8 px-3 rounded-full bg-violet-50 text-violet-700 border border-violet-100">
+              پایه یازدهم
+            </span>
+            <span className="inline-flex items-center h-8 px-3 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+              رشته تجربی
+            </span>
+          </div>
         </div>
       </section>
 
@@ -951,7 +945,7 @@ function StudentsPage() {
           <div className="p-10 text-center text-sm text-rose-600">{listError}</div>
         ) : filteredStudents.length === 0 ? (
           <div className="p-10 text-center text-sm text-slate-400">
-            هنوز دانش‌آموزی اضافه نشده است.
+            هنوز دانش‌آموزی برای پایه یازدهم تجربی ثبت نشده است.
           </div>
         ) : (
           <div dir="rtl" className="overflow-auto">
