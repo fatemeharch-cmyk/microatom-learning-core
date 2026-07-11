@@ -20,13 +20,12 @@ export const Route = createFileRoute("/grade-supervisor/students/")({
   component: StudentsPage,
 });
 
-const FIXED_GRADE = "یازدهم";
-
 // ---------------- Types ----------------
 interface StudentRow {
   first_name: string;
   last_name: string;
   national_code: string;
+  grade: string;
   major: string;
   class_name: string;
 }
@@ -57,6 +56,7 @@ const COLUMN_MAP: Record<string, keyof StudentRow> = {
   "نام": "first_name",
   "نام خانوادگی": "last_name",
   "کد ملی": "national_code",
+  "پایه": "grade",
   "رشته": "major",
   "کلاس": "class_name",
 };
@@ -65,6 +65,7 @@ const REQUIRED_FIELDS: (keyof StudentRow)[] = [
   "first_name",
   "last_name",
   "national_code",
+  "grade",
   "major",
   "class_name",
 ];
@@ -79,7 +80,7 @@ function normalizeHeader(h: string): string {
 function validateRow(r: StudentRow): string[] {
   const errs: string[] = [];
   for (const f of REQUIRED_FIELDS) {
-    if (!String(r[f] ?? "").trim()) errs.push(`فیلد الزامی خالی است`);
+    if (!String(r[f] ?? "").trim()) errs.push("فیلد الزامی خالی است");
   }
   if (r.national_code && !/^\d{8,10}$/.test(String(r.national_code).trim())) {
     errs.push("کد ملی معتبر نیست");
@@ -113,13 +114,12 @@ async function xanoFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 // ---------------- Sample file ----------------
 function downloadSampleFile() {
-  const headers = ["نام", "نام خانوادگی", "کد ملی", "رشته", "کلاس"];
+  const headers = ["نام", "نام خانوادگی", "کد ملی", "پایه", "رشته", "کلاس"];
   const sample = [
-    ["علی", "رضایی", "0012345678", "تجربی", "الف"],
-    ["زهرا", "کریمی", "0087654321", "تجربی", "ب"],
+    ["علی", "رضایی", "0012345678", "یازدهم", "تجربی", "الف"],
+    ["زهرا", "کریمی", "0087654321", "یازدهم", "تجربی", "ب"],
   ];
   const ws = XLSX.utils.aoa_to_sheet([headers, ...sample]);
-  if (!ws["!cols"]) ws["!cols"] = [];
   ws["!views"] = [{ RTL: true }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "دانش‌آموزان");
@@ -165,7 +165,7 @@ function StudentsPage() {
     loadStudents();
   }, []);
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
     setFile(f);
     setParsed(null);
@@ -200,6 +200,7 @@ function StudentsPage() {
           first_name: "",
           last_name: "",
           national_code: "",
+          grade: "",
           major: "",
           class_name: "",
         };
@@ -237,7 +238,7 @@ function StudentsPage() {
         students: valid.map(({ __rowIndex, __errors, ...s }) => {
           void __rowIndex;
           void __errors;
-          return { ...s, grade: FIXED_GRADE };
+          return s;
         }),
       };
       const res = await xanoFetch<ImportResponse>(
@@ -287,18 +288,18 @@ function StudentsPage() {
           مدیریت دانش‌آموزان
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          فایل اکسل دانش‌آموزان پایه یازدهم را بارگذاری کن یا فهرست را مدیریت کن.
+          فایل اکسل دانش‌آموزان را بارگذاری کن یا فهرست را مدیریت کن.
         </p>
       </div>
 
       {/* Import section */}
-      <section className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-5 space-y-4">
+      <section dir="rtl" className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-5 space-y-4">
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-violet-100 to-pink-100 text-violet-600 grid place-items-center">
             <FileSpreadsheet className="h-4 w-4" />
           </div>
           <h2 className="text-base font-extrabold text-slate-800">
-            افزودن دانش‌آموزان پایه یازدهم از فایل اکسل
+            افزودن دانش‌آموزان از فایل اکسل
           </h2>
         </div>
 
@@ -393,7 +394,6 @@ function StudentsPage() {
               <table dir="rtl" className="min-w-full text-xs text-right">
                 <thead className="bg-slate-50 text-slate-600">
                   <tr>
-                    <Th>ردیف</Th>
                     <Th>نام</Th>
                     <Th>نام خانوادگی</Th>
                     <Th>کد ملی</Th>
@@ -407,11 +407,10 @@ function StudentsPage() {
                 <tbody className="divide-y divide-slate-100 bg-white">
                   {parsed.map((r, i) => (
                     <tr key={i} className={r.__errors.length ? "bg-rose-50/40" : ""}>
-                      <Td>{r.__rowIndex.toLocaleString("fa-IR")}</Td>
                       <Td>{r.first_name}</Td>
                       <Td>{r.last_name}</Td>
                       <Td>{r.national_code}</Td>
-                      <Td>{FIXED_GRADE}</Td>
+                      <Td>{r.grade}</Td>
                       <Td>{r.major}</Td>
                       <Td>{r.class_name}</Td>
                       <Td>
@@ -442,7 +441,7 @@ function StudentsPage() {
       </section>
 
       {/* Filters */}
-      <section className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
+      <section dir="rtl" className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
         <div dir="rtl" className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-6 relative">
             <Search className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
@@ -470,14 +469,15 @@ function StudentsPage() {
           <div className="p-10 text-center text-sm text-rose-600">{listError}</div>
         ) : filteredStudents.length === 0 ? (
           <div className="p-10 text-center text-sm text-slate-400">
-            هنوز دانش‌آموزی به پایه یازدهم اضافه نشده است.
+            هنوز دانش‌آموزی به این پایه اضافه نشده است.
           </div>
         ) : (
           <div dir="rtl" className="overflow-auto">
             <table dir="rtl" className="min-w-full text-xs text-right">
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
-                  <Th>نام و نام خانوادگی</Th>
+                  <Th>نام</Th>
+                  <Th>نام خانوادگی</Th>
                   <Th>کد ملی</Th>
                   <Th>پایه</Th>
                   <Th>رشته</Th>
@@ -489,11 +489,10 @@ function StudentsPage() {
               <tbody className="divide-y divide-slate-100 bg-white">
                 {filteredStudents.map((s, i) => (
                   <tr key={s.id ?? i} className="hover:bg-slate-50/60">
-                    <Td className="font-semibold text-slate-800">
-                      {`${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "—"}
-                    </Td>
+                    <Td className="font-semibold text-slate-800">{s.first_name ?? "—"}</Td>
+                    <Td className="font-semibold text-slate-800">{s.last_name ?? "—"}</Td>
                     <Td>{s.national_code ?? "—"}</Td>
-                    <Td>{FIXED_GRADE}</Td>
+                    <Td>{s.grade ?? "—"}</Td>
                     <Td>{s.major ?? "—"}</Td>
                     <Td>{s.class_name ?? "—"}</Td>
                     <Td>
