@@ -689,7 +689,6 @@ function ActionCard({
   buttonLabel,
   onClick,
   disabled,
-  sample,
   tone,
 }: {
   emoji: string;
@@ -699,7 +698,6 @@ function ActionCard({
   buttonLabel: string;
   onClick: () => void;
   disabled?: boolean;
-  sample?: boolean;
   tone?: "green";
 }) {
   const cardTone =
