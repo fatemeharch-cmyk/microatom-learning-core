@@ -282,6 +282,7 @@ function StudentsPage() {
     setImportResult(null);
     setImportError(null);
     setMappingWarning(null);
+    setPreviewPage(1);
     if (!f) return;
     try {
       const buf = await f.arrayBuffer();
