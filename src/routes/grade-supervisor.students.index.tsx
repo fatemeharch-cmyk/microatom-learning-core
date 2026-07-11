@@ -13,6 +13,9 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  Pencil,
+  RefreshCw,
 } from "lucide-react";
 import { getAuthToken } from "@/lib/api/client";
 
