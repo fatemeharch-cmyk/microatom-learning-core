@@ -47,11 +47,26 @@ interface ApiStudent {
   status?: string;
 }
 interface ImportResponse {
+  success?: boolean | string;
   message?: string;
   created?: number;
   updated?: number;
   skipped?: number;
   failed?: number;
+  summary?: {
+    created?: number;
+    updated?: number;
+    skipped?: number;
+    failed?: number;
+    total?: number;
+  } | null;
+  errors?: Array<{
+    row?: number;
+    national_code?: string;
+    message?: string;
+    error?: string;
+    reason?: string;
+  }> | null;
 }
 
 // ---------------- Column mapping ----------------
