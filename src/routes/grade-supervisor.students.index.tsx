@@ -14,7 +14,10 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { getAuthToken } from "@/lib/api/client";
-import { SUPERVISOR_BASE_URL } from "@/lib/api/config";
+
+// Xano API group for Grade Supervisor endpoints (from published API spec).
+const GRADE_SUPERVISOR_BASE_URL =
+  "https://x8ki-letl-twmt.n7.xano.io/api:grade-supervisor";
 
 export const Route = createFileRoute("/grade-supervisor/students/")({
   component: StudentsPage,
@@ -44,11 +47,26 @@ interface ApiStudent {
   status?: string;
 }
 interface ImportResponse {
+  success?: boolean | string;
   message?: string;
   created?: number;
   updated?: number;
   skipped?: number;
   failed?: number;
+  summary?: {
+    created?: number;
+    updated?: number;
+    skipped?: number;
+    failed?: number;
+    total?: number;
+  } | null;
+  errors?: Array<{
+    row?: number;
+    national_code?: string;
+    message?: string;
+    error?: string;
+    reason?: string;
+  }> | null;
 }
 
 // ---------------- Column mapping ----------------
@@ -91,7 +109,7 @@ function validateRow(r: StudentRow): string[] {
 // ---------------- API ----------------
 async function xanoFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getAuthToken();
-  const res = await fetch(`${SUPERVISOR_BASE_URL}${path}`, {
+  const res = await fetch(`${GRADE_SUPERVISOR_BASE_URL}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -141,6 +159,7 @@ function StudentsPage() {
   const [listError, setListError] = useState<string | null>(null);
 
   const [q, setQ] = useState("");
+  const [grade, setGrade] = useState("all");
   const [major, setMajor] = useState("all");
   const [className, setClassName] = useState("all");
 
@@ -148,9 +167,9 @@ function StudentsPage() {
     setLoadingList(true);
     setListError(null);
     try {
-      const data = await xanoFetch<ApiStudent[] | { students?: ApiStudent[] }>(
-        "/grade-supervisor/students",
-      );
+      const data = await xanoFetch<
+        ApiStudent[] | { students?: ApiStudent[]; success?: unknown }
+      >("/students");
       const list = Array.isArray(data) ? data : (data?.students ?? []);
       setStudents(list);
     } catch {
@@ -241,10 +260,10 @@ function StudentsPage() {
           return s;
         }),
       };
-      const res = await xanoFetch<ImportResponse>(
-        "/grade-supervisor/students/import",
-        { method: "POST", body: JSON.stringify(payload) },
-      );
+      const res = await xanoFetch<ImportResponse>("/students/import", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
       setImportResult(res ?? {});
       setParsed(null);
       setFile(null);
@@ -260,6 +279,10 @@ function StudentsPage() {
   const validCount = parsed?.filter((r) => r.__errors.length === 0).length ?? 0;
   const invalidCount = parsed?.filter((r) => r.__errors.length > 0).length ?? 0;
 
+  const grades = useMemo(
+    () => Array.from(new Set((students ?? []).map((s) => s.grade).filter(Boolean))) as string[],
+    [students],
+  );
   const majors = useMemo(
     () => Array.from(new Set((students ?? []).map((s) => s.major).filter(Boolean))) as string[],
     [students],
@@ -271,6 +294,7 @@ function StudentsPage() {
 
   const filteredStudents = useMemo(() => {
     return (students ?? []).filter((s) => {
+      if (grade !== "all" && s.grade !== grade) return false;
       if (major !== "all" && s.major !== major) return false;
       if (className !== "all" && s.class_name !== className) return false;
       if (q) {
@@ -279,7 +303,7 @@ function StudentsPage() {
       }
       return true;
     });
-  }, [students, q, major, className]);
+  }, [students, q, grade, major, className]);
 
   return (
     <div dir="rtl" className="font-vazir space-y-6 text-right">
@@ -364,16 +388,32 @@ function StudentsPage() {
         )}
 
         {importResult && (
-          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 space-y-2">
+          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 space-y-3">
             <p className="text-sm font-bold text-emerald-800">
               {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-              <ResultChip label="ایجاد شده" value={importResult.created ?? 0} tone="emerald" />
-              <ResultChip label="به‌روزرسانی" value={importResult.updated ?? 0} tone="teal" />
-              <ResultChip label="نادیده گرفته شده" value={importResult.skipped ?? 0} tone="amber" />
-              <ResultChip label="ناموفق" value={importResult.failed ?? 0} tone="rose" />
+              <ResultChip label="ایجاد شده" value={importResult.summary?.created ?? importResult.created ?? 0} tone="emerald" />
+              <ResultChip label="به‌روزرسانی" value={importResult.summary?.updated ?? importResult.updated ?? 0} tone="teal" />
+              <ResultChip label="نادیده گرفته شده" value={importResult.summary?.skipped ?? importResult.skipped ?? 0} tone="amber" />
+              <ResultChip label="ناموفق" value={importResult.summary?.failed ?? importResult.failed ?? 0} tone="rose" />
             </div>
+            {Array.isArray(importResult.errors) && importResult.errors.length > 0 && (
+              <div className="rounded-xl bg-white border border-rose-100 p-3">
+                <p className="text-xs font-bold text-rose-700 mb-2">خطاهای ردیف‌ها</p>
+                <ul className="space-y-1 text-xs text-rose-700 max-h-48 overflow-auto">
+                  {importResult.errors.map((e, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="font-semibold shrink-0">
+                        {e.row != null ? `ردیف ${Number(e.row).toLocaleString("fa-IR")}` : "—"}
+                        {e.national_code ? ` • کد ملی ${e.national_code}` : ""}
+                      </span>
+                      <span>{e.message ?? e.error ?? e.reason ?? "خطای نامشخص"}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
@@ -443,7 +483,7 @@ function StudentsPage() {
       {/* Filters */}
       <section dir="rtl" className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-4">
         <div dir="rtl" className="grid grid-cols-1 md:grid-cols-12 gap-3">
-          <div className="md:col-span-6 relative">
+          <div className="md:col-span-4 relative">
             <Search className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
             <input
               dir="rtl"
@@ -453,7 +493,8 @@ function StudentsPage() {
               className="w-full h-11 pr-10 pl-4 rounded-2xl bg-slate-50 border border-slate-100 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-violet-200 focus:bg-white transition text-right"
             />
           </div>
-          <FilterSelect value={major} onChange={setMajor} label="همه رشته‌ها" options={majors} className="md:col-span-3" />
+          <FilterSelect value={grade} onChange={setGrade} label="همه پایه‌ها" options={grades} className="md:col-span-3" />
+          <FilterSelect value={major} onChange={setMajor} label="همه رشته‌ها" options={majors} className="md:col-span-2" />
           <FilterSelect value={className} onChange={setClassName} label="همه کلاس‌ها" options={classes} className="md:col-span-3" />
         </div>
       </section>
@@ -469,7 +510,7 @@ function StudentsPage() {
           <div className="p-10 text-center text-sm text-rose-600">{listError}</div>
         ) : filteredStudents.length === 0 ? (
           <div className="p-10 text-center text-sm text-slate-400">
-            هنوز دانش‌آموزی به این پایه اضافه نشده است.
+            هنوز دانش‌آموزی اضافه نشده است.
           </div>
         ) : (
           <div dir="rtl" className="overflow-auto">
