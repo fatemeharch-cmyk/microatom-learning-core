@@ -654,3 +654,113 @@ export async function updateMissionProgress(
   );
   return mapMission((res.data ?? {}) as Record<string, unknown>);
 }
+
+// ---------------------------------------------------------------------------
+// Study Plan (Turbo Planner — daily kanban board)
+// ---------------------------------------------------------------------------
+
+export interface StudyPlanItem {
+  id: string;
+  studentId: string;
+  planDate: string;
+  subjectTitle: string;
+  title: string;
+  source: string;
+  targetMinutes: number;
+  actualMinutes: number | null;
+  status: "todo" | "in_progress" | "done";
+  displayOrder: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  postponedCount: number;
+}
+
+function numOrNull(v: unknown): number | null {
+  if (v === null || v === undefined || v === "") return null;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+function numOrZero(v: unknown): number {
+  return numOrNull(v) ?? 0;
+}
+function strOrNull(v: unknown): string | null {
+  if (v === null || v === undefined || v === "") return null;
+  return String(v);
+}
+
+function mapStudyPlanItem(r: Record<string, unknown>): StudyPlanItem {
+  const rawStatus = s(r.status ?? (r as { state?: unknown }).state) || "todo";
+  const status: StudyPlanItem["status"] =
+    rawStatus === "in_progress" || rawStatus === "done" ? rawStatus : "todo";
+  return {
+    id: s(r.id),
+    studentId: s(r.student_id ?? (r as { studentId?: unknown }).studentId),
+    planDate: s(r.plan_date ?? (r as { planDate?: unknown }).planDate),
+    subjectTitle: s(
+      r.subject_title ?? (r as { subjectTitle?: unknown }).subjectTitle,
+    ),
+    title: s(r.title),
+    source: s(r.source),
+    targetMinutes: numOrZero(
+      r.target_minutes ?? (r as { targetMinutes?: unknown }).targetMinutes,
+    ),
+    actualMinutes: numOrNull(
+      r.actual_minutes ?? (r as { actualMinutes?: unknown }).actualMinutes,
+    ),
+    status,
+    displayOrder: numOrZero(
+      r.display_order ?? (r as { displayOrder?: unknown }).displayOrder,
+    ),
+    startedAt: strOrNull(
+      r.started_at ?? (r as { startedAt?: unknown }).startedAt,
+    ),
+    completedAt: strOrNull(
+      r.completed_at ?? (r as { completedAt?: unknown }).completedAt,
+    ),
+    postponedCount: numOrZero(
+      r.postponed_count ?? (r as { postponedCount?: unknown }).postponedCount,
+    ),
+  };
+}
+
+export async function getTodayStudyPlan(
+  studentId: string,
+  date: string,
+): Promise<StudyPlanItem[]> {
+  const qs = new URLSearchParams({
+    student_id: String(studentId),
+    date: String(date),
+  }).toString();
+  const res = await apiClient.get<unknown>(
+    contentUrl(`student/study-plan/today?${qs}`),
+  );
+  return listFrom(res.data).map((r) => mapStudyPlanItem(r));
+}
+
+export async function updateStudyPlanStatus(
+  itemId: string,
+  status: "todo" | "in_progress" | "done",
+  actualMinutes?: number,
+): Promise<StudyPlanItem> {
+  const body: Record<string, unknown> = {
+    item_id: Number(itemId),
+    status,
+  };
+  if (actualMinutes !== undefined) body.actual_minutes = actualMinutes;
+  const res = await apiClient.post<Record<string, unknown>>(
+    contentUrl("student/study-plan/update-status"),
+    body,
+  );
+  return mapStudyPlanItem((res.data ?? {}) as Record<string, unknown>);
+}
+
+export async function reorderStudyPlan(
+  items: { id: string; displayOrder: number }[],
+): Promise<void> {
+  await apiClient.post(contentUrl("student/study-plan/reorder"), {
+    items: items.map((i) => ({
+      id: Number(i.id),
+      display_order: i.displayOrder,
+    })),
+  });
+}
