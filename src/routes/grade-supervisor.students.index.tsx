@@ -12,6 +12,7 @@ import {
   UserPlus,
   Loader2,
   ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { getAuthToken } from "@/lib/api/client";
 
@@ -219,6 +220,8 @@ function StudentsPage() {
     { first_name: string; last_name: string; national_code: string }[] | null
   >(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [previewPage, setPreviewPage] = useState(1);
+  const PREVIEW_PAGE_SIZE = 8;
 
   const [students, setStudents] = useState<ApiStudent[] | null>(null);
   const [loadingList, setLoadingList] = useState(true);
@@ -233,13 +236,32 @@ function StudentsPage() {
     setLoadingList(true);
     setListError(null);
     try {
-      const data = await xanoFetch<
-        ApiStudent[] | { students?: ApiStudent[]; success?: unknown }
-      >("/students");
-      const list = Array.isArray(data) ? data : (data?.students ?? []);
+      const data = await xanoFetch<unknown>("/students");
+      let list: ApiStudent[] = [];
+      if (Array.isArray(data)) {
+        list = data as ApiStudent[];
+      } else if (data && typeof data === "object") {
+        const obj = data as Record<string, unknown>;
+        const raw = obj.students ?? obj.data ?? obj.items ?? obj.result;
+        if (Array.isArray(raw)) {
+          list = raw as ApiStudent[];
+        } else if (typeof raw === "string") {
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) list = parsed as ApiStudent[];
+          } catch {
+            /* ignore */
+          }
+        }
+      }
       setStudents(list);
-    } catch {
-      setListError("دریافت فهرست دانش‌آموزان با خطا مواجه شد.");
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setListError(
+        msg
+          ? `دریافت فهرست دانش‌آموزان با خطا مواجه شد: ${msg}`
+          : "دریافت فهرست دانش‌آموزان با خطا مواجه شد.",
+      );
       setStudents([]);
     } finally {
       setLoadingList(false);
@@ -260,6 +282,7 @@ function StudentsPage() {
     setImportResult(null);
     setImportError(null);
     setMappingWarning(null);
+    setPreviewPage(1);
     if (!f) return;
     try {
       const buf = await f.arrayBuffer();
@@ -469,10 +492,16 @@ function StudentsPage() {
       setExcel(null);
       setMapping([]);
       setFile(null);
+      setPreviewPage(1);
       if (fileRef.current) fileRef.current.value = "";
       await loadStudents();
-    } catch {
-      setImportError("افزودن دانش‌آموزان با خطا مواجه شد. لطفاً دوباره تلاش کنید.");
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setImportError(
+        msg
+          ? `افزودن دانش‌آموزان با خطا مواجه شد: ${msg}`
+          : "افزودن دانش‌آموزان با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
+      );
     } finally {
       setImporting(false);
     }
@@ -522,7 +551,11 @@ function StudentsPage() {
     });
   }, [students, q, grade, major, className]);
 
-  const previewRows = excel?.rows.slice(0, 8) ?? [];
+  const totalRows = excel?.rows.length ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalRows / PREVIEW_PAGE_SIZE));
+  const currentPage = Math.min(previewPage, totalPages);
+  const pageStart = (currentPage - 1) * PREVIEW_PAGE_SIZE;
+  const previewRows = excel?.rows.slice(pageStart, pageStart + PREVIEW_PAGE_SIZE) ?? [];
   const canValidate = !!excel && missingRequired.length === 0;
 
   return (
@@ -595,7 +628,7 @@ function StudentsPage() {
             ) : (
               <UserPlus className="h-4 w-4" />
             )}
-            افزودن دانش‌آموزان
+            {importing ? "در حال افزودن دانش‌آموزان..." : "افزودن دانش‌آموزان"}
           </button>
         </div>
 
@@ -672,11 +705,51 @@ function StudentsPage() {
                 </tbody>
               </table>
             </div>
-            {excel.rows.length > previewRows.length && (
-              <p className="text-[11px] text-slate-400">
-                نمایش {previewRows.length.toLocaleString("fa-IR")} ردیف از{" "}
-                {excel.rows.length.toLocaleString("fa-IR")} ردیف
-              </p>
+            {totalRows > 0 && (
+              <div dir="rtl" className="flex items-center justify-between flex-wrap gap-2">
+                <p className="text-[11px] text-slate-400">
+                  نمایش {previewRows.length.toLocaleString("fa-IR")} ردیف از{" "}
+                  {totalRows.toLocaleString("fa-IR")} ردیف
+                </p>
+                {totalPages > 1 && (
+                  <div dir="rtl" className="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="h-8 px-3 rounded-lg bg-slate-50 border border-slate-100 text-[11px] font-semibold text-slate-700 inline-flex items-center gap-1 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" />
+                      قبلی
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setPreviewPage(n)}
+                        className={`h-8 min-w-8 px-2 rounded-lg text-[11px] font-bold border transition ${
+                          n === currentPage
+                            ? "bg-violet-600 text-white border-violet-600"
+                            : "bg-white text-slate-600 border-slate-100 hover:bg-slate-50"
+                        }`}
+                      >
+                        {n.toLocaleString("fa-IR")}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPreviewPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="h-8 px-3 rounded-lg bg-slate-50 border border-slate-100 text-[11px] font-semibold text-slate-700 inline-flex items-center gap-1 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      بعدی
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
             {missingRequired.length > 0 && (
               <p className="text-xs text-amber-700">
@@ -760,15 +833,33 @@ function StudentsPage() {
             <p className="text-sm font-bold text-emerald-800">
               {importResult.message ?? "افزودن دانش‌آموزان با موفقیت انجام شد."}
             </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
               <ResultChip
-                label="تعداد دانش‌آموزان ایجاد شده"
+                label="ایجاد شده"
                 value={importResult.summary?.created ?? importResult.created ?? 0}
                 tone="emerald"
               />
               <ResultChip
-                label="تعداد ردیف‌های نامعتبر"
+                label="به‌روزرسانی شده"
+                value={
+                  (importResult.summary as { updated?: number } | undefined)?.updated ??
+                  (importResult as { updated?: number }).updated ??
+                  0
+                }
+                tone="emerald"
+              />
+              <ResultChip
+                label="نامعتبر"
                 value={importResult.summary?.failed ?? importResult.failed ?? 0}
+                tone="rose"
+              />
+              <ResultChip
+                label="نادیده گرفته شده"
+                value={
+                  (importResult.summary as { skipped?: number } | undefined)?.skipped ??
+                  (importResult as { skipped?: number }).skipped ??
+                  0
+                }
                 tone="rose"
               />
             </div>
