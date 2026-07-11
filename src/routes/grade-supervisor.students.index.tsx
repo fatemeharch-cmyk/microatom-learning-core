@@ -628,7 +628,7 @@ function StudentsPage() {
             ) : (
               <UserPlus className="h-4 w-4" />
             )}
-            افزودن دانش‌آموزان
+            {importing ? "در حال افزودن دانش‌آموزان..." : "افزودن دانش‌آموزان"}
           </button>
         </div>
 
