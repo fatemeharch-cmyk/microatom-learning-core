@@ -232,7 +232,7 @@ function LoginPage() {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="مثلاً student"
+                placeholder="نام کاربری"
                 className="text-right"
                 dir="ltr"
               />
