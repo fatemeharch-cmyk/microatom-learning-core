@@ -355,21 +355,32 @@ function StudentsPage() {
       return;
     }
     setMappingWarning(null);
-    const out: ValidatedRow[] = excel.rows.map((row, i) => {
+    const rows: ValidatedRow[] = excel.rows.map((row, i) => {
       const data: Partial<Record<FieldKey, string>> = {};
       mapping.forEach((m, colIdx) => {
         if (!m || m === "__ignore__") return;
         const key = m as FieldKey;
         let val = String(row[colIdx] ?? "").trim();
         if (TEXT_FIELDS.includes(key)) {
-          // keep as text, normalize to EN digits for storage
           val = toEnDigits(val);
         }
         data[key] = val;
       });
       return { data, errors: validateRowData(data), __rowIndex: i + 2 };
     });
-    setValidated(out);
+    // Duplicate national_code detection across the sheet
+    const counts = new Map<string, number>();
+    rows.forEach((r) => {
+      const nc = String(r.data.national_code ?? "").trim();
+      if (nc) counts.set(nc, (counts.get(nc) ?? 0) + 1);
+    });
+    rows.forEach((r) => {
+      const nc = String(r.data.national_code ?? "").trim();
+      if (nc && (counts.get(nc) ?? 0) > 1) {
+        r.errors.push("کد ملی تکراری در فایل");
+      }
+    });
+    setValidated(rows);
   }
 
   function removeRow(idx: number) {
@@ -377,9 +388,34 @@ function StudentsPage() {
     setValidated(validated.filter((_, i) => i !== idx));
   }
 
+  function downloadCredentialsFile(
+    rows: { first_name: string; last_name: string; national_code: string }[],
+  ) {
+    const headers = [
+      "نام",
+      "نام خانوادگی",
+      "کد ملی",
+      "نام کاربری",
+      "رمز عبور",
+    ];
+    const body = rows.map((r) => [
+      r.first_name,
+      r.last_name,
+      r.national_code,
+      r.national_code,
+      r.national_code,
+    ]);
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...body]);
+    ws["!views"] = [{ RTL: true }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "اطلاعات ورود");
+    XLSX.writeFile(wb, "atomia-students-credentials.xlsx");
+  }
+
   async function handleImport() {
     if (!validated) return;
     const valid = validated.filter((r) => r.errors.length === 0);
+    const invalid = validated.filter((r) => r.errors.length > 0);
     if (valid.length === 0) {
       setImportError("هیچ ردیف معتبری برای افزودن وجود ندارد.");
       return;
@@ -388,14 +424,44 @@ function StudentsPage() {
     setImportError(null);
     setImportResult(null);
     try {
-      const payload = {
-        students: valid.map((r) => r.data),
-      };
+      const students = valid.map((r) => {
+        const nc = String(r.data.national_code ?? "").trim();
+        return {
+          ...r.data,
+          role: "student",
+          username: nc,
+          password: nc,
+          must_change_password: false,
+        };
+      });
+      const payload = { students };
       const res = await xanoFetch<ImportResponse>("/students/import", {
         method: "POST",
         body: JSON.stringify(payload),
       });
-      setImportResult(res ?? {});
+      const result: ImportResponse = {
+        ...(res ?? {}),
+        summary: {
+          ...(res?.summary ?? {}),
+          created:
+            res?.summary?.created ??
+            res?.created ??
+            valid.length,
+          failed:
+            res?.summary?.failed ??
+            res?.failed ??
+            invalid.length,
+        },
+      };
+      setImportResult(result);
+      // Build downloadable credentials file from what we sent
+      setCredentialsPayload(
+        students.map((s) => ({
+          first_name: String(s.first_name ?? ""),
+          last_name: String(s.last_name ?? ""),
+          national_code: String(s.national_code ?? ""),
+        })),
+      );
       setValidated(null);
       setExcel(null);
       setMapping([]);
@@ -408,6 +474,7 @@ function StudentsPage() {
       setImporting(false);
     }
   }
+
 
   const validCount = validated?.filter((r) => r.errors.length === 0).length ?? 0;
   const invalidCount = validated?.filter((r) => r.errors.length > 0).length ?? 0;
