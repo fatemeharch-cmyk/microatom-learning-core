@@ -208,17 +208,39 @@ export function StudyPlanBoard({ studentId }: StudyPlanBoardProps) {
       const idx = colOthers.findIndex((i) => i.id === beforeId);
       if (idx >= 0) insertIndex = idx;
     }
-    const movedItem: StudyPlanItem = { ...src, status: targetStatus };
+    const nowIso = new Date().toISOString();
+    const statusChanged = src.status !== targetStatus;
+    const movedItem: StudyPlanItem = {
+      ...src,
+      status: targetStatus,
+      startedAt:
+        statusChanged && targetStatus === "in_progress" && !src.startedAt
+          ? nowIso
+          : src.startedAt,
+      completedAt:
+        statusChanged && targetStatus === "done" ? nowIso : src.completedAt,
+    };
     const newCol = [...colOthers];
     newCol.splice(insertIndex, 0, movedItem);
     const reordered = newCol.map((i, idx) => ({ ...i, displayOrder: idx }));
     const otherCols = others.filter((i) => i.status !== targetStatus);
     const merged = sortByOrder([...otherCols, ...reordered]);
+    const prevItems = items;
     setItems(merged);
 
-    if (src.status !== targetStatus) {
-      // Status change side-effects: fire status update
-      void changeStatus(src, targetStatus);
+    if (statusChanged) {
+      const actualMinutes =
+        targetStatus === "done" ? computeElapsedMinutes(movedItem) : undefined;
+      updateStudyPlanStatus(src.id, targetStatus, actualMinutes)
+        .then((updated) => {
+          setItems((curr) =>
+            curr.map((i) => (i.id === src.id ? { ...i, ...updated, status: targetStatus, displayOrder: i.displayOrder } : i)),
+          );
+        })
+        .catch(() => {
+          setItems(prevItems);
+          showToast("به‌روزرسانی وضعیت با خطا مواجه شد");
+        });
     }
     scheduleReorder(targetStatus, merged);
   };
