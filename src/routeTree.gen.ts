@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TeacherRouteImport } from './routes/teacher'
-import { Route as SupervisorRouteImport } from './routes/supervisor'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PrincipalRouteImport } from './routes/principal'
@@ -20,7 +19,6 @@ import { Route as GradeSupervisorRouteImport } from './routes/grade-supervisor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
-import { Route as SupervisorIndexRouteImport } from './routes/supervisor.index'
 import { Route as StudentIndexRouteImport } from './routes/student.index'
 import { Route as ParentIndexRouteImport } from './routes/parent.index'
 import { Route as GradeSupervisorIndexRouteImport } from './routes/grade-supervisor.index'
@@ -34,18 +32,6 @@ import { Route as TeacherHomeworkRouteImport } from './routes/teacher.homework'
 import { Route as TeacherExamsRouteImport } from './routes/teacher.exams'
 import { Route as TeacherAnalyzerRouteImport } from './routes/teacher.analyzer'
 import { Route as TeacherAnalyticsRouteImport } from './routes/teacher.analytics'
-import { Route as SupervisorTurboRouteImport } from './routes/supervisor.turbo'
-import { Route as SupervisorTeachersHubRouteImport } from './routes/supervisor.teachers-hub'
-import { Route as SupervisorTeachersRouteImport } from './routes/supervisor.teachers'
-import { Route as SupervisorStudentRouteImport } from './routes/supervisor.student'
-import { Route as SupervisorSessionsRouteImport } from './routes/supervisor.sessions'
-import { Route as SupervisorParentsRouteImport } from './routes/supervisor.parents'
-import { Route as SupervisorGradeRouteImport } from './routes/supervisor.grade'
-import { Route as SupervisorFollowupsRouteImport } from './routes/supervisor.followups'
-import { Route as SupervisorFeedbackRouteImport } from './routes/supervisor.feedback'
-import { Route as SupervisorCalendarRouteImport } from './routes/supervisor.calendar'
-import { Route as SupervisorAnalyticsRouteImport } from './routes/supervisor.analytics'
-import { Route as SupervisorAlertsRouteImport } from './routes/supervisor.alerts'
 import { Route as StudentWeeklyRouteImport } from './routes/student.weekly'
 import { Route as StudentTrackingRouteImport } from './routes/student.tracking'
 import { Route as StudentSmartReviewRouteImport } from './routes/student.smart-review'
@@ -103,11 +89,6 @@ const TeacherRoute = TeacherRouteImport.update({
   path: '/teacher',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SupervisorRoute = SupervisorRouteImport.update({
-  id: '/supervisor',
-  path: '/supervisor',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
@@ -152,11 +133,6 @@ const TeacherIndexRoute = TeacherIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => TeacherRoute,
-} as any)
-const SupervisorIndexRoute = SupervisorIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => SupervisorRoute,
 } as any)
 const StudentIndexRoute = StudentIndexRouteImport.update({
   id: '/',
@@ -222,66 +198,6 @@ const TeacherAnalyticsRoute = TeacherAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
   getParentRoute: () => TeacherRoute,
-} as any)
-const SupervisorTurboRoute = SupervisorTurboRouteImport.update({
-  id: '/turbo',
-  path: '/turbo',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorTeachersHubRoute = SupervisorTeachersHubRouteImport.update({
-  id: '/teachers-hub',
-  path: '/teachers-hub',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorTeachersRoute = SupervisorTeachersRouteImport.update({
-  id: '/teachers',
-  path: '/teachers',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorStudentRoute = SupervisorStudentRouteImport.update({
-  id: '/student',
-  path: '/student',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorSessionsRoute = SupervisorSessionsRouteImport.update({
-  id: '/sessions',
-  path: '/sessions',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorParentsRoute = SupervisorParentsRouteImport.update({
-  id: '/parents',
-  path: '/parents',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorGradeRoute = SupervisorGradeRouteImport.update({
-  id: '/grade',
-  path: '/grade',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorFollowupsRoute = SupervisorFollowupsRouteImport.update({
-  id: '/followups',
-  path: '/followups',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorFeedbackRoute = SupervisorFeedbackRouteImport.update({
-  id: '/feedback',
-  path: '/feedback',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorCalendarRoute = SupervisorCalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorAnalyticsRoute = SupervisorAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => SupervisorRoute,
-} as any)
-const SupervisorAlertsRoute = SupervisorAlertsRouteImport.update({
-  id: '/alerts',
-  path: '/alerts',
-  getParentRoute: () => SupervisorRoute,
 } as any)
 const StudentWeeklyRoute = StudentWeeklyRouteImport.update({
   id: '/weekly',
@@ -553,7 +469,6 @@ export interface FileRoutesByFullPath {
   '/principal': typeof PrincipalRoute
   '/signup': typeof SignupRoute
   '/student': typeof StudentRouteWithChildren
-  '/supervisor': typeof SupervisorRouteWithChildren
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/classes': typeof AdminClassesRoute
@@ -600,18 +515,6 @@ export interface FileRoutesByFullPath {
   '/student/smart-review': typeof StudentSmartReviewRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
-  '/supervisor/alerts': typeof SupervisorAlertsRoute
-  '/supervisor/analytics': typeof SupervisorAnalyticsRoute
-  '/supervisor/calendar': typeof SupervisorCalendarRoute
-  '/supervisor/feedback': typeof SupervisorFeedbackRoute
-  '/supervisor/followups': typeof SupervisorFollowupsRoute
-  '/supervisor/grade': typeof SupervisorGradeRoute
-  '/supervisor/parents': typeof SupervisorParentsRoute
-  '/supervisor/sessions': typeof SupervisorSessionsRoute
-  '/supervisor/student': typeof SupervisorStudentRoute
-  '/supervisor/teachers': typeof SupervisorTeachersRoute
-  '/supervisor/teachers-hub': typeof SupervisorTeachersHubRoute
-  '/supervisor/turbo': typeof SupervisorTurboRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
   '/teacher/analyzer': typeof TeacherAnalyzerRoute
   '/teacher/exams': typeof TeacherExamsRoute
@@ -625,7 +528,6 @@ export interface FileRoutesByFullPath {
   '/grade-supervisor/': typeof GradeSupervisorIndexRoute
   '/parent/': typeof ParentIndexRoute
   '/student/': typeof StudentIndexRoute
-  '/supervisor/': typeof SupervisorIndexRoute
   '/teacher/': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
   '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
@@ -683,18 +585,6 @@ export interface FileRoutesByTo {
   '/student/smart-review': typeof StudentSmartReviewRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
-  '/supervisor/alerts': typeof SupervisorAlertsRoute
-  '/supervisor/analytics': typeof SupervisorAnalyticsRoute
-  '/supervisor/calendar': typeof SupervisorCalendarRoute
-  '/supervisor/feedback': typeof SupervisorFeedbackRoute
-  '/supervisor/followups': typeof SupervisorFollowupsRoute
-  '/supervisor/grade': typeof SupervisorGradeRoute
-  '/supervisor/parents': typeof SupervisorParentsRoute
-  '/supervisor/sessions': typeof SupervisorSessionsRoute
-  '/supervisor/student': typeof SupervisorStudentRoute
-  '/supervisor/teachers': typeof SupervisorTeachersRoute
-  '/supervisor/teachers-hub': typeof SupervisorTeachersHubRoute
-  '/supervisor/turbo': typeof SupervisorTurboRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
   '/teacher/analyzer': typeof TeacherAnalyzerRoute
   '/teacher/exams': typeof TeacherExamsRoute
@@ -708,7 +598,6 @@ export interface FileRoutesByTo {
   '/grade-supervisor': typeof GradeSupervisorIndexRoute
   '/parent': typeof ParentIndexRoute
   '/student': typeof StudentIndexRoute
-  '/supervisor': typeof SupervisorIndexRoute
   '/teacher': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
   '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
@@ -727,7 +616,6 @@ export interface FileRoutesById {
   '/principal': typeof PrincipalRoute
   '/signup': typeof SignupRoute
   '/student': typeof StudentRouteWithChildren
-  '/supervisor': typeof SupervisorRouteWithChildren
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/classes': typeof AdminClassesRoute
@@ -774,18 +662,6 @@ export interface FileRoutesById {
   '/student/smart-review': typeof StudentSmartReviewRoute
   '/student/tracking': typeof StudentTrackingRoute
   '/student/weekly': typeof StudentWeeklyRoute
-  '/supervisor/alerts': typeof SupervisorAlertsRoute
-  '/supervisor/analytics': typeof SupervisorAnalyticsRoute
-  '/supervisor/calendar': typeof SupervisorCalendarRoute
-  '/supervisor/feedback': typeof SupervisorFeedbackRoute
-  '/supervisor/followups': typeof SupervisorFollowupsRoute
-  '/supervisor/grade': typeof SupervisorGradeRoute
-  '/supervisor/parents': typeof SupervisorParentsRoute
-  '/supervisor/sessions': typeof SupervisorSessionsRoute
-  '/supervisor/student': typeof SupervisorStudentRoute
-  '/supervisor/teachers': typeof SupervisorTeachersRoute
-  '/supervisor/teachers-hub': typeof SupervisorTeachersHubRoute
-  '/supervisor/turbo': typeof SupervisorTurboRoute
   '/teacher/analytics': typeof TeacherAnalyticsRoute
   '/teacher/analyzer': typeof TeacherAnalyzerRoute
   '/teacher/exams': typeof TeacherExamsRoute
@@ -799,7 +675,6 @@ export interface FileRoutesById {
   '/grade-supervisor/': typeof GradeSupervisorIndexRoute
   '/parent/': typeof ParentIndexRoute
   '/student/': typeof StudentIndexRoute
-  '/supervisor/': typeof SupervisorIndexRoute
   '/teacher/': typeof TeacherIndexRoute
   '/grade-supervisor/students/$id': typeof GradeSupervisorStudentsIdRoute
   '/student/biology/$chapterId': typeof StudentBiologyChapterIdRoute
@@ -819,7 +694,6 @@ export interface FileRouteTypes {
     | '/principal'
     | '/signup'
     | '/student'
-    | '/supervisor'
     | '/teacher'
     | '/admin/calendar'
     | '/admin/classes'
@@ -866,18 +740,6 @@ export interface FileRouteTypes {
     | '/student/smart-review'
     | '/student/tracking'
     | '/student/weekly'
-    | '/supervisor/alerts'
-    | '/supervisor/analytics'
-    | '/supervisor/calendar'
-    | '/supervisor/feedback'
-    | '/supervisor/followups'
-    | '/supervisor/grade'
-    | '/supervisor/parents'
-    | '/supervisor/sessions'
-    | '/supervisor/student'
-    | '/supervisor/teachers'
-    | '/supervisor/teachers-hub'
-    | '/supervisor/turbo'
     | '/teacher/analytics'
     | '/teacher/analyzer'
     | '/teacher/exams'
@@ -891,7 +753,6 @@ export interface FileRouteTypes {
     | '/grade-supervisor/'
     | '/parent/'
     | '/student/'
-    | '/supervisor/'
     | '/teacher/'
     | '/grade-supervisor/students/$id'
     | '/student/biology/$chapterId'
@@ -949,18 +810,6 @@ export interface FileRouteTypes {
     | '/student/smart-review'
     | '/student/tracking'
     | '/student/weekly'
-    | '/supervisor/alerts'
-    | '/supervisor/analytics'
-    | '/supervisor/calendar'
-    | '/supervisor/feedback'
-    | '/supervisor/followups'
-    | '/supervisor/grade'
-    | '/supervisor/parents'
-    | '/supervisor/sessions'
-    | '/supervisor/student'
-    | '/supervisor/teachers'
-    | '/supervisor/teachers-hub'
-    | '/supervisor/turbo'
     | '/teacher/analytics'
     | '/teacher/analyzer'
     | '/teacher/exams'
@@ -974,7 +823,6 @@ export interface FileRouteTypes {
     | '/grade-supervisor'
     | '/parent'
     | '/student'
-    | '/supervisor'
     | '/teacher'
     | '/grade-supervisor/students/$id'
     | '/student/biology/$chapterId'
@@ -992,7 +840,6 @@ export interface FileRouteTypes {
     | '/principal'
     | '/signup'
     | '/student'
-    | '/supervisor'
     | '/teacher'
     | '/admin/calendar'
     | '/admin/classes'
@@ -1039,18 +886,6 @@ export interface FileRouteTypes {
     | '/student/smart-review'
     | '/student/tracking'
     | '/student/weekly'
-    | '/supervisor/alerts'
-    | '/supervisor/analytics'
-    | '/supervisor/calendar'
-    | '/supervisor/feedback'
-    | '/supervisor/followups'
-    | '/supervisor/grade'
-    | '/supervisor/parents'
-    | '/supervisor/sessions'
-    | '/supervisor/student'
-    | '/supervisor/teachers'
-    | '/supervisor/teachers-hub'
-    | '/supervisor/turbo'
     | '/teacher/analytics'
     | '/teacher/analyzer'
     | '/teacher/exams'
@@ -1064,7 +899,6 @@ export interface FileRouteTypes {
     | '/grade-supervisor/'
     | '/parent/'
     | '/student/'
-    | '/supervisor/'
     | '/teacher/'
     | '/grade-supervisor/students/$id'
     | '/student/biology/$chapterId'
@@ -1083,7 +917,6 @@ export interface RootRouteChildren {
   PrincipalRoute: typeof PrincipalRoute
   SignupRoute: typeof SignupRoute
   StudentRoute: typeof StudentRouteWithChildren
-  SupervisorRoute: typeof SupervisorRouteWithChildren
   TeacherRoute: typeof TeacherRouteWithChildren
 }
 
@@ -1094,13 +927,6 @@ declare module '@tanstack/react-router' {
       path: '/teacher'
       fullPath: '/teacher'
       preLoaderRoute: typeof TeacherRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/supervisor': {
-      id: '/supervisor'
-      path: '/supervisor'
-      fullPath: '/supervisor'
-      preLoaderRoute: typeof SupervisorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student': {
@@ -1165,13 +991,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/teacher/'
       preLoaderRoute: typeof TeacherIndexRouteImport
       parentRoute: typeof TeacherRoute
-    }
-    '/supervisor/': {
-      id: '/supervisor/'
-      path: '/'
-      fullPath: '/supervisor/'
-      preLoaderRoute: typeof SupervisorIndexRouteImport
-      parentRoute: typeof SupervisorRoute
     }
     '/student/': {
       id: '/student/'
@@ -1263,90 +1082,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/teacher/analytics'
       preLoaderRoute: typeof TeacherAnalyticsRouteImport
       parentRoute: typeof TeacherRoute
-    }
-    '/supervisor/turbo': {
-      id: '/supervisor/turbo'
-      path: '/turbo'
-      fullPath: '/supervisor/turbo'
-      preLoaderRoute: typeof SupervisorTurboRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/teachers-hub': {
-      id: '/supervisor/teachers-hub'
-      path: '/teachers-hub'
-      fullPath: '/supervisor/teachers-hub'
-      preLoaderRoute: typeof SupervisorTeachersHubRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/teachers': {
-      id: '/supervisor/teachers'
-      path: '/teachers'
-      fullPath: '/supervisor/teachers'
-      preLoaderRoute: typeof SupervisorTeachersRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/student': {
-      id: '/supervisor/student'
-      path: '/student'
-      fullPath: '/supervisor/student'
-      preLoaderRoute: typeof SupervisorStudentRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/sessions': {
-      id: '/supervisor/sessions'
-      path: '/sessions'
-      fullPath: '/supervisor/sessions'
-      preLoaderRoute: typeof SupervisorSessionsRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/parents': {
-      id: '/supervisor/parents'
-      path: '/parents'
-      fullPath: '/supervisor/parents'
-      preLoaderRoute: typeof SupervisorParentsRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/grade': {
-      id: '/supervisor/grade'
-      path: '/grade'
-      fullPath: '/supervisor/grade'
-      preLoaderRoute: typeof SupervisorGradeRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/followups': {
-      id: '/supervisor/followups'
-      path: '/followups'
-      fullPath: '/supervisor/followups'
-      preLoaderRoute: typeof SupervisorFollowupsRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/feedback': {
-      id: '/supervisor/feedback'
-      path: '/feedback'
-      fullPath: '/supervisor/feedback'
-      preLoaderRoute: typeof SupervisorFeedbackRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/calendar': {
-      id: '/supervisor/calendar'
-      path: '/calendar'
-      fullPath: '/supervisor/calendar'
-      preLoaderRoute: typeof SupervisorCalendarRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/analytics': {
-      id: '/supervisor/analytics'
-      path: '/analytics'
-      fullPath: '/supervisor/analytics'
-      preLoaderRoute: typeof SupervisorAnalyticsRouteImport
-      parentRoute: typeof SupervisorRoute
-    }
-    '/supervisor/alerts': {
-      id: '/supervisor/alerts'
-      path: '/alerts'
-      fullPath: '/supervisor/alerts'
-      preLoaderRoute: typeof SupervisorAlertsRouteImport
-      parentRoute: typeof SupervisorRoute
     }
     '/student/weekly': {
       id: '/student/weekly'
@@ -1875,42 +1610,6 @@ const StudentRouteChildren: StudentRouteChildren = {
 const StudentRouteWithChildren =
   StudentRoute._addFileChildren(StudentRouteChildren)
 
-interface SupervisorRouteChildren {
-  SupervisorAlertsRoute: typeof SupervisorAlertsRoute
-  SupervisorAnalyticsRoute: typeof SupervisorAnalyticsRoute
-  SupervisorCalendarRoute: typeof SupervisorCalendarRoute
-  SupervisorFeedbackRoute: typeof SupervisorFeedbackRoute
-  SupervisorFollowupsRoute: typeof SupervisorFollowupsRoute
-  SupervisorGradeRoute: typeof SupervisorGradeRoute
-  SupervisorParentsRoute: typeof SupervisorParentsRoute
-  SupervisorSessionsRoute: typeof SupervisorSessionsRoute
-  SupervisorStudentRoute: typeof SupervisorStudentRoute
-  SupervisorTeachersRoute: typeof SupervisorTeachersRoute
-  SupervisorTeachersHubRoute: typeof SupervisorTeachersHubRoute
-  SupervisorTurboRoute: typeof SupervisorTurboRoute
-  SupervisorIndexRoute: typeof SupervisorIndexRoute
-}
-
-const SupervisorRouteChildren: SupervisorRouteChildren = {
-  SupervisorAlertsRoute: SupervisorAlertsRoute,
-  SupervisorAnalyticsRoute: SupervisorAnalyticsRoute,
-  SupervisorCalendarRoute: SupervisorCalendarRoute,
-  SupervisorFeedbackRoute: SupervisorFeedbackRoute,
-  SupervisorFollowupsRoute: SupervisorFollowupsRoute,
-  SupervisorGradeRoute: SupervisorGradeRoute,
-  SupervisorParentsRoute: SupervisorParentsRoute,
-  SupervisorSessionsRoute: SupervisorSessionsRoute,
-  SupervisorStudentRoute: SupervisorStudentRoute,
-  SupervisorTeachersRoute: SupervisorTeachersRoute,
-  SupervisorTeachersHubRoute: SupervisorTeachersHubRoute,
-  SupervisorTurboRoute: SupervisorTurboRoute,
-  SupervisorIndexRoute: SupervisorIndexRoute,
-}
-
-const SupervisorRouteWithChildren = SupervisorRoute._addFileChildren(
-  SupervisorRouteChildren,
-)
-
 interface TeacherRouteChildren {
   TeacherAnalyticsRoute: typeof TeacherAnalyticsRoute
   TeacherAnalyzerRoute: typeof TeacherAnalyzerRoute
@@ -1949,7 +1648,6 @@ const rootRouteChildren: RootRouteChildren = {
   PrincipalRoute: PrincipalRoute,
   SignupRoute: SignupRoute,
   StudentRoute: StudentRouteWithChildren,
-  SupervisorRoute: SupervisorRouteWithChildren,
   TeacherRoute: TeacherRouteWithChildren,
 }
 export const routeTree = rootRouteImport
