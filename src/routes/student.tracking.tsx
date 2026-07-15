@@ -1,171 +1,270 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Clock, Plus, Sparkles, Target, Timer, Trash2, TrendingUp } from "lucide-react";
+import {
+  Clock,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Timer,
+  TrendingUp,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import { STUDENT_BASE_URL } from "@/lib/api/config";
+import { getAuthToken } from "@/lib/api/client";
+import { listSubjects } from "@/lib/services/content-service";
+import type { ContentSubject } from "@/lib/services/content-service";
 
 export const Route = createFileRoute("/student/tracking")({
   component: StudyTracking,
 });
 
-type Session = {
-  id: string;
-  date: string; // yyyy-mm-dd
-  subject: string;
-  planned: number; // minutes
-  actual: number; // minutes
-  note?: string;
+// ---------- Types ----------
+type ActivityType = "study" | "review" | "homework" | "test";
+
+type StudyLog = {
+  id: string | number;
+  subject_id: string | number;
+  subject_name?: string;
+  chapter_id?: string | number | null;
+  goftar_id?: string | number | null;
+  atom_id?: string | number | null;
+  micro_atom_id?: string | number | null;
+  study_date: string;
+  duration_minutes: number;
+  activity_type: string;
+  notes?: string | null;
 };
 
-const STORAGE_KEY = "ma_study_sessions";
-const SUBJECTS_FA = ["ریاضی", "فیزیک", "شیمی", "زبان انگلیسی", "ادبیات", "زیست"];
-const SUBJECTS_EN = ["Math", "Physics", "Chemistry", "English", "Literature", "Biology"];
+type StudyLogsResponse = {
+  success?: boolean;
+  summary?: {
+    today_minutes?: number;
+    week_minutes?: number;
+    month_minutes?: number;
+  };
+  by_subject?: Array<{
+    subject_id: string | number;
+    subject_name: string;
+    total_minutes: number;
+  }>;
+  logs?: StudyLog[];
+};
 
-function load(): Session[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Session[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function save(sessions: Session[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-}
-
+// ---------- Helpers ----------
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
 function toJalaliShort(iso: string): string {
   if (!iso) return "";
-  const d = new DateObject({ date: new Date(iso), calendar: persian, locale: persian_fa });
-  return d.format("D MMMM") ?? iso.slice(5);
+  try {
+    const d = new DateObject({
+      date: new Date(iso),
+      calendar: persian,
+      locale: persian_fa,
+    });
+    return d.format("D MMMM") ?? iso.slice(5);
+  } catch {
+    return iso;
+  }
+}
+
+async function xanoStudent<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getAuthToken();
+  const res = await fetch(`${STUDENT_BASE_URL}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers ?? {}),
+    },
+  });
+  const text = await res.text();
+  const data = text ? (JSON.parse(text) as unknown) : null;
+  if (!res.ok) {
+    const msg =
+      data && typeof data === "object" && "message" in data
+        ? String((data as { message: unknown }).message ?? "")
+        : "";
+    throw new Error(msg || `status ${res.status}`);
+  }
+  return data as T;
+}
+
+const ACTIVITY_TYPES_FA: Array<{ value: ActivityType; label: string }> = [
+  { value: "study", label: "مطالعه" },
+  { value: "review", label: "مرور" },
+  { value: "homework", label: "تکلیف" },
+  { value: "test", label: "آزمونک" },
+];
+const ACTIVITY_TYPES_EN: Array<{ value: ActivityType; label: string }> = [
+  { value: "study", label: "Study" },
+  { value: "review", label: "Review" },
+  { value: "homework", label: "Homework" },
+  { value: "test", label: "Quiz" },
+];
+
+function activityLabel(fa: boolean, value: string): string {
+  const list = fa ? ACTIVITY_TYPES_FA : ACTIVITY_TYPES_EN;
+  return list.find((a) => a.value === value)?.label ?? value;
 }
 
 function StudyTracking() {
-  const { t, lang, dir } = useI18n();
+  const { lang, dir } = useI18n();
   const { t: themeT } = useTheme();
   const studyTimeLabel = themeT("study_time", "دوز مطالعه");
   const fa = lang === "fa";
-  const SUBJECTS = fa ? SUBJECTS_FA : SUBJECTS_EN;
+  const ACTIVITIES = fa ? ACTIVITY_TYPES_FA : ACTIVITY_TYPES_EN;
 
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [subject, setSubject] = useState<string>(SUBJECTS[0]);
-  const [planned, setPlanned] = useState<number>(30);
-  const [actual, setActual] = useState<number>(0);
+  const [subjects, setSubjects] = useState<ContentSubject[]>([]);
+  const [subjectId, setSubjectId] = useState<string>("");
+
+  const [duration, setDuration] = useState<number>(30);
+  const [activityType, setActivityType] = useState<ActivityType>("study");
   const [date, setDate] = useState<string>(todayISO());
   const [note, setNote] = useState<string>("");
   const [dateObj, setDateObj] = useState<DateObject | null>(
-    new DateObject({ date: new Date(todayISO()), calendar: persian, locale: persian_fa }),
+    new DateObject({
+      date: new Date(todayISO()),
+      calendar: persian,
+      locale: persian_fa,
+    }),
   );
 
+  const [summary, setSummary] = useState<StudyLogsResponse["summary"]>({});
+  const [bySubject, setBySubject] = useState<
+    NonNullable<StudyLogsResponse["by_subject"]>
+  >([]);
+  const [logs, setLogs] = useState<StudyLog[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   useEffect(() => {
-    setDateObj(new DateObject({ date: new Date(date), calendar: persian, locale: persian_fa }));
+    setDateObj(
+      new DateObject({ date: new Date(date), calendar: persian, locale: persian_fa }),
+    );
   }, [date]);
 
+  async function loadAll() {
+    setLoading(true);
+    setError(null);
+    try {
+      const [subs, res] = await Promise.all([
+        listSubjects().catch(() => [] as ContentSubject[]),
+        xanoStudent<StudyLogsResponse>("/student/study-logs"),
+      ]);
+      setSubjects(subs);
+      if (subs.length > 0 && !subjectId) setSubjectId(String(subs[0].id));
+      setSummary(res?.summary ?? {});
+      setBySubject(Array.isArray(res?.by_subject) ? res.by_subject : []);
+      setLogs(Array.isArray(res?.logs) ? res.logs : []);
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setError(
+        fa
+          ? msg
+            ? `دریافت اطلاعات مطالعه با خطا مواجه شد: ${msg}`
+            : "دریافت اطلاعات مطالعه با خطا مواجه شد."
+          : msg
+            ? `Failed to load study data: ${msg}`
+            : "Failed to load study data.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    setSessions(load());
+    loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    setSubject(SUBJECTS[0]);
-  }, [lang]);
-
-  const addSession = () => {
-    if (!subject || planned <= 0) return;
-    const s: Session = {
-      id: crypto.randomUUID(),
-      date,
-      subject,
-      planned,
-      actual: Math.max(0, actual),
-      note: note.trim() || undefined,
-    };
-    const next = [s, ...sessions];
-    setSessions(next);
-    save(next);
-    setActual(0);
-    setNote("");
-  };
-
-  const removeSession = (id: string) => {
-    const next = sessions.filter((s) => s.id !== id);
-    setSessions(next);
-    save(next);
-  };
-
-  const totals = useMemo(() => {
-    const today = todayISO();
-    const todayList = sessions.filter((s) => s.date === today);
-    const week = new Date();
-    week.setDate(week.getDate() - 6);
-    const weekIso = week.toISOString().slice(0, 10);
-    const weekList = sessions.filter((s) => s.date >= weekIso);
-    const sum = (arr: Session[], k: "planned" | "actual") =>
-      arr.reduce((acc, s) => acc + s[k], 0);
-    const tp = sum(todayList, "planned");
-    const ta = sum(todayList, "actual");
-    const wp = sum(weekList, "planned");
-    const wa = sum(weekList, "actual");
-    const adherence = wp > 0 ? Math.min(100, Math.round((wa / wp) * 100)) : 0;
-    return { tp, ta, wp, wa, adherence };
-  }, [sessions]);
-
-  // Turbo recommendation based on adherence and per-subject gaps
-  const recommendation = useMemo(() => {
-    if (sessions.length === 0) {
-      return fa
-        ? "اولین جلسه‌ات رو ثبت کن تا توربو برنامه‌ت رو شخصی‌سازی کنه."
-        : "Log your first session so Turbo can personalize your plan.";
-    }
-    // find the clearest consistency opportunity in the last 7 days
-    const week = new Date();
-    week.setDate(week.getDate() - 6);
-    const weekIso = week.toISOString().slice(0, 10);
-    const map = new Map<string, { p: number; a: number }>();
-    sessions
-      .filter((s) => s.date >= weekIso)
-      .forEach((s) => {
-        const cur = map.get(s.subject) ?? { p: 0, a: 0 };
-        cur.p += s.planned;
-        cur.a += s.actual;
-        map.set(s.subject, cur);
+  async function addSession() {
+    if (!subjectId || duration <= 0) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      await xanoStudent("/student/study-logs", {
+        method: "POST",
+        body: JSON.stringify({
+          subject_id: isNaN(Number(subjectId)) ? subjectId : Number(subjectId),
+          study_date: date,
+          duration_minutes: duration,
+          activity_type: activityType,
+          notes: note.trim() || undefined,
+        }),
       });
-    let worst: { name: string; gap: number } | null = null;
-    map.forEach((v, name) => {
-      const gap = v.p - v.a;
-      if (!worst || gap > worst.gap) worst = { name, gap };
-    });
-    const w = worst as { name: string; gap: number } | null;
-    if (totals.adherence >= 90) {
-      return fa
-        ? `عالیه! پایبندی ${totals.adherence}٪. توربو شدت برنامه رو کمی بالا می‌بره.`
-        : `Great! ${totals.adherence}% adherence. Turbo will slightly increase intensity.`;
+      setNote("");
+      await loadAll();
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setSubmitError(
+        fa
+          ? msg
+            ? `ثبت جلسه با خطا مواجه شد: ${msg}`
+            : "ثبت جلسه با خطا مواجه شد."
+          : msg
+            ? `Failed to log session: ${msg}`
+            : "Failed to log session.",
+      );
+    } finally {
+      setSubmitting(false);
     }
-    if (w && w.gap > 15) {
-      return fa
-        ? `«${w.name}» فرصت خوبی برای تداوم بیشتر است. توربو یک بازه کوتاه و قابل‌انجام برای فردا اضافه می‌کند.`
-        : `"${w.name}" is a good opportunity to build consistency. Turbo will add one manageable block tomorrow.`;
-    }
-    return fa
-      ? `پایبندی ${totals.adherence}٪. توربو زمان جلسات رو کمی کوتاه‌تر می‌کنه تا تمرکزت بهتر بشه.`
-      : `Adherence ${totals.adherence}%. Turbo will shorten sessions slightly to boost focus.`;
-  }, [sessions, totals, fa]);
+  }
 
-  const todayPct = totals.tp > 0 ? Math.min(100, Math.round((totals.ta / totals.tp) * 100)) : 0;
+  const totals = useMemo(
+    () => ({
+      today: Number(summary?.today_minutes ?? 0),
+      week: Number(summary?.week_minutes ?? 0),
+      month: Number(summary?.month_minutes ?? 0),
+    }),
+    [summary],
+  );
+
+  const minLabel = fa ? "دوز" : "min";
+
+  if (loading) {
+    return (
+      <div
+        dir="rtl"
+        className="min-h-[300px] grid place-items-center text-muted-foreground"
+      >
+        <div className="flex items-center gap-2 text-sm">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          {fa ? "در حال دریافت اطلاعات..." : "Loading..."}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div dir="rtl" className="max-w-lg mx-auto">
+        <Card>
+          <CardContent className="p-8 text-center space-y-4">
+            <p className="text-sm text-rose-600">{error}</p>
+            <Button onClick={loadAll} variant="secondary" className="gap-1.5">
+              <RefreshCw className="h-4 w-4" />
+              {fa ? "تلاش دوباره" : "Retry"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl" className="space-y-6 w-full text-right">
@@ -179,8 +278,8 @@ function StudyTracking() {
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {fa
-            ? "زمان برنامه‌ریزی‌شده و واقعی هر جلسه رو ثبت کن تا توربو برنامه‌ت رو دقیق‌تر کنه."
-            : "Log planned vs actual time per session so Turbo can refine your plan."}
+            ? "هر جلسهٔ مطالعه‌ت رو ثبت کن تا خلاصهٔ روز، هفته و ماه رو ببینی."
+            : "Log each study session to see today, this week, and this month."}
         </p>
       </div>
 
@@ -193,12 +292,12 @@ function StudyTracking() {
               {fa ? "امروز" : "Today"}
             </div>
             <p className="text-3xl font-extrabold mt-2">
-              {totals.ta}
+              {totals.today}
               <span className="text-base font-medium text-muted-foreground">
-                {" "}/ {totals.tp} {fa ? "دوز" : "min"}
+                {" "}
+                {minLabel}
               </span>
             </p>
-            <Progress value={todayPct} className="mt-3" />
           </CardContent>
         </Card>
         <Card>
@@ -208,48 +307,62 @@ function StudyTracking() {
               {fa ? "این هفته" : "This week"}
             </div>
             <p className="text-3xl font-extrabold mt-2">
-              {totals.wa}
+              {totals.week}
               <span className="text-base font-medium text-muted-foreground">
-                {" "}/ {totals.wp} {fa ? "دوز" : "min"}
+                {" "}
+                {minLabel}
               </span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              {fa ? "مجموع جلسات هفت روز اخیر" : "Sum of sessions in last 7 days"}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Target className="h-4 w-4 text-warning" />
-              {fa ? "پایبندی به برنامه" : "Plan adherence"}
+              <TrendingUp className="h-4 w-4 text-warning" />
+              {fa ? "این ماه" : "This month"}
             </div>
-            <p className="text-3xl font-extrabold mt-2">{totals.adherence}٪</p>
-            <Progress value={totals.adherence} className="mt-3" />
+            <p className="text-3xl font-extrabold mt-2">
+              {totals.month}
+              <span className="text-base font-medium text-muted-foreground">
+                {" "}
+                {minLabel}
+              </span>
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Turbo recommendation */}
-      <Card className="border-primary/40 bg-primary/5">
-        <CardContent className="p-5 flex items-start gap-3">
-          <div className="h-10 w-10 rounded-xl bg-[image:var(--gradient-primary)] text-primary-foreground grid place-items-center shrink-0">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold">
-               {fa ? "پیشنهاد توربو" : "Turbo Recommendation"}
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">{recommendation}</p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Per-subject breakdown */}
+      {bySubject.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {fa ? "به تفکیک درس" : "By subject"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {bySubject.map((b) => (
+                <div
+                  key={String(b.subject_id)}
+                  className="flex items-center justify-between p-3 rounded-xl border bg-card"
+                >
+                  <span className="text-sm font-semibold">{b.subject_name}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {b.total_minutes} {minLabel}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Log session */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {fa ? "ثبت جلسه‌ی مطالعه" : "Log a study session"}
+            {fa ? "ثبت جلسهٔ مطالعه" : "Log a study session"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -279,34 +392,43 @@ function StudyTracking() {
               <select
                 dir="rtl"
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm text-right"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
+                value={subjectId}
+                onChange={(e) => setSubjectId(e.target.value)}
               >
-                {SUBJECTS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
+                {subjects.length === 0 && (
+                  <option value="">
+                    {fa ? "درسی یافت نشد" : "No subjects"}
+                  </option>
+                )}
+                {subjects.map((s) => (
+                  <option key={s.id} value={String(s.id)}>
+                    {s.title}
                   </option>
                 ))}
               </select>
             </div>
             <div className="space-y-1.5 text-right">
-              <Label>{fa ? "دوز برنامه‌ریزی" : "Planned (min)"}</Label>
+              <Label>{fa ? "نوع فعالیت" : "Activity"}</Label>
+              <select
+                dir="rtl"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm text-right"
+                value={activityType}
+                onChange={(e) => setActivityType(e.target.value as ActivityType)}
+              >
+                {ACTIVITIES.map((a) => (
+                  <option key={a.value} value={a.value}>
+                    {a.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5 text-right">
+              <Label>{fa ? "مدت (دقیقه)" : "Duration (min)"}</Label>
               <Input
                 type="number"
                 min={1}
-                value={planned}
-                onChange={(e) => setPlanned(Number(e.target.value) || 0)}
-                className="h-9 text-right"
-                dir="ltr"
-              />
-            </div>
-            <div className="space-y-1.5 text-right">
-              <Label>{fa ? "دوز واقعی" : "Actual (min)"}</Label>
-              <Input
-                type="number"
-                min={0}
-                value={actual}
-                onChange={(e) => setActual(Number(e.target.value) || 0)}
+                value={duration}
+                onChange={(e) => setDuration(Number(e.target.value) || 0)}
                 className="h-9 text-right"
                 dir="ltr"
               />
@@ -321,9 +443,20 @@ function StudyTracking() {
               />
             </div>
           </div>
+          {submitError && (
+            <p className="text-xs text-rose-600 mt-3">{submitError}</p>
+          )}
           <div className="mt-4 flex justify-start">
-            <Button onClick={addSession} className="rounded-full gap-1.5">
-              <Plus className="h-4 w-4" />
+            <Button
+              onClick={addSession}
+              disabled={submitting || !subjectId}
+              className="rounded-full gap-1.5"
+            >
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
               {fa ? "ثبت جلسه" : "Add session"}
             </Button>
           </div>
@@ -338,69 +471,52 @@ function StudyTracking() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {sessions.length === 0 ? (
+          {logs.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
               {fa ? "هنوز جلسه‌ای ثبت نشده." : "No sessions logged yet."}
             </p>
           ) : (
             <div className="space-y-2">
-              {sessions.slice(0, 12).map((s) => {
-                const pct =
-                  s.planned > 0 ? Math.min(100, Math.round((s.actual / s.planned) * 100)) : 0;
-                const status =
-                  pct >= 100
-                    ? { label: fa ? "تکمیل" : "Complete", cls: "bg-success/15 text-success" }
-                    : pct >= 60
-                      ? { label: fa ? "نسبی" : "Partial", cls: "bg-warning/15 text-warning" }
-                      : { label: fa ? "شروع خوب" : "Good start", cls: "bg-primary/15 text-primary" };
-                return (
-                  <div
-                    key={s.id}
-                    className="flex items-center gap-3 p-3 rounded-xl border bg-card"
-                  >
-                  <div className="flex flex-col items-center w-20 shrink-0">
+              {logs.slice(0, 20).map((s) => (
+                <div
+                  key={String(s.id)}
+                  className="flex items-center gap-3 p-3 rounded-xl border bg-card"
+                >
+                  <div className="flex flex-col items-center w-24 shrink-0">
                     <span className="text-[10px] text-muted-foreground" dir="rtl">
-                      {toJalaliShort(s.date)}
+                      {toJalaliShort(s.study_date)}
                     </span>
-                    <span className="text-xs font-semibold">{s.subject}</span>
+                    <span className="text-xs font-semibold">
+                      {s.subject_name ?? ""}
+                    </span>
                   </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-muted-foreground">
-                          {s.actual} / {s.planned} {fa ? "دوز" : "min"} ({pct}٪)
-                        </span>
-                        <Badge variant="secondary" className={`border-0 ${status.cls}`}>
-                          {status.label}
-                        </Badge>
-                      </div>
-                      <Progress value={pct} className="h-1.5" />
-                      {s.note && (
-                        <p className="text-[11px] text-muted-foreground mt-1 truncate">
-                          {s.note}
-                        </p>
-                      )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-muted-foreground">
+                        {s.duration_minutes} {minLabel}
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="border-0 bg-primary/10 text-primary"
+                      >
+                        {activityLabel(fa, s.activity_type)}
+                      </Badge>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeSession(s.id)}
-                      aria-label="delete"
-                      className="rounded-full"
-                    >
-                      <Trash2 className="h-4 w-4 text-muted-foreground" />
-                    </Button>
+                    {s.notes && (
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {s.notes}
+                      </p>
+                    )}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
       </Card>
 
-      <p className="text-[11px] text-muted-foreground" dir={dir}>
-        {fa
-          ? "داده‌ها به‌صورت محلی روی این دستگاه ذخیره می‌شود."
-          : "Data is stored locally on this device."}
+      <p className="sr-only" dir={dir}>
+        study tracking
       </p>
     </div>
   );

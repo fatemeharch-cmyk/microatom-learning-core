@@ -65,6 +65,7 @@ import { Route as ParentCompanionRouteImport } from './routes/parent.companion'
 import { Route as ParentChildrenRouteImport } from './routes/parent.children'
 import { Route as ParentCalendarRouteImport } from './routes/parent.calendar'
 import { Route as ParentAnnouncementsRouteImport } from './routes/parent.announcements'
+import { Route as GradeSupervisorStudyTrackingRouteImport } from './routes/grade-supervisor.study-tracking'
 import { Route as GradeSupervisorNotebookRouteImport } from './routes/grade-supervisor.notebook'
 import { Route as GradeSupervisorComingSoonRouteImport } from './routes/grade-supervisor.coming-soon'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -365,6 +366,12 @@ const ParentAnnouncementsRoute = ParentAnnouncementsRouteImport.update({
   path: '/announcements',
   getParentRoute: () => ParentRoute,
 } as any)
+const GradeSupervisorStudyTrackingRoute =
+  GradeSupervisorStudyTrackingRouteImport.update({
+    id: '/study-tracking',
+    path: '/study-tracking',
+    getParentRoute: () => GradeSupervisorRoute,
+  } as any)
 const GradeSupervisorNotebookRoute = GradeSupervisorNotebookRouteImport.update({
   id: '/notebook',
   path: '/notebook',
@@ -482,6 +489,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/grade-supervisor/coming-soon': typeof GradeSupervisorComingSoonRoute
   '/grade-supervisor/notebook': typeof GradeSupervisorNotebookRoute
+  '/grade-supervisor/study-tracking': typeof GradeSupervisorStudyTrackingRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -553,6 +561,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/grade-supervisor/coming-soon': typeof GradeSupervisorComingSoonRoute
   '/grade-supervisor/notebook': typeof GradeSupervisorNotebookRoute
+  '/grade-supervisor/study-tracking': typeof GradeSupervisorStudyTrackingRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -629,6 +638,7 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/grade-supervisor/coming-soon': typeof GradeSupervisorComingSoonRoute
   '/grade-supervisor/notebook': typeof GradeSupervisorNotebookRoute
+  '/grade-supervisor/study-tracking': typeof GradeSupervisorStudyTrackingRoute
   '/parent/announcements': typeof ParentAnnouncementsRoute
   '/parent/calendar': typeof ParentCalendarRoute
   '/parent/children': typeof ParentChildrenRoute
@@ -707,6 +717,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/grade-supervisor/coming-soon'
     | '/grade-supervisor/notebook'
+    | '/grade-supervisor/study-tracking'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -778,6 +789,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/grade-supervisor/coming-soon'
     | '/grade-supervisor/notebook'
+    | '/grade-supervisor/study-tracking'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -853,6 +865,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/grade-supervisor/coming-soon'
     | '/grade-supervisor/notebook'
+    | '/grade-supervisor/study-tracking'
     | '/parent/announcements'
     | '/parent/calendar'
     | '/parent/children'
@@ -1314,6 +1327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentAnnouncementsRouteImport
       parentRoute: typeof ParentRoute
     }
+    '/grade-supervisor/study-tracking': {
+      id: '/grade-supervisor/study-tracking'
+      path: '/study-tracking'
+      fullPath: '/grade-supervisor/study-tracking'
+      preLoaderRoute: typeof GradeSupervisorStudyTrackingRouteImport
+      parentRoute: typeof GradeSupervisorRoute
+    }
     '/grade-supervisor/notebook': {
       id: '/grade-supervisor/notebook'
       path: '/notebook'
@@ -1476,6 +1496,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface GradeSupervisorRouteChildren {
   GradeSupervisorComingSoonRoute: typeof GradeSupervisorComingSoonRoute
   GradeSupervisorNotebookRoute: typeof GradeSupervisorNotebookRoute
+  GradeSupervisorStudyTrackingRoute: typeof GradeSupervisorStudyTrackingRoute
   GradeSupervisorIndexRoute: typeof GradeSupervisorIndexRoute
   GradeSupervisorStudentsIdRoute: typeof GradeSupervisorStudentsIdRoute
   GradeSupervisorStudentsIndexRoute: typeof GradeSupervisorStudentsIndexRoute
@@ -1484,6 +1505,7 @@ interface GradeSupervisorRouteChildren {
 const GradeSupervisorRouteChildren: GradeSupervisorRouteChildren = {
   GradeSupervisorComingSoonRoute: GradeSupervisorComingSoonRoute,
   GradeSupervisorNotebookRoute: GradeSupervisorNotebookRoute,
+  GradeSupervisorStudyTrackingRoute: GradeSupervisorStudyTrackingRoute,
   GradeSupervisorIndexRoute: GradeSupervisorIndexRoute,
   GradeSupervisorStudentsIdRoute: GradeSupervisorStudentsIdRoute,
   GradeSupervisorStudentsIndexRoute: GradeSupervisorStudentsIndexRoute,

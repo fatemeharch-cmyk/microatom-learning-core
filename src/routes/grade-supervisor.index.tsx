@@ -323,15 +323,15 @@ function GradeDashboard() {
             </span>
           </Link>
           <Link
-            to="/grade-supervisor/coming-soon"
+            to="/grade-supervisor/study-tracking"
             className="p-4 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-sm transition bg-white"
           >
             <p className="text-sm font-bold text-slate-800">پیگیری مطالعه</p>
             <p className="text-[11px] text-slate-500 mt-1">
               خلاصه روزانه و هفتگی زمان مطالعه در سطح پایه
             </p>
-            <span className="mt-3 inline-block text-[10px] font-semibold text-amber-600">
-              در انتظار سرویس
+            <span className="mt-3 inline-block text-[10px] font-semibold text-emerald-600">
+              فعال
             </span>
           </Link>
           <Link

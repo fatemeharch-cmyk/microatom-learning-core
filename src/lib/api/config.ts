@@ -7,7 +7,13 @@
  */
 
 export type ApiEnvironment = "development" | "staging" | "production";
-export type ApiGroup = "auth" | "content" | "supervisor" | "question-bank";
+export type ApiGroup =
+  | "auth"
+  | "content"
+  | "supervisor"
+  | "grade-supervisor"
+  | "student"
+  | "question-bank";
 
 export interface ApiConfig {
   baseUrl: string;
@@ -25,6 +31,13 @@ export const CONTENT_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8PSYz4xO"
 export const SUPERVISOR_BASE_URL =
   (import.meta.env?.VITE_XANO_SUPERVISOR_BASE as string | undefined) ??
   "https://x8ki-letl-twmt.n7.xano.io/api:supervisor";
+export const GRADE_SUPERVISOR_BASE_URL =
+  (import.meta.env?.VITE_XANO_GRADE_SUPERVISOR_BASE as string | undefined) ??
+  "https://x8ki-letl-twmt.n7.xano.io/api:grade-supervisor";
+// Student-facing Xano group (study logs, etc.). Override via env if needed.
+export const STUDENT_BASE_URL =
+  (import.meta.env?.VITE_XANO_STUDENT_BASE as string | undefined) ??
+  "https://x8ki-letl-twmt.n7.xano.io/api:student";
 
 const XANO_BASE_URL = AUTH_BASE_URL;
 
@@ -32,6 +45,8 @@ export const API_GROUP_BASE_URLS: Record<ApiGroup, string> = {
   auth: AUTH_BASE_URL,
   content: CONTENT_BASE_URL,
   supervisor: SUPERVISOR_BASE_URL,
+  "grade-supervisor": GRADE_SUPERVISOR_BASE_URL,
+  student: STUDENT_BASE_URL,
   "question-bank": "https://x8ki-letl-twmt.n7.xano.io/api:question-bank",
 };
 

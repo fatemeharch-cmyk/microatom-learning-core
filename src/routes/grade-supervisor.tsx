@@ -24,7 +24,7 @@ const items: NavItem[] = [
   },
   {
     title: "پیگیری مطالعه",
-    url: "/grade-supervisor/coming-soon",
+    url: "/grade-supervisor/study-tracking",
     icon: Timer,
   },
   {
