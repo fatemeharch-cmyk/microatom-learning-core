@@ -11,10 +11,32 @@ import {
   UserRound,
   CalendarClock,
   Star,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
-import { STUDENTS } from "@/lib/mock/grade-students";
 import { SUPERVISOR_BASE_URL } from "@/lib/api/config";
 import { getAuthToken } from "@/lib/api/client";
+
+// Same Xano API group used by the real roster page (grade-supervisor.students.index.tsx).
+const GRADE_SUPERVISOR_BASE_URL =
+  "https://x8ki-letl-twmt.n7.xano.io/api:grade-supervisor";
+
+type RosterStudent = {
+  id: string;
+  name: string;
+  className: string;
+};
+
+type ApiStudent = {
+  id?: string | number;
+  first_name?: string;
+  last_name?: string;
+  class_name?: string;
+  className?: string;
+  grade?: string;
+  grade_level?: string;
+  major?: string;
+};
 
 // ---------- Types ----------
 type ReportType =
@@ -338,18 +360,82 @@ function NotebookPage() {
   const [scope, setScope] = useState<"selected" | "all">("selected");
   const [filterType, setFilterType] = useState<ReportType | "all">("all");
 
+  const [roster, setRoster] = useState<RosterStudent[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
+
   const selectedStudent = useMemo(
-    () => STUDENTS.find((s) => s.id === selectedStudentId) ?? null,
-    [selectedStudentId],
+    () => roster.find((s) => s.id === selectedStudentId) ?? null,
+    [roster, selectedStudentId],
   );
 
   const filteredStudents = useMemo(() => {
     const q = search.trim();
-    if (!q) return STUDENTS;
-    return STUDENTS.filter(
+    if (!q) return roster;
+    return roster.filter(
       (s) => s.name.includes(q) || s.className.includes(q),
     );
-  }, [search]);
+  }, [roster, search]);
+
+  async function loadRoster() {
+    setLoadingList(true);
+    setListError(null);
+    try {
+      const token = getAuthToken();
+      const qs = new URLSearchParams({
+        grade_level: "یازدهم",
+        major: "تجربی",
+      }).toString();
+      const res = await fetch(
+        `${GRADE_SUPERVISOR_BASE_URL}/students?${qs}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        },
+      );
+      const text = await res.text();
+      const data = text ? (JSON.parse(text) as unknown) : null;
+      if (!res.ok) {
+        const msg =
+          data && typeof data === "object" && "message" in data
+            ? String((data as { message: unknown }).message ?? "")
+            : "";
+        throw new Error(msg);
+      }
+      let list: ApiStudent[] = [];
+      if (Array.isArray(data)) {
+        list = data as ApiStudent[];
+      } else if (data && typeof data === "object") {
+        const obj = data as Record<string, unknown>;
+        const raw = obj.students ?? obj.data ?? obj.items ?? obj.result;
+        if (Array.isArray(raw)) list = raw as ApiStudent[];
+      }
+      const mapped: RosterStudent[] = list.map((s) => ({
+        id: String(s.id ?? ""),
+        name: `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "بدون نام",
+        className: s.class_name ?? s.className ?? "",
+      })).filter((s) => s.id);
+      setRoster(mapped);
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setListError(
+        msg
+          ? `دریافت فهرست دانش‌آموزان با خطا مواجه شد: ${msg}`
+          : "دریافت فهرست دانش‌آموزان با خطا مواجه شد.",
+      );
+      setRoster([]);
+    } finally {
+      setLoadingList(false);
+    }
+  }
+
+  useEffect(() => {
+    loadRoster();
+  }, []);
+
 
   // Load all + follow-ups on mount
   useEffect(() => {
@@ -616,32 +702,53 @@ function NotebookPage() {
               />
             </div>
             <div className="max-h-[380px] space-y-1.5 overflow-auto pr-1">
-              {filteredStudents.map((s) => {
-                const active = s.id === selectedStudentId;
-                return (
+              {loadingList ? (
+                <div className="flex items-center justify-center gap-2 p-6 text-sm text-slate-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  در حال بارگذاری فهرست دانش‌آموزان...
+                </div>
+              ) : listError ? (
+                <div className="space-y-3 rounded-lg bg-rose-50 p-4 text-center text-sm text-rose-700">
+                  <p>{listError}</p>
                   <button
-                    key={s.id}
-                    onClick={() => setSelectedStudentId(s.id)}
-                    className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-right transition ${
-                      active ? "bg-emerald-50" : "bg-white hover:bg-slate-50"
-                    }`}
-                    style={{
-                      borderColor: active ? "#1F8A6D" : "#E4ECE9",
-                    }}
+                    type="button"
+                    onClick={loadRoster}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-700"
                   >
-                    <div>
-                      <div className="text-sm font-semibold" style={{ color: "#123B32" }}>
-                        {s.name}
-                      </div>
-                      <div className="text-xs text-slate-500">{s.className}</div>
-                    </div>
-                    <div className="text-xs text-slate-400">
-                      {toFa(s.healthScore)}
-                    </div>
+                    <RefreshCw className="h-4 w-4" />
+                    تلاش مجدد
                   </button>
-                );
-              })}
+                </div>
+              ) : filteredStudents.length === 0 ? (
+                <div className="rounded-lg bg-slate-50 p-4 text-center text-sm text-slate-500">
+                  هنوز دانش‌آموزی برای پایه یازدهم تجربی ثبت نشده است.
+                </div>
+              ) : (
+                filteredStudents.map((s) => {
+                  const active = s.id === selectedStudentId;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => setSelectedStudentId(s.id)}
+                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-right transition ${
+                        active ? "bg-emerald-50" : "bg-white hover:bg-slate-50"
+                      }`}
+                      style={{
+                        borderColor: active ? "#1F8A6D" : "#E4ECE9",
+                      }}
+                    >
+                      <div>
+                        <div className="text-sm font-semibold" style={{ color: "#123B32" }}>
+                          {s.name}
+                        </div>
+                        <div className="text-xs text-slate-500">{s.className}</div>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
+
           </Card>
 
           {/* Follow-ups */}
