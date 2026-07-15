@@ -702,32 +702,53 @@ function NotebookPage() {
               />
             </div>
             <div className="max-h-[380px] space-y-1.5 overflow-auto pr-1">
-              {filteredStudents.map((s) => {
-                const active = s.id === selectedStudentId;
-                return (
+              {loadingList ? (
+                <div className="flex items-center justify-center gap-2 p-6 text-sm text-slate-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  در حال بارگذاری فهرست دانش‌آموزان...
+                </div>
+              ) : listError ? (
+                <div className="space-y-3 rounded-lg bg-rose-50 p-4 text-center text-sm text-rose-700">
+                  <p>{listError}</p>
                   <button
-                    key={s.id}
-                    onClick={() => setSelectedStudentId(s.id)}
-                    className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-right transition ${
-                      active ? "bg-emerald-50" : "bg-white hover:bg-slate-50"
-                    }`}
-                    style={{
-                      borderColor: active ? "#1F8A6D" : "#E4ECE9",
-                    }}
+                    type="button"
+                    onClick={loadRoster}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-700"
                   >
-                    <div>
-                      <div className="text-sm font-semibold" style={{ color: "#123B32" }}>
-                        {s.name}
-                      </div>
-                      <div className="text-xs text-slate-500">{s.className}</div>
-                    </div>
-                    <div className="text-xs text-slate-400">
-                      {toFa(s.healthScore)}
-                    </div>
+                    <RefreshCw className="h-4 w-4" />
+                    تلاش مجدد
                   </button>
-                );
-              })}
+                </div>
+              ) : filteredStudents.length === 0 ? (
+                <div className="rounded-lg bg-slate-50 p-4 text-center text-sm text-slate-500">
+                  هنوز دانش‌آموزی برای پایه یازدهم تجربی ثبت نشده است.
+                </div>
+              ) : (
+                filteredStudents.map((s) => {
+                  const active = s.id === selectedStudentId;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => setSelectedStudentId(s.id)}
+                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-right transition ${
+                        active ? "bg-emerald-50" : "bg-white hover:bg-slate-50"
+                      }`}
+                      style={{
+                        borderColor: active ? "#1F8A6D" : "#E4ECE9",
+                      }}
+                    >
+                      <div>
+                        <div className="text-sm font-semibold" style={{ color: "#123B32" }}>
+                          {s.name}
+                        </div>
+                        <div className="text-xs text-slate-500">{s.className}</div>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
+
           </Card>
 
           {/* Follow-ups */}
