@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   Users,
   ClipboardList,
-  Activity,
 } from "lucide-react";
 import {
   SupervisorShell,
@@ -19,11 +18,6 @@ const items: NavItem[] = [
     title: "دفتر مسئول پایه",
     url: "/grade-supervisor/notebook",
     icon: ClipboardList,
-  },
-  {
-    title: "پایش فصل اول",
-    url: "/grade-supervisor/chapter1-monitoring",
-    icon: Activity,
   },
 ];
 
