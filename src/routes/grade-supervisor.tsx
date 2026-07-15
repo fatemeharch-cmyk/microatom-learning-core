@@ -24,12 +24,12 @@ const items: NavItem[] = [
   },
   {
     title: "پیگیری مطالعه",
-    url: "/grade-supervisor/coming-soon?module=%D9%BE%DB%8C%DA%AF%DB%8C%D8%B1%DB%8C%20%D9%85%D8%B7%D8%A7%D9%84%D8%B9%D9%87",
+    url: "/grade-supervisor/coming-soon",
     icon: Timer,
   },
   {
     title: "آزمون‌ها و نتایج",
-    url: "/grade-supervisor/coming-soon?module=%D8%A2%D8%B2%D9%85%D9%88%D9%86%E2%80%8C%D9%87%D8%A7%20%D9%88%20%D9%86%D8%AA%D8%A7%DB%8C%D8%AC",
+    url: "/grade-supervisor/coming-soon",
     icon: FileBarChart,
   },
 ];
