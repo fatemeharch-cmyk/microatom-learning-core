@@ -292,6 +292,64 @@ function GradeDashboard() {
         ))}
       </div>
 
+      {/* Roadmap modules — honest status */}
+      <Card className="p-5">
+        <h2 className="text-sm font-bold text-slate-800 mb-4">
+          ماژول‌های مسئول پایه
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+          <Link
+            to="/grade-supervisor/students"
+            className="p-4 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-sm transition bg-white"
+          >
+            <p className="text-sm font-bold text-slate-800">دانش‌آموزان</p>
+            <p className="text-[11px] text-slate-500 mt-1">
+              فهرست، ورود اکسل و پروندهٔ فردی
+            </p>
+            <span className="mt-3 inline-block text-[10px] font-semibold text-emerald-600">
+              فعال
+            </span>
+          </Link>
+          <Link
+            to="/grade-supervisor/notebook"
+            className="p-4 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-sm transition bg-white"
+          >
+            <p className="text-sm font-bold text-slate-800">دفتر مسئول پایه</p>
+            <p className="text-[11px] text-slate-500 mt-1">
+              گزارش‌ها، تماس والدین، جلسات و پیگیری‌ها
+            </p>
+            <span className="mt-3 inline-block text-[10px] font-semibold text-emerald-600">
+              فعال
+            </span>
+          </Link>
+          <Link
+            to="/grade-supervisor/coming-soon"
+            className="p-4 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-sm transition bg-white"
+          >
+            <p className="text-sm font-bold text-slate-800">پیگیری مطالعه</p>
+            <p className="text-[11px] text-slate-500 mt-1">
+              خلاصه روزانه و هفتگی زمان مطالعه در سطح پایه
+            </p>
+            <span className="mt-3 inline-block text-[10px] font-semibold text-amber-600">
+              در انتظار سرویس
+            </span>
+          </Link>
+          <Link
+            to="/grade-supervisor/coming-soon"
+            className="p-4 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-sm transition bg-white"
+          >
+            <p className="text-sm font-bold text-slate-800">آزمون‌ها و نتایج</p>
+            <p className="text-[11px] text-slate-500 mt-1">
+              نتایج، میانگین کلاس و تحلیل نقاط ضعف
+            </p>
+            <span className="mt-3 inline-block text-[10px] font-semibold text-amber-600">
+              در انتظار سرویس
+            </span>
+          </Link>
+        </div>
+      </Card>
+
+
       {/* Recent checkups */}
       <Card className="p-5">
         <div className="flex items-center justify-between mb-4">
