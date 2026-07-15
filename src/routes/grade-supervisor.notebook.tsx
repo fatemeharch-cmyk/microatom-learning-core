@@ -360,18 +360,82 @@ function NotebookPage() {
   const [scope, setScope] = useState<"selected" | "all">("selected");
   const [filterType, setFilterType] = useState<ReportType | "all">("all");
 
+  const [roster, setRoster] = useState<RosterStudent[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
+
   const selectedStudent = useMemo(
-    () => STUDENTS.find((s) => s.id === selectedStudentId) ?? null,
-    [selectedStudentId],
+    () => roster.find((s) => s.id === selectedStudentId) ?? null,
+    [roster, selectedStudentId],
   );
 
   const filteredStudents = useMemo(() => {
     const q = search.trim();
-    if (!q) return STUDENTS;
-    return STUDENTS.filter(
+    if (!q) return roster;
+    return roster.filter(
       (s) => s.name.includes(q) || s.className.includes(q),
     );
-  }, [search]);
+  }, [roster, search]);
+
+  async function loadRoster() {
+    setLoadingList(true);
+    setListError(null);
+    try {
+      const token = getAuthToken();
+      const qs = new URLSearchParams({
+        grade_level: "یازدهم",
+        major: "تجربی",
+      }).toString();
+      const res = await fetch(
+        `${GRADE_SUPERVISOR_BASE_URL}/students?${qs}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        },
+      );
+      const text = await res.text();
+      const data = text ? (JSON.parse(text) as unknown) : null;
+      if (!res.ok) {
+        const msg =
+          data && typeof data === "object" && "message" in data
+            ? String((data as { message: unknown }).message ?? "")
+            : "";
+        throw new Error(msg);
+      }
+      let list: ApiStudent[] = [];
+      if (Array.isArray(data)) {
+        list = data as ApiStudent[];
+      } else if (data && typeof data === "object") {
+        const obj = data as Record<string, unknown>;
+        const raw = obj.students ?? obj.data ?? obj.items ?? obj.result;
+        if (Array.isArray(raw)) list = raw as ApiStudent[];
+      }
+      const mapped: RosterStudent[] = list.map((s) => ({
+        id: String(s.id ?? ""),
+        name: `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "بدون نام",
+        className: s.class_name ?? s.className ?? "",
+      })).filter((s) => s.id);
+      setRoster(mapped);
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setListError(
+        msg
+          ? `دریافت فهرست دانش‌آموزان با خطا مواجه شد: ${msg}`
+          : "دریافت فهرست دانش‌آموزان با خطا مواجه شد.",
+      );
+      setRoster([]);
+    } finally {
+      setLoadingList(false);
+    }
+  }
+
+  useEffect(() => {
+    loadRoster();
+  }, []);
+
 
   // Load all + follow-ups on mount
   useEffect(() => {
