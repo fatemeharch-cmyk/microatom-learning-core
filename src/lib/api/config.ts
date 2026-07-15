@@ -37,7 +37,7 @@ export const GRADE_SUPERVISOR_BASE_URL =
 // Student-facing Xano group (study logs, etc.). Override via env if needed.
 export const STUDENT_BASE_URL =
   (import.meta.env?.VITE_XANO_STUDENT_BASE as string | undefined) ??
-  "https://x8ki-letl-twmt.n7.xano.io/api:student";
+  "https://x8ki-letl-twmt.n7.xano.io/api:student-api";
 
 const XANO_BASE_URL = AUTH_BASE_URL;
 
