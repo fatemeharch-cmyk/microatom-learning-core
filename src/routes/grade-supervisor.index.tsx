@@ -263,13 +263,6 @@ function GradeDashboard() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
-            to="/grade-supervisor/chapter1-monitoring"
-            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-2xl bg-white border border-violet-200 text-violet-700 text-xs font-semibold shadow-sm hover:bg-violet-50 transition"
-          >
-            پایش فصل اول زیست
-            <ChevronLeft className="h-4 w-4" />
-          </Link>
-          <Link
             to="/grade-supervisor/students"
             className="hidden md:inline-flex items-center gap-1.5 h-10 px-4 rounded-2xl bg-violet-600 text-white text-xs font-semibold shadow-sm hover:bg-violet-700 transition"
           >
