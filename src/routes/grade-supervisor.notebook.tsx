@@ -11,10 +11,32 @@ import {
   UserRound,
   CalendarClock,
   Star,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
-import { STUDENTS } from "@/lib/mock/grade-students";
 import { SUPERVISOR_BASE_URL } from "@/lib/api/config";
 import { getAuthToken } from "@/lib/api/client";
+
+// Same Xano API group used by the real roster page (grade-supervisor.students.index.tsx).
+const GRADE_SUPERVISOR_BASE_URL =
+  "https://x8ki-letl-twmt.n7.xano.io/api:grade-supervisor";
+
+type RosterStudent = {
+  id: string;
+  name: string;
+  className: string;
+};
+
+type ApiStudent = {
+  id?: string | number;
+  first_name?: string;
+  last_name?: string;
+  class_name?: string;
+  className?: string;
+  grade?: string;
+  grade_level?: string;
+  major?: string;
+};
 
 // ---------- Types ----------
 type ReportType =
