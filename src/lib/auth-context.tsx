@@ -234,10 +234,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { ok: true, user: nextUser };
     } catch (err) {
       setAuthToken(null);
-      // eslint-disable-next-line no-console
-      console.error("[auth] signup failed:", err);
+      // Do not log `err` — its payload may include the signup body (password).
       const raw = err instanceof Error ? err.message : String(err);
       return { ok: false, message: raw || "ثبت‌نام ناموفق بود." };
+
     }
   }, []);
 
