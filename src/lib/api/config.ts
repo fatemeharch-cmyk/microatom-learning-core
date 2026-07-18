@@ -28,12 +28,44 @@ const ENV: ApiEnvironment =
 
 export const AUTH_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8hSBzNoS";
 export const CONTENT_BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:8PSYz4xO";
-export const SUPERVISOR_BASE_URL =
-  (import.meta.env?.VITE_XANO_SUPERVISOR_BASE as string | undefined) ??
-  "https://x8ki-letl-twmt.n7.xano.io/api:supervisor";
-export const GRADE_SUPERVISOR_BASE_URL =
-  (import.meta.env?.VITE_XANO_GRADE_SUPERVISOR_BASE as string | undefined) ??
+const SUPERVISOR_ENV = import.meta.env?.VITE_XANO_SUPERVISOR_BASE as
+  | string
+  | undefined;
+const GRADE_SUPERVISOR_ENV = import.meta.env?.VITE_XANO_GRADE_SUPERVISOR_BASE as
+  | string
+  | undefined;
+
+const SUPERVISOR_FALLBACK = "https://x8ki-letl-twmt.n7.xano.io/api:supervisor";
+const GRADE_SUPERVISOR_FALLBACK =
   "https://x8ki-letl-twmt.n7.xano.io/api:grade-supervisor";
+
+export const SUPERVISOR_BASE_URL = SUPERVISOR_ENV ?? SUPERVISOR_FALLBACK;
+export const GRADE_SUPERVISOR_BASE_URL =
+  GRADE_SUPERVISOR_ENV ?? GRADE_SUPERVISOR_FALLBACK;
+
+// Dev-only, one-time warning when the placeholder fallback URLs are in use.
+// These paths ("api:supervisor" / "api:grade-supervisor") are NOT real Xano
+// API group IDs (compare to "api:8hSBzNoS") — any request through them will
+// 404. Surface that loudly during development so failures aren't mysterious.
+if (import.meta.env?.DEV && typeof window !== "undefined") {
+  if (!SUPERVISOR_ENV) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[api/config] SUPERVISOR_BASE_URL is using a placeholder fallback " +
+        `(${SUPERVISOR_FALLBACK}). Set VITE_XANO_SUPERVISOR_BASE to the real ` +
+        "Xano API group URL or supervisor API calls will fail.",
+    );
+  }
+  if (!GRADE_SUPERVISOR_ENV) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[api/config] GRADE_SUPERVISOR_BASE_URL is using a placeholder fallback " +
+        `(${GRADE_SUPERVISOR_FALLBACK}). Set VITE_XANO_GRADE_SUPERVISOR_BASE ` +
+        "to the real Xano API group URL or grade-supervisor API calls will fail.",
+    );
+  }
+}
+
 // Student-facing Xano group (study logs, etc.). Override via env if needed.
 export const STUDENT_BASE_URL =
   (import.meta.env?.VITE_XANO_STUDENT_BASE as string | undefined) ??
