@@ -189,10 +189,7 @@ export async function login(
 
     persistRole(normalized);
 
-    if (isDev) {
-      // eslint-disable-next-line no-console
-      console.log("[auth] stored role:", normalized);
-    }
+
 
     const user: AuthUser = {
       id: String(profile.id ?? profile.user_id ?? user_id ?? ""),
