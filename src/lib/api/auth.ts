@@ -125,11 +125,6 @@ export async function login(
   const loginUrl = buildApiUrl(endpoints.auth.login);
   lastLoginDebug = null;
 
-  if (isDev) {
-    // eslint-disable-next-line no-console
-    console.log("[auth] login request body:", JSON.stringify(body));
-  }
-
   try {
     const res = await apiClient.post<LoginResponse>(
       endpoints.auth.login,
@@ -139,10 +134,7 @@ export async function login(
 
     const { authToken, user_id, role } = res.data ?? ({} as LoginResponse);
 
-    if (isDev) {
-      // eslint-disable-next-line no-console
-      console.log("[auth] login response:", JSON.stringify(res.data));
-    }
+
 
     if (!authToken) {
       lastLoginDebug = {
