@@ -209,15 +209,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (err) {
         // Make sure no stale token survives a failed attempt.
         setAuthToken(null);
+        // Never log the raw error object here — it can contain the request
+        // body (including the password) in its payload. Surface only the
+        // message string to the caller.
         const raw = err instanceof Error ? err.message : String(err);
-        // TEMP: always surface the raw error (Xano message / network detail)
-        // so we can see why login fails in preview, not just dev.
-        // eslint-disable-next-line no-console
-        console.error("[auth] login failed:", err);
         return {
           ok: false,
           message: raw || FRIENDLY_ERROR,
         };
+
       }
     },
     [],
@@ -234,10 +234,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { ok: true, user: nextUser };
     } catch (err) {
       setAuthToken(null);
-      // eslint-disable-next-line no-console
-      console.error("[auth] signup failed:", err);
+      // Do not log `err` — its payload may include the signup body (password).
       const raw = err instanceof Error ? err.message : String(err);
       return { ok: false, message: raw || "ثبت‌نام ناموفق بود." };
+
     }
   }, []);
 

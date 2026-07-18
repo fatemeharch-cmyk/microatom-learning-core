@@ -31,7 +31,7 @@ export interface AuthUser {
 
 const ROLE_STORAGE_KEY = "atomia.auth.role";
 const USER_ID_STORAGE_KEY = "atomia.auth.user_id";
-const isDev = import.meta.env.DEV;
+
 
 export interface LoginDebugInfo {
   url: string;
@@ -125,11 +125,6 @@ export async function login(
   const loginUrl = buildApiUrl(endpoints.auth.login);
   lastLoginDebug = null;
 
-  if (isDev) {
-    // eslint-disable-next-line no-console
-    console.log("[auth] login request body:", JSON.stringify(body));
-  }
-
   try {
     const res = await apiClient.post<LoginResponse>(
       endpoints.auth.login,
@@ -139,10 +134,7 @@ export async function login(
 
     const { authToken, user_id, role } = res.data ?? ({} as LoginResponse);
 
-    if (isDev) {
-      // eslint-disable-next-line no-console
-      console.log("[auth] login response:", JSON.stringify(res.data));
-    }
+
 
     if (!authToken) {
       lastLoginDebug = {
@@ -197,10 +189,7 @@ export async function login(
 
     persistRole(normalized);
 
-    if (isDev) {
-      // eslint-disable-next-line no-console
-      console.log("[auth] stored role:", normalized);
-    }
+
 
     const user: AuthUser = {
       id: String(profile.id ?? profile.user_id ?? user_id ?? ""),
