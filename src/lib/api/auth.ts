@@ -31,7 +31,7 @@ export interface AuthUser {
 
 const ROLE_STORAGE_KEY = "atomia.auth.role";
 const USER_ID_STORAGE_KEY = "atomia.auth.user_id";
-const isDev = import.meta.env.DEV;
+
 
 export interface LoginDebugInfo {
   url: string;
