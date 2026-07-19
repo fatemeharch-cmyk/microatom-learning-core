@@ -14,8 +14,11 @@
  *   - GET  mentoring-followups        → auth-required, array of mentoring items
  *   - GET  pulse                      → auth-required, array of pulse reports
  *
- * Public endpoints require `student_id`; we read it from
- * `atomia.auth.user_id` (persisted by `auth.ts` on login).
+ * Per the workspace OpenAPI spec, `student/progress` and `student/homeworks`
+ * declare `security: []` (bearer not required) but REQUIRE a `student_id`
+ * query param. We read the id from `atomia.auth.user_id` (persisted by
+ * `auth.ts` on login) and pass it explicitly; `apiClient` will still attach
+ * the bearer token, which the endpoints ignore harmlessly.
  *
  * KNOWN REAL GAPS (documented, NOT papered over):
  *   1. Homework submission status: the `status` field on `student/homeworks`
@@ -192,7 +195,13 @@ let cachedProgress: any[] | null = null;
 async function getProgressRecords(): Promise<any[]> {
   if (cachedProgress) return cachedProgress;
   const studentId = readStudentId();
-  if (studentId == null) return [];
+  if (studentId == null) {
+    if (import.meta.env?.DEV) {
+      // eslint-disable-next-line no-console
+      console.warn("[student-api] student/progress: missing atomia.auth.user_id in localStorage; returning [].");
+    }
+    return [];
+  }
   const data = await studentGet<any>("student/progress", {
     student_id: String(studentId),
   });
@@ -323,7 +332,13 @@ export async function getTodaySessions(): Promise<ClassSession[]> {
 
 export async function getStudentHomework(): Promise<Homework[]> {
   const studentId = readStudentId();
-  if (studentId == null) return [];
+  if (studentId == null) {
+    if (import.meta.env?.DEV) {
+      // eslint-disable-next-line no-console
+      console.warn("[student-api] student/homeworks: missing atomia.auth.user_id in localStorage; returning [].");
+    }
+    return [];
+  }
   const data = await studentGet<any>("student/homeworks", {
     student_id: String(studentId),
   });
