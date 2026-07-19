@@ -1,30 +1,40 @@
 /**
- * Real Xano-backed student data provider.
+ * Real Xano-backed student data provider (group base: `.../api:student-api`).
  *
- * Replaces the legacy `src/lib/mock/student.ts` provider. UI code keeps
- * calling the same functions (`getCurrentStudent`, `getSubjects`, etc.);
- * this module fulfils them against the Xano `student-api` group.
- *
- * Endpoint map (confirmed in the Xano dashboard, group base URL
- * `.../api:student-api`):
+ * Endpoint map (confirmed against the group's OpenAPI schema):
  *   - GET  dashboard-summary          → auth-required student profile + summary
- *   - GET  student/dashboard          → public, needs ?student_id (fallback)
- *   - GET  daily-class-timeline       → auth-required today sessions
- *   - GET  exams/active               → auth-required active exams
- *   - GET  student/homeworks          → public, ?student_id
- *   - GET  student/progress           → public, ?student_id (AtomBits by subject/chapter)
- *   - GET  learning-clinic            → auth-required mistakes overview
- *   - GET  smart-review               → auth-required smart review
+ *   - GET  daily-class-timeline       → auth-required, array of today's sessions
+ *   - GET  exams/active               → auth-required, array of active/upcoming exams
+ *   - GET  student/homeworks          → public, ?student_id, array of assignments
+ *                                       (publish status only — no per-student submission state)
+ *   - GET  student/progress           → public, ?student_id, FLAT array of atom-bit progress
+ *   - GET  learning-clinic            → auth-required (schema opaque)
+ *   - GET  smart-review               → auth-required (schema opaque)
+ *   - GET  learning-followups         → auth-required, array of follow-ups
+ *   - GET  mentoring-followups        → auth-required, array of mentoring items
+ *   - GET  pulse                      → auth-required, array of pulse reports
  *
- * Public endpoints require the caller to pass `student_id`; we read it
- * from the same localStorage key that `auth.ts` persists on login
- * (`atomia.auth.user_id`). Unknown / missing fields are left as sensible
- * defaults rather than fabricated — the domain types keep the truth.
+ * Public endpoints require `student_id`; we read it from
+ * `atomia.auth.user_id` (persisted by `auth.ts` on login).
  *
- * We picked `dashboard-summary` over `student/dashboard` as the primary
- * "current student" source: Xano's own description flags it as the real
- * replacement for mock values, it's auth-scoped (no id juggling), and
- * exposes more result fields (12 vs 6).
+ * KNOWN REAL GAPS (documented, NOT papered over):
+ *   1. Homework submission status: the `status` field on `student/homeworks`
+ *      is the teacher's PUBLISH status (draft/published/closed), NOT the
+ *      student's submission state. There is no read endpoint that returns
+ *      "has this student submitted homework X?". Submitting exists
+ *      (POST student/homework/submit) but reading back submission state
+ *      would require a new endpoint or a client-side cache of submitted ids.
+ *      → We default every homework to `status: "assigned"`.
+ *   2. Subjects list: there is NO dedicated "list subjects" endpoint in
+ *      the `student-api` group. We derive a de-duplicated subject list
+ *      from whatever the nested objects on `student/progress` records
+ *      happen to expose at runtime; if nothing is present, we return `[]`.
+ *      A real subjects endpoint would need to come from the `content` group.
+ *
+ * KNOWN XANO BUGS (server-side, flag to backend — parsed defensively here):
+ *   - latest_checkup.percentage         → sometimes "0\n    date"
+ *   - class_comparison.highest_average  → sometimes "0\n    rank"
+ *   - smart_review.question_count       → sometimes "0\n    source"
  */
 
 import type {
@@ -33,7 +43,6 @@ import type {
   Exam,
   ExamStatus,
   Homework,
-  HomeworkStatus,
   LearningInsight,
   Student,
   Subject,
@@ -57,7 +66,6 @@ function readStudentId(): string | number | null {
   }
 }
 
-/** Convenience wrapper — student-api group + Bearer token from apiClient. */
 async function studentGet<T = any>(
   path: string,
   query?: Record<string, string | number | undefined>,
@@ -67,9 +75,6 @@ async function studentGet<T = any>(
     const res = await apiClient.get<T>(url, { query });
     return res.data;
   } catch (err) {
-    // Swallow network/auth errors here so a single failed endpoint doesn't
-    // take down the whole dashboard. Consumers get an empty result and can
-    // render an appropriate empty state.
     if (import.meta.env?.DEV) {
       // eslint-disable-next-line no-console
       console.warn(`[student-api] ${path} failed:`, (err as Error)?.message);
@@ -90,66 +95,40 @@ function toArray<T = any>(v: unknown): T[] {
   return Array.isArray(v) ? (v as T[]) : [];
 }
 
-// ---- getCurrentStudent (dashboard-summary) -----------------------------
-//
-// Real Xano `dashboard-summary` response shape (confirmed via Run & Debug):
-//   {
-//     success, profile_incomplete,
-//     student: { id, name, grade, major },
-//     learning_health: { score, trend_percentage },
-//     today: { medical_history_completed, checkup_completed, mission_completed },
-//     latest_checkup: { exists, id, title, percentage },
-//     latest_exploration: { exists, id, title, subject_name, percentage, wrong_count, date },
-//     today_mission: { exists, id, title, estimated_minutes, status },
-//     next_school_exam: { exists, id, title, subject_name, exam_date },
-//     weekly_study: { total_minutes, difference_minutes },
-//     class_comparison: { student_average, highest_average, class_size },
-//     weekly_trend: [],
-//     smart_review: { available, question_count, message }
-//   }
-//
-// The richer dashboard fields (learning_health, today, latest_checkup, etc.)
-// don't map to our current domain types — kept intact on the cached summary
-// and exposed via `getDashboardSummaryRaw()` / `isProfileIncomplete()` for
-// consumers. A dedicated `DashboardSummary` domain type could be introduced
-// later if a UI wants to render it.
-//
-// KNOWN XANO BUGS (server-side, flag to backend — parsed defensively here):
-//   - latest_checkup.percentage         → sometimes "0\n    date"
-//   - class_comparison.highest_average  → sometimes "0\n    rank"
-//   - smart_review.question_count       → sometimes "0\n    source"
-// These look like a broken formula concatenating a field name into a
-// fallback. `safeNumber()` treats non-parseable strings as 0.
-
-let cachedDashboardSummary: any = null;
-async function getDashboardSummary(): Promise<any> {
-  if (cachedDashboardSummary) return cachedDashboardSummary;
-  const data = await studentGet<any>("dashboard-summary");
-  cachedDashboardSummary = data ?? {};
-  return cachedDashboardSummary;
-}
-
-/** Invalidate the in-memory cache (call on logout / user switch). */
-export function resetStudentDataCache() {
-  cachedDashboardSummary = null;
-}
-
-/** Raw dashboard-summary payload (for consumers that want the rich fields). */
-export async function getDashboardSummaryRaw(): Promise<any> {
-  return getDashboardSummary();
-}
-
-/** True when Xano signals the student hasn't completed their profile yet. */
-export async function isProfileIncomplete(): Promise<boolean> {
-  const s = await getDashboardSummary();
-  return Boolean(s?.profile_incomplete);
-}
-
 /**
- * Defensively coerce a value to a finite number. Handles the Xano bug
- * where certain fields return strings like "0\n    date". Returns `null`
- * when the value can't be interpreted cleanly (caller decides fallback).
+ * Format a Xano timestamp (unix ms, unix seconds, or ISO string) into
+ * "HH:MM" in the local timezone. Returns "" when unusable.
  */
+function formatHHMM(v: unknown): string {
+  if (v == null || v === "") return "";
+  let d: Date | null = null;
+  if (typeof v === "number") {
+    // Heuristic: seconds vs ms
+    d = new Date(v < 1e12 ? v * 1000 : v);
+  } else if (typeof v === "string") {
+    const n = Number(v);
+    if (Number.isFinite(n)) d = new Date(n < 1e12 ? n * 1000 : n);
+    else d = new Date(v);
+  }
+  if (!d || Number.isNaN(d.getTime())) return "";
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+function formatDateISO(v: unknown): string {
+  if (v == null || v === "") return "";
+  let d: Date | null = null;
+  if (typeof v === "number") d = new Date(v < 1e12 ? v * 1000 : v);
+  else if (typeof v === "string") {
+    const n = Number(v);
+    if (Number.isFinite(n)) d = new Date(n < 1e12 ? n * 1000 : n);
+    else d = new Date(v);
+  }
+  if (!d || Number.isNaN(d.getTime())) return "";
+  return d.toISOString();
+}
+
 export function safeNumber(v: unknown): number | null {
   if (v == null) return null;
   if (typeof v === "number") return Number.isFinite(v) ? v : null;
@@ -161,6 +140,32 @@ export function safeNumber(v: unknown): number | null {
   return null;
 }
 
+// ---- dashboard-summary cache ------------------------------------------
+
+let cachedDashboardSummary: any = null;
+async function getDashboardSummary(): Promise<any> {
+  if (cachedDashboardSummary) return cachedDashboardSummary;
+  const data = await studentGet<any>("dashboard-summary");
+  cachedDashboardSummary = data ?? {};
+  return cachedDashboardSummary;
+}
+
+export function resetStudentDataCache() {
+  cachedDashboardSummary = null;
+  cachedProgress = null;
+}
+
+export async function getDashboardSummaryRaw(): Promise<any> {
+  return getDashboardSummary();
+}
+
+export async function isProfileIncomplete(): Promise<boolean> {
+  const s = await getDashboardSummary();
+  return Boolean(s?.profile_incomplete);
+}
+
+// ---- getCurrentStudent (dashboard-summary) ----------------------------
+
 export async function getCurrentStudent(): Promise<Student> {
   const summary = await getDashboardSummary();
   const s = (summary?.student ?? {}) as any;
@@ -171,7 +176,6 @@ export async function getCurrentStudent(): Promise<Student> {
     role: "student",
     status: "active",
     joinedAt: "",
-    // Not present in dashboard-summary — left blank rather than fabricated.
     classroomId: "",
     gradeId: firstString(s?.grade),
     major: (typeof s?.major === "string" && s.major) || undefined,
@@ -182,107 +186,140 @@ export async function getCurrentStudent(): Promise<Student> {
   };
 }
 
+// ---- student/progress cache (shared by getAtomBits + getSubjects) ------
 
-// ---- getSubjects (derived from student/progress) -----------------------
-
-export async function getSubjects(): Promise<Subject[]> {
+let cachedProgress: any[] | null = null;
+async function getProgressRecords(): Promise<any[]> {
+  if (cachedProgress) return cachedProgress;
   const studentId = readStudentId();
   if (studentId == null) return [];
   const data = await studentGet<any>("student/progress", {
     student_id: String(studentId),
   });
-  const subjects = toArray<any>(data?.subjects ?? data?.by_subject ?? data);
-  return subjects
-    .map((s: any) => ({
-      id: firstString(s?.id, s?.subject_id, s?.slug, s?.name),
-      name: firstString(s?.name, s?.title, s?.label),
-      color: (s?.color as string) || undefined,
-    }))
-    .filter((s: Subject) => s.id && s.name);
+  // Real schema: FLAT array. Guard against wrapped `{ items: [...] }` too.
+  const list = Array.isArray(data)
+    ? data
+    : toArray<any>((data as any)?.items ?? (data as any)?.records ?? []);
+  cachedProgress = list;
+  return list;
 }
 
-// ---- getAtomBits (student/progress) ------------------------------------
+// ---- getSubjects (derived from progress records) ----------------------
+//
+// GAP: no dedicated subjects endpoint in `student-api`. We inspect the
+// nested `chapter` / `section` / `atom` / `micro_atom` objects on each
+// progress record at runtime — if any of them expose a subject id/name,
+// we de-duplicate and return that. Otherwise `[]`.
+
+export async function getSubjects(): Promise<Subject[]> {
+  const records = await getProgressRecords();
+  const seen = new Map<string, Subject>();
+  for (const r of records) {
+    const candidates = [r?.chapter, r?.section, r?.atom, r?.micro_atom];
+    for (const c of candidates) {
+      if (!c || typeof c !== "object") continue;
+      const id = firstString(
+        (c as any).subject_id,
+        (c as any).subjectId,
+        (c as any).subject?.id,
+      );
+      const name = firstString(
+        (c as any).subject_name,
+        (c as any).subject?.name,
+      );
+      if (id && !seen.has(id)) {
+        seen.set(id, { id, name: name || id });
+      }
+    }
+  }
+  return Array.from(seen.values());
+}
+
+// ---- getAtomBits (flat student/progress) ------------------------------
 
 export async function getAtomBits(): Promise<AtomBit[]> {
-  const studentId = readStudentId();
-  if (studentId == null) return [];
-  const data = await studentGet<any>("student/progress", {
-    student_id: String(studentId),
-  });
-
-  // Response is expected to aggregate AtomBits by subject/chapter.
-  // Try a few likely shapes; flatten whatever we can find.
-  const rawList: any[] = [];
-  const subjects = toArray<any>(data?.subjects ?? data?.by_subject);
-  for (const subj of subjects) {
-    const subjectId = firstString(subj?.id, subj?.subject_id, subj?.slug);
-    const chapters = toArray<any>(subj?.chapters ?? subj?.units);
-    for (const ch of chapters) {
-      const bits = toArray<any>(ch?.atom_bits ?? ch?.micro_atoms ?? ch?.items);
-      for (const bit of bits) rawList.push({ ...bit, __subjectId: subjectId });
-    }
-    // Also handle flat lists under the subject.
-    const flat = toArray<any>(subj?.atom_bits ?? subj?.micro_atoms);
-    for (const bit of flat) rawList.push({ ...bit, __subjectId: subjectId });
-  }
-  // Fully-flat fallback.
-  if (rawList.length === 0) {
-    for (const bit of toArray<any>(data?.atom_bits ?? data?.micro_atoms)) {
-      rawList.push(bit);
-    }
-  }
-
-  return rawList.map((b: any, i: number): AtomBit => {
-    const progressRaw = Number(b?.progress ?? b?.mastery ?? b?.percent ?? 0);
-    const progress = Number.isFinite(progressRaw)
-      ? Math.max(0, Math.min(100, Math.round(progressRaw)))
-      : 0;
+  const records = await getProgressRecords();
+  return records.map((r: any, i: number): AtomBit => {
+    const mastery = safeNumber(r?.mastery_percent) ?? 0;
+    const progress = Math.max(0, Math.min(100, Math.round(mastery)));
     const status: AtomBit["status"] =
-      b?.status === "mastered" || progress >= 100
-        ? progress >= 100
-          ? "completed"
-          : "mastered"
-        : progress > 0
-          ? "in_progress"
-          : "new";
+      progress >= 100 ? "mastered" : progress > 0 ? "in_progress" : "new";
+
+    // `micro_atom` is nullable and typed as string in the schema, but Xano
+    // often returns an expanded object at runtime — handle both.
+    const microAtom = r?.micro_atom;
+    let title = "";
+    if (microAtom && typeof microAtom === "object") {
+      title = firstString(
+        (microAtom as any).title,
+        (microAtom as any).name,
+        (microAtom as any).label,
+      );
+    } else if (typeof microAtom === "string" && microAtom.trim()) {
+      title = microAtom;
+    }
+    if (!title) title = "واحد یادگیری";
+
+    // Try to resolve a subjectId from the nested objects; leave blank if
+    // nothing is available (no direct subject_id on the record itself).
+    let subjectId = "";
+    for (const c of [r?.chapter, r?.section, r?.atom, r?.micro_atom]) {
+      if (c && typeof c === "object") {
+        subjectId = firstString(
+          (c as any).subject_id,
+          (c as any).subjectId,
+          (c as any).subject?.id,
+        );
+        if (subjectId) break;
+      }
+    }
+
     return {
-      id: firstString(b?.id, b?.atom_id, b?.micro_atom_id, `atom-${i}`),
-      title: firstString(b?.title, b?.name, b?.label) || "واحد یادگیری",
-      subjectId: firstString(b?.subject_id, b?.__subjectId),
-      level: Number(b?.level ?? b?.difficulty ?? 1) || 1,
-      estimatedMinutes: Number(b?.estimated_minutes ?? b?.duration ?? 0) || 0,
+      id: firstString(r?.micro_atom_id, r?.id, `atom-${i}`),
+      title,
+      subjectId,
+      level: 1, // no source field for this on progress records
+      estimatedMinutes: Number(r?.study_minutes ?? 0) || 0,
       status,
       progress,
-      tags: Array.isArray(b?.tags) ? b.tags.map(String) : undefined,
     };
   });
 }
 
-// ---- getTodaySessions (daily-class-timeline) ---------------------------
+// ---- getTodaySessions (daily-class-timeline) --------------------------
+//
+// Real schema: flat array of session records with start_time/end_time as
+// unix timestamps. Build the human-readable period string here.
 
 export async function getTodaySessions(): Promise<ClassSession[]> {
   const data = await studentGet<any>("daily-class-timeline");
-  const list = toArray<any>(
-    data?.sessions ?? data?.timeline ?? data?.items ?? data,
-  );
-  return list.map((s: any, i: number): ClassSession => ({
-    id: firstString(s?.id, s?.session_id, `session-${i}`),
-    classroomId: firstString(s?.classroom_id, s?.class_id),
-    subjectId: firstString(s?.subject_id, s?.subject?.id),
-    teacherId: firstString(s?.teacher_id, s?.teacher?.id),
-    day: firstString(s?.day, s?.day_label) || "امروز",
-    period: firstString(
-      s?.period,
-      s?.time,
-      s?.start_time && s?.end_time ? `${s.start_time}-${s.end_time}` : "",
-    ),
-    date: (s?.date as string) || undefined,
-    status: (s?.status as any) || "scheduled",
-    topic: firstString(s?.topic, s?.subject?.name, s?.title) || undefined,
-  }));
+  const list = Array.isArray(data) ? data : toArray<any>((data as any)?.items);
+  return list.map((s: any, i: number): ClassSession => {
+    const start = formatHHMM(s?.start_time);
+    const end = formatHHMM(s?.end_time);
+    const period = start && end ? `${start}-${end}` : start || end || firstString(s?.period_number);
+    return {
+      id: firstString(s?.id, `session-${i}`),
+      classroomId: firstString(s?.classroom_id),
+      subjectId: firstString(s?.subject_id),
+      teacherId: firstString(s?.teacher_id),
+      day: "امروز",
+      period,
+      date: (typeof s?.session_date === "string" && s.session_date) || undefined,
+      status: "scheduled",
+      topic: firstString(s?.lesson_title) || undefined,
+    };
+  });
 }
 
-// ---- getStudentHomework (student/homeworks) ----------------------------
+// ---- getStudentHomework (student/homeworks) ---------------------------
+//
+// GAP: `status` here is the teacher's PUBLISH status (draft/published/
+// closed), NOT the student's submission status. There is no read endpoint
+// that returns per-student submission state. We default every row to
+// "assigned". Submission itself is POST student/homework/submit; a real
+// "did the student submit?" view would need either a new endpoint or a
+// client-side cache of submitted homework ids after each POST.
 
 export async function getStudentHomework(): Promise<Homework[]> {
   const studentId = readStudentId();
@@ -290,88 +327,120 @@ export async function getStudentHomework(): Promise<Homework[]> {
   const data = await studentGet<any>("student/homeworks", {
     student_id: String(studentId),
   });
-  const list = toArray<any>(data?.homeworks ?? data?.items ?? data);
+  const list = Array.isArray(data) ? data : toArray<any>((data as any)?.items);
   return list.map((h: any, i: number): Homework => {
-    const rawStatus = String(h?.status ?? h?.submission_status ?? "assigned");
-    const status: HomeworkStatus = (
-      ["assigned", "in_progress", "submitted", "reviewed"].includes(rawStatus)
-        ? rawStatus
-        : rawStatus === "done" || rawStatus === "completed"
-          ? "submitted"
-          : "assigned"
-    ) as HomeworkStatus;
+    // `teacher` may be an expanded object at runtime; prefer its name if so.
+    const teacher = h?.teacher;
+    let assignedBy = "";
+    if (teacher && typeof teacher === "object") {
+      assignedBy = firstString(
+        (teacher as any).name,
+        (teacher as any).full_name,
+        (teacher as any).id,
+      );
+    }
+    if (!assignedBy) assignedBy = firstString(h?.teacher_id);
+
     return {
-      id: firstString(h?.id, h?.homework_id, `hw-${i}`),
-      title: firstString(h?.title, h?.name) || "تکلیف",
-      subjectId: firstString(h?.subject_id, h?.subject?.id),
-      classroomId: firstString(h?.classroom_id, h?.class_id),
-      assignedBy: firstString(h?.assigned_by, h?.teacher_id, h?.teacher?.id),
-      dueDate: firstString(h?.due_date, h?.deadline),
-      status,
+      id: firstString(h?.id, `hw-${i}`),
+      title: firstString(h?.title) || "تکلیف",
+      subjectId: firstString(h?.subject_id),
+      classroomId: firstString(h?.classroom_id),
+      assignedBy,
+      dueDate: formatDateISO(h?.due_date) || firstString(h?.due_date),
+      // KNOWN GAP: real submission status unavailable. Default only.
+      status: "assigned",
       description: (h?.description as string) || undefined,
     };
   });
 }
 
-// ---- getStudentExams (exams/active) ------------------------------------
+// ---- getStudentExams (exams/active) -----------------------------------
+
+const EXAM_STATUSES: ExamStatus[] = ["upcoming", "active", "completed"];
 
 export async function getStudentExams(): Promise<Exam[]> {
   const data = await studentGet<any>("exams/active");
-  const list = toArray<any>(data?.exams ?? data?.items ?? data);
+  const list = Array.isArray(data) ? data : toArray<any>((data as any)?.items);
   return list.map((e: any, i: number): Exam => {
-    const rawStatus = String(e?.status ?? "upcoming");
-    const status: ExamStatus =
-      rawStatus === "active" || rawStatus === "completed"
-        ? (rawStatus as ExamStatus)
-        : "upcoming";
+    const raw = String(e?.status ?? "").toLowerCase();
+    let status: ExamStatus;
+    if (raw === "started") status = "active";
+    else if (EXAM_STATUSES.includes(raw as ExamStatus)) status = raw as ExamStatus;
+    else status = "upcoming";
+
     return {
-      id: firstString(e?.id, e?.exam_id, `exam-${i}`),
-      title: firstString(e?.title, e?.name) || "آزمون",
-      subjectId: firstString(e?.subject_id, e?.subject?.id),
-      classroomId: firstString(e?.classroom_id, e?.class_id) || undefined,
-      date: firstString(e?.date, e?.start_at, e?.scheduled_at),
-      durationMinutes: Number(e?.duration_minutes ?? e?.duration ?? 0) || 0,
+      id: firstString(e?.id, `exam-${i}`),
+      title: firstString(e?.title) || "آزمون",
+      subjectId: firstString(e?.subject_id),
+      classroomId: firstString(e?.classroom_id) || undefined,
+      date: formatDateISO(e?.exam_date) || firstString(e?.exam_date),
+      durationMinutes: Number(e?.duration_minutes ?? 0) || 0,
       status,
     };
   });
 }
 
-// ---- getStudentInsights (learning-clinic + smart-review) ---------------
+// ---- getStudentInsights (pulse + mentoring-followups + learning-followups)
+//
+// The confirmed-schema endpoints give us better signal than the opaque
+// learning-clinic/smart-review responses, so we build LearningInsights from:
+//   - pulse                 → tone "suggestion" (student_summary as body)
+//   - mentoring-followups   → tone "opportunity" (growth actions)
+//   - learning-followups    → tone "opportunity" (pending follow-ups)
 
 export async function getStudentInsights(): Promise<LearningInsight[]> {
-  const [clinic, smart] = await Promise.all([
-    studentGet<any>("learning-clinic"),
-    studentGet<any>("smart-review"),
+  const [pulse, mentoring, learning] = await Promise.all([
+    studentGet<any>("pulse"),
+    studentGet<any>("mentoring-followups"),
+    studentGet<any>("learning-followups"),
   ]);
 
   const out: LearningInsight[] = [];
 
-  // Smart-review → suggestion tone (a personalized next step).
-  const smartItems = toArray<any>(
-    smart?.items ?? smart?.recommendations ?? smart?.review_items ?? [],
-  );
-  smartItems.slice(0, 3).forEach((it: any, i: number) => {
+  const pulseItems = Array.isArray(pulse)
+    ? pulse
+    : toArray<any>(pulse?.items ?? pulse?.reports);
+  pulseItems.slice(0, 3).forEach((p: any, i: number) => {
+    const title = firstString(p?.subject, p?.title) || "پالس یادگیری";
+    const body = firstString(p?.student_summary, p?.summary, p?.recommendations);
+    if (!body) return;
     out.push({
-      id: firstString(it?.id, `smart-${i}`),
-      title:
-        firstString(it?.title, it?.topic, it?.name) || "پیشنهاد مرور هوشمند",
-      body: firstString(it?.summary, it?.description, it?.reason) || "",
+      id: firstString(p?.id, `pulse-${i}`),
+      title,
+      body,
       tone: "suggestion",
       audience: "student",
       source: "turbo",
     });
   });
 
-  // Learning-clinic → opportunity tone (mistakes to revisit).
-  const clinicItems = toArray<any>(
-    clinic?.items ?? clinic?.mistakes ?? clinic?.topics ?? [],
-  );
-  clinicItems.slice(0, 3).forEach((it: any, i: number) => {
+  const mentoringItems = Array.isArray(mentoring)
+    ? mentoring
+    : toArray<any>(mentoring?.items);
+  mentoringItems.slice(0, 3).forEach((m: any, i: number) => {
+    const title = firstString(m?.title) || "گام رشد";
+    const body = firstString(m?.description) || "";
     out.push({
-      id: firstString(it?.id, `clinic-${i}`),
-      title:
-        firstString(it?.title, it?.topic, it?.name) || "فرصت یادگیری",
-      body: firstString(it?.summary, it?.description, it?.reason) || "",
+      id: firstString(m?.id, `mentor-${i}`),
+      title,
+      body,
+      tone: "opportunity",
+      audience: "student",
+      source: "turbo",
+    });
+  });
+
+  const learningItems = Array.isArray(learning)
+    ? learning
+    : toArray<any>(learning?.items);
+  learningItems.slice(0, 3).forEach((l: any, i: number) => {
+    const body = firstString(l?.reason, l?.description) || "";
+    if (!body) return;
+    out.push({
+      id: firstString(l?.id, `follow-${i}`),
+      title: firstString(l?.title) || "پیگیری یادگیری",
+      body,
       tone: "opportunity",
       audience: "student",
       source: "turbo",
