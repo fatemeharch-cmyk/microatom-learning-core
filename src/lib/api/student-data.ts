@@ -91,6 +91,35 @@ function toArray<T = any>(v: unknown): T[] {
 }
 
 // ---- getCurrentStudent (dashboard-summary) -----------------------------
+//
+// Real Xano `dashboard-summary` response shape (confirmed via Run & Debug):
+//   {
+//     success, profile_incomplete,
+//     student: { id, name, grade, major },
+//     learning_health: { score, trend_percentage },
+//     today: { medical_history_completed, checkup_completed, mission_completed },
+//     latest_checkup: { exists, id, title, percentage },
+//     latest_exploration: { exists, id, title, subject_name, percentage, wrong_count, date },
+//     today_mission: { exists, id, title, estimated_minutes, status },
+//     next_school_exam: { exists, id, title, subject_name, exam_date },
+//     weekly_study: { total_minutes, difference_minutes },
+//     class_comparison: { student_average, highest_average, class_size },
+//     weekly_trend: [],
+//     smart_review: { available, question_count, message }
+//   }
+//
+// The richer dashboard fields (learning_health, today, latest_checkup, etc.)
+// don't map to our current domain types — kept intact on the cached summary
+// and exposed via `getDashboardSummaryRaw()` / `isProfileIncomplete()` for
+// consumers. A dedicated `DashboardSummary` domain type could be introduced
+// later if a UI wants to render it.
+//
+// KNOWN XANO BUGS (server-side, flag to backend — parsed defensively here):
+//   - latest_checkup.percentage         → sometimes "0\n    date"
+//   - class_comparison.highest_average  → sometimes "0\n    rank"
+//   - smart_review.question_count       → sometimes "0\n    source"
+// These look like a broken formula concatenating a field name into a
+// fallback. `safeNumber()` treats non-parseable strings as 0.
 
 let cachedDashboardSummary: any = null;
 async function getDashboardSummary(): Promise<any> {
@@ -105,25 +134,54 @@ export function resetStudentDataCache() {
   cachedDashboardSummary = null;
 }
 
+/** Raw dashboard-summary payload (for consumers that want the rich fields). */
+export async function getDashboardSummaryRaw(): Promise<any> {
+  return getDashboardSummary();
+}
+
+/** True when Xano signals the student hasn't completed their profile yet. */
+export async function isProfileIncomplete(): Promise<boolean> {
+  const s = await getDashboardSummary();
+  return Boolean(s?.profile_incomplete);
+}
+
+/**
+ * Defensively coerce a value to a finite number. Handles the Xano bug
+ * where certain fields return strings like "0\n    date". Returns `null`
+ * when the value can't be interpreted cleanly (caller decides fallback).
+ */
+export function safeNumber(v: unknown): number | null {
+  if (v == null) return null;
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (typeof v === "string") {
+    const trimmed = v.trim().split(/\s+/)[0];
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
 export async function getCurrentStudent(): Promise<Student> {
   const summary = await getDashboardSummary();
-  const s = (summary?.student ?? summary?.profile ?? summary) as any;
+  const s = (summary?.student ?? {}) as any;
 
   return {
-    id: firstString(s?.id, s?.user_id, s?.student_id, readStudentId()),
-    name: firstString(s?.name, s?.full_name, s?.display_name, s?.username) || "دانش‌آموز",
+    id: firstString(s?.id, readStudentId()),
+    name: firstString(s?.name) || "دانش‌آموز",
     role: "student",
     status: "active",
-    joinedAt: firstString(s?.joined_at, s?.created_at, ""),
-    classroomId: firstString(s?.classroom_id, s?.class_id, s?.classroom?.id),
-    gradeId: firstString(s?.grade_id, s?.grade?.id),
-    major: (s?.major as string) || undefined,
-    guardianIds: toArray<any>(s?.guardian_ids).map(String),
-    supervisorId: (s?.supervisor_id as string) || undefined,
-    email: (s?.email as string) || undefined,
-    avatarUrl: (s?.avatar_url as string) || undefined,
+    joinedAt: "",
+    // Not present in dashboard-summary — left blank rather than fabricated.
+    classroomId: "",
+    gradeId: firstString(s?.grade),
+    major: (typeof s?.major === "string" && s.major) || undefined,
+    guardianIds: [],
+    supervisorId: undefined,
+    email: undefined,
+    avatarUrl: undefined,
   };
 }
+
 
 // ---- getSubjects (derived from student/progress) -----------------------
 
