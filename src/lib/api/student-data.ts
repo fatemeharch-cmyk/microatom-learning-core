@@ -441,7 +441,7 @@ export async function getStudentInsights(): Promise<LearningInsight[]> {
       id: firstString(m?.id, `mistake-${i}`),
       title,
       body,
-      tone: "warning",
+      tone: "opportunity",
       audience: "student",
       source: "turbo",
     });
