@@ -332,7 +332,13 @@ export async function getTodaySessions(): Promise<ClassSession[]> {
 
 export async function getStudentHomework(): Promise<Homework[]> {
   const studentId = readStudentId();
-  if (studentId == null) return [];
+  if (studentId == null) {
+    if (import.meta.env?.DEV) {
+      // eslint-disable-next-line no-console
+      console.warn("[student-api] student/homeworks: missing atomia.auth.user_id in localStorage; returning [].");
+    }
+    return [];
+  }
   const data = await studentGet<any>("student/homeworks", {
     student_id: String(studentId),
   });
