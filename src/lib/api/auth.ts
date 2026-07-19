@@ -316,6 +316,7 @@ export async function signup(
 
 export async function logout(): Promise<{ ok: true }> {
   setAuthToken(null);
+  resetStudentDataCache();
   if (typeof window !== "undefined") {
     try {
       window.localStorage.removeItem(ROLE_STORAGE_KEY);
