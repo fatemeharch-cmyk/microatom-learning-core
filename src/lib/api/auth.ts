@@ -12,6 +12,7 @@
 import { apiClient, setAuthToken } from "./client";
 import { buildApiUrl } from "./config";
 import { endpoints } from "./endpoints";
+import { resetStudentDataCache } from "./student-data";
 import type { RoleId } from "@/lib/roles";
 
 export interface LoginResponse {
@@ -315,6 +316,7 @@ export async function signup(
 
 export async function logout(): Promise<{ ok: true }> {
   setAuthToken(null);
+  resetStudentDataCache();
   if (typeof window !== "undefined") {
     try {
       window.localStorage.removeItem(ROLE_STORAGE_KEY);
