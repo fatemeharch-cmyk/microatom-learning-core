@@ -301,8 +301,10 @@ export async function getAtomBits(): Promise<AtomBit[]> {
 // unix timestamps. Build the human-readable period string here.
 
 export async function getTodaySessions(): Promise<ClassSession[]> {
+  // Confirmed real shape: bare array at root (e.g. `[]` for a student with
+  // no timetable yet). `Array.isArray(data) ? data : []` is sufficient.
   const data = await studentGet<any>("daily-class-timeline");
-  const list = Array.isArray(data) ? data : toArray<any>((data as any)?.items);
+  const list = Array.isArray(data) ? data : [];
   return list.map((s: any, i: number): ClassSession => {
     const start = formatHHMM(s?.start_time);
     const end = formatHHMM(s?.end_time);
@@ -375,8 +377,10 @@ export async function getStudentHomework(): Promise<Homework[]> {
 const EXAM_STATUSES: ExamStatus[] = ["upcoming", "active", "completed"];
 
 export async function getStudentExams(): Promise<Exam[]> {
+  // Confirmed real shape: bare array at root (e.g. `[]` for a student with
+  // no active exams). `Array.isArray(data) ? data : []` is sufficient.
   const data = await studentGet<any>("exams/active");
-  const list = Array.isArray(data) ? data : toArray<any>((data as any)?.items);
+  const list = Array.isArray(data) ? data : [];
   return list.map((e: any, i: number): Exam => {
     const raw = String(e?.status ?? "").toLowerCase();
     let status: ExamStatus;
@@ -396,48 +400,45 @@ export async function getStudentExams(): Promise<Exam[]> {
   });
 }
 
-// ---- getStudentInsights (pulse + mentoring-followups + learning-followups)
+// ---- getStudentInsights (learning-clinic + smart-review) --------------
 //
-// The confirmed-schema endpoints give us better signal than the opaque
-// learning-clinic/smart-review responses, so we build LearningInsights from:
-//   - pulse                 → tone "suggestion" (student_summary as body)
-//   - mentoring-followups   → tone "opportunity" (growth actions)
-//   - learning-followups    → tone "opportunity" (pending follow-ups)
+// Confirmed real shapes (from a test student with no history):
+//   learning-clinic → {
+//     success, summary, mistakes: [], weak_areas: [],
+//     recommended_action: { title, message }
+//   }
+//   smart-review → {
+//     success, available, source, question_count, questions: []
+//   }
+//
+// Behavior:
+//   - Map each `mistakes[]` entry to a "warning" insight. The per-item
+//     field names are UNVERIFIED (the sample array was empty); the
+//     firstString() fallbacks below are best-effort guesses that need
+//     confirming once real data flows.
+//   - When `mistakes` is empty but `recommended_action.title` exists,
+//     surface it as a single "suggestion" insight — this endpoint always
+//     returns some recommended_action, so it's a reliable fallback.
+//   - Smart-review: skip entirely when `available === false` or
+//     `questions` is empty. When present, map each item from `questions[]`
+//     (confirmed field name, was previously guessed as items/recommendations).
 
 export async function getStudentInsights(): Promise<LearningInsight[]> {
-  const [pulse, mentoring, learning] = await Promise.all([
-    studentGet<any>("pulse"),
-    studentGet<any>("mentoring-followups"),
-    studentGet<any>("learning-followups"),
+  const [clinic, review] = await Promise.all([
+    studentGet<any>("learning-clinic"),
+    studentGet<any>("smart-review"),
   ]);
 
   const out: LearningInsight[] = [];
 
-  const pulseItems = Array.isArray(pulse)
-    ? pulse
-    : toArray<any>(pulse?.items ?? pulse?.reports);
-  pulseItems.slice(0, 3).forEach((p: any, i: number) => {
-    const title = firstString(p?.subject, p?.title) || "پالس یادگیری";
-    const body = firstString(p?.student_summary, p?.summary, p?.recommendations);
+  // learning-clinic → mistakes[] (item shape UNVERIFIED, sample was empty)
+  const mistakes = toArray<any>(clinic?.mistakes);
+  mistakes.slice(0, 5).forEach((m: any, i: number) => {
+    const title = firstString(m?.title, m?.question_title, m?.subject) || "خطای یادگیری";
+    const body = firstString(m?.explanation, m?.reason, m?.description, m?.summary);
     if (!body) return;
     out.push({
-      id: firstString(p?.id, `pulse-${i}`),
-      title,
-      body,
-      tone: "suggestion",
-      audience: "student",
-      source: "turbo",
-    });
-  });
-
-  const mentoringItems = Array.isArray(mentoring)
-    ? mentoring
-    : toArray<any>(mentoring?.items);
-  mentoringItems.slice(0, 3).forEach((m: any, i: number) => {
-    const title = firstString(m?.title) || "گام رشد";
-    const body = firstString(m?.description) || "";
-    out.push({
-      id: firstString(m?.id, `mentor-${i}`),
+      id: firstString(m?.id, `mistake-${i}`),
       title,
       body,
       tone: "opportunity",
@@ -446,21 +447,41 @@ export async function getStudentInsights(): Promise<LearningInsight[]> {
     });
   });
 
-  const learningItems = Array.isArray(learning)
-    ? learning
-    : toArray<any>(learning?.items);
-  learningItems.slice(0, 3).forEach((l: any, i: number) => {
-    const body = firstString(l?.reason, l?.description) || "";
-    if (!body) return;
-    out.push({
-      id: firstString(l?.id, `follow-${i}`),
-      title: firstString(l?.title) || "پیگیری یادگیری",
-      body,
-      tone: "opportunity",
-      audience: "student",
-      source: "turbo",
+  // learning-clinic → recommended_action (always-available fallback)
+  if (mistakes.length === 0) {
+    const action = clinic?.recommended_action;
+    const title = firstString(action?.title);
+    if (title) {
+      const body = firstString(action?.message) || title;
+      out.push({
+        id: "clinic-recommended-action",
+        title,
+        body,
+        tone: "suggestion",
+        audience: "student",
+        source: "turbo",
+      });
+    }
+  }
+
+  // smart-review → questions[] (confirmed field name). Respect `available`.
+  if (review?.available !== false) {
+    const questions = toArray<any>(review?.questions);
+    questions.slice(0, 5).forEach((q: any, i: number) => {
+      const title = firstString(q?.title, q?.subject) || "مرور هوشمند";
+      const body = firstString(q?.prompt, q?.question_text, q?.text, q?.summary);
+      if (!body) return;
+      out.push({
+        id: firstString(q?.id, `review-${i}`),
+        title,
+        body,
+        tone: "opportunity",
+        audience: "student",
+        source: "turbo",
+      });
     });
-  });
+  }
 
   return out;
 }
+
