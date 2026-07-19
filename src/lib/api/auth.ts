@@ -12,6 +12,7 @@
 import { apiClient, setAuthToken } from "./client";
 import { buildApiUrl } from "./config";
 import { endpoints } from "./endpoints";
+import { resetStudentDataCache } from "./student-data";
 import type { RoleId } from "@/lib/roles";
 
 export interface LoginResponse {
