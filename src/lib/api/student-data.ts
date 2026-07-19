@@ -195,7 +195,13 @@ let cachedProgress: any[] | null = null;
 async function getProgressRecords(): Promise<any[]> {
   if (cachedProgress) return cachedProgress;
   const studentId = readStudentId();
-  if (studentId == null) return [];
+  if (studentId == null) {
+    if (import.meta.env?.DEV) {
+      // eslint-disable-next-line no-console
+      console.warn("[student-api] student/progress: missing atomia.auth.user_id in localStorage; returning [].");
+    }
+    return [];
+  }
   const data = await studentGet<any>("student/progress", {
     student_id: String(studentId),
   });
