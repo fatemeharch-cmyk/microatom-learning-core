@@ -301,8 +301,10 @@ export async function getAtomBits(): Promise<AtomBit[]> {
 // unix timestamps. Build the human-readable period string here.
 
 export async function getTodaySessions(): Promise<ClassSession[]> {
+  // Confirmed real shape: bare array at root (e.g. `[]` for a student with
+  // no timetable yet). `Array.isArray(data) ? data : []` is sufficient.
   const data = await studentGet<any>("daily-class-timeline");
-  const list = Array.isArray(data) ? data : toArray<any>((data as any)?.items);
+  const list = Array.isArray(data) ? data : [];
   return list.map((s: any, i: number): ClassSession => {
     const start = formatHHMM(s?.start_time);
     const end = formatHHMM(s?.end_time);
