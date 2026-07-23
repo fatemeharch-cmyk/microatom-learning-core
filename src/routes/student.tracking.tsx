@@ -20,8 +20,8 @@ import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { STUDENT_BASE_URL } from "@/lib/api/config";
 import { getAuthToken } from "@/lib/api/client";
-import { listSubjects } from "@/lib/services/content-service";
-import type { ContentSubject } from "@/lib/services/content-service";
+import { listSubjects, listChaptersBySubject } from "@/lib/services/content-service";
+import type { ContentSubject, ContentChapter } from "@/lib/services/content-service";
 
 export const Route = createFileRoute("/student/tracking")({
   component: StudyTracking,
@@ -35,6 +35,7 @@ type StudyLog = {
   subject_id: string | number;
   subject_name?: string;
   chapter_id?: string | number | null;
+  chapter_name?: string | null;
   goftar_id?: string | number | null;
   atom_id?: string | number | null;
   micro_atom_id?: string | number | null;
@@ -129,6 +130,11 @@ function StudyTracking() {
   const [subjects, setSubjects] = useState<ContentSubject[]>([]);
   const [subjectId, setSubjectId] = useState<string>("");
 
+  // ---- NEW: chapter state ----
+  const [chapters, setChapters] = useState<ContentChapter[]>([]);
+  const [chapterId, setChapterId] = useState<string>("");
+  const [chaptersLoading, setChaptersLoading] = useState(false);
+
   const [duration, setDuration] = useState<number>(30);
   const [activityType, setActivityType] = useState<ActivityType>("study");
   const [date, setDate] = useState<string>(todayISO());
@@ -192,6 +198,34 @@ function StudyTracking() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ---- NEW: whenever the selected subject changes, load its chapters ----
+  useEffect(() => {
+    let cancelled = false;
+    setChapterId("");
+    setChapters([]);
+    if (!subjectId) return;
+
+    setChaptersLoading(true);
+    listChaptersBySubject(subjectId)
+      .then((list) => {
+        if (cancelled) return;
+        const sorted = [...list].sort(
+          (a, b) => (a.number ?? 0) - (b.number ?? 0),
+        );
+        setChapters(sorted);
+      })
+      .catch(() => {
+        if (!cancelled) setChapters([]);
+      })
+      .finally(() => {
+        if (!cancelled) setChaptersLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [subjectId]);
+
   async function addSession() {
     if (!subjectId || duration <= 0) return;
     setSubmitting(true);
@@ -201,6 +235,12 @@ function StudyTracking() {
         method: "POST",
         body: JSON.stringify({
           subject_id: isNaN(Number(subjectId)) ? subjectId : Number(subjectId),
+          // ---- NEW: send chapter_id when one is selected ----
+          chapter_id: chapterId
+            ? isNaN(Number(chapterId))
+              ? chapterId
+              : Number(chapterId)
+            : undefined,
           study_date: date,
           duration_minutes: duration,
           activity_type: activityType,
@@ -278,8 +318,8 @@ function StudyTracking() {
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {fa
-            ? "هر جلسهٔ مطالعه‌ت رو ثبت کن تا خلاصهٔ روز، هفته و ماه رو ببینی."
-            : "Log each study session to see today, this week, and this month."}
+            ? "هر جلسهٔ مطالعه‌ت رو به همراه فصلش ثبت کن تا خلاصهٔ روز، هفته و ماه رو ببینی."
+            : "Log each study session with its chapter to see today, this week, and this month."}
         </p>
       </div>
 
@@ -366,7 +406,7 @@ function StudyTracking() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
             <div className="space-y-1.5 text-right">
               <Label>{fa ? "تاریخ" : "Date"}</Label>
               <DatePicker
@@ -407,6 +447,35 @@ function StudyTracking() {
                 ))}
               </select>
             </div>
+
+            {/* ---- NEW: chapter selector, dependent on subject ---- */}
+            <div className="space-y-1.5 text-right">
+              <Label>{fa ? "فصل (اختیاری)" : "Chapter (optional)"}</Label>
+              <select
+                dir="rtl"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm text-right disabled:opacity-50"
+                value={chapterId}
+                onChange={(e) => setChapterId(e.target.value)}
+                disabled={!subjectId || chaptersLoading}
+              >
+                <option value="">
+                  {chaptersLoading
+                    ? fa
+                      ? "در حال بارگذاری..."
+                      : "Loading..."
+                    : fa
+                      ? "مرور کلی / بدون فصل"
+                      : "General / no chapter"}
+                </option>
+                {chapters.map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.number ? `${c.number}. ` : ""}
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="space-y-1.5 text-right">
               <Label>{fa ? "نوع فعالیت" : "Activity"}</Label>
               <select
@@ -438,7 +507,7 @@ function StudyTracking() {
               <Input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder={fa ? "مثلاً: فصل ۲ تمرین‌ها" : "e.g. Ch.2 exercises"}
+                placeholder={fa ? "مثلاً: تمرین‌های آخر فصل" : "e.g. End-of-chapter exercises"}
                 className="h-9 text-right"
               />
             </div>
@@ -502,6 +571,13 @@ function StudyTracking() {
                         {activityLabel(fa, s.activity_type)}
                       </Badge>
                     </div>
+                    {/* ---- NEW: show chapter name when the backend returns one ---- */}
+                    {s.chapter_name && (
+                      <p className="text-[11px] text-muted-foreground">
+                        {fa ? "فصل: " : "Chapter: "}
+                        {s.chapter_name}
+                      </p>
+                    )}
                     {s.notes && (
                       <p className="text-[11px] text-muted-foreground truncate">
                         {s.notes}
