@@ -130,7 +130,6 @@ function StudyTracking() {
   const [subjects, setSubjects] = useState<ContentSubject[]>([]);
   const [subjectId, setSubjectId] = useState<string>("");
 
-  // ---- NEW: chapter state ----
   const [chapters, setChapters] = useState<ContentChapter[]>([]);
   const [chapterId, setChapterId] = useState<string>("");
   const [chaptersLoading, setChaptersLoading] = useState(false);
@@ -198,7 +197,6 @@ function StudyTracking() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ---- NEW: whenever the selected subject changes, load its chapters ----
   useEffect(() => {
     let cancelled = false;
     setChapterId("");
@@ -235,7 +233,6 @@ function StudyTracking() {
         method: "POST",
         body: JSON.stringify({
           subject_id: isNaN(Number(subjectId)) ? subjectId : Number(subjectId),
-          // ---- NEW: send chapter_id when one is selected ----
           chapter_id: chapterId
             ? isNaN(Number(chapterId))
               ? chapterId
@@ -323,7 +320,6 @@ function StudyTracking() {
         </p>
       </div>
 
-      {/* Stats */}
       <div className="grid sm:grid-cols-3 gap-3">
         <Card>
           <CardContent className="p-5">
@@ -372,7 +368,6 @@ function StudyTracking() {
         </Card>
       </div>
 
-      {/* Per-subject breakdown */}
       {bySubject.length > 0 && (
         <Card>
           <CardHeader>
@@ -398,7 +393,6 @@ function StudyTracking() {
         </Card>
       )}
 
-      {/* Log session */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
@@ -448,7 +442,6 @@ function StudyTracking() {
               </select>
             </div>
 
-            {/* ---- NEW: chapter selector, dependent on subject ---- */}
             <div className="space-y-1.5 text-right">
               <Label>{fa ? "فصل (اختیاری)" : "Chapter (optional)"}</Label>
               <select
@@ -532,7 +525,6 @@ function StudyTracking() {
         </CardContent>
       </Card>
 
-      {/* History */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
@@ -571,7 +563,6 @@ function StudyTracking() {
                         {activityLabel(fa, s.activity_type)}
                       </Badge>
                     </div>
-                    {/* ---- NEW: show chapter name when the backend returns one ---- */}
                     {s.chapter_name && (
                       <p className="text-[11px] text-muted-foreground">
                         {fa ? "فصل: " : "Chapter: "}
