@@ -164,7 +164,7 @@ export function StudyTrackingPanel() {
     try {
       const [subs, res] = await Promise.all([
         listSubjects().catch(() => [] as ContentSubject[]),
-        xanoStudent<StudyLogsResponse>("/student/study-logs"),
+        xanoStudent<StudyLogsResponse>("/study-logs"),
       ]);
       setSubjects(subs);
       if (subs.length > 0 && !subjectId) setSubjectId(String(subs[0].id));
@@ -224,7 +224,7 @@ export function StudyTrackingPanel() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      await xanoStudent("/student/study-logs", {
+      await xanoStudent("/study-logs", {
         method: "POST",
         body: JSON.stringify({
           subject_id: isNaN(Number(subjectId)) ? subjectId : Number(subjectId),
