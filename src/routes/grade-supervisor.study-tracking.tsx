@@ -7,6 +7,7 @@ import {
   Loader2,
   RefreshCw,
   ChevronLeft,
+  BookOpen,
 } from "lucide-react";
 import { GRADE_SUPERVISOR_BASE_URL } from "@/lib/api/config";
 import { getAuthToken } from "@/lib/api/client";
@@ -25,6 +26,13 @@ type GradeSummary = {
 type BySubject = {
   subject_id: string | number;
   subject_name: string;
+  total_minutes: number;
+};
+
+type ByChapter = {
+  chapter_id: string | number;
+  chapter_name: string;
+  subject_name?: string;
   total_minutes: number;
 };
 
@@ -47,6 +55,7 @@ type GradeStudyResponse = {
   range?: { from_date?: string; to_date?: string };
   grade_summary?: GradeSummary;
   by_subject?: BySubject[];
+  by_chapter?: ByChapter[];
   by_period?: ByPeriod[];
   students?: StudentRow[];
 };
@@ -168,6 +177,13 @@ function GradeStudyTracking() {
   const summary = data?.grade_summary ?? {};
   const students = data?.students ?? [];
   const bySubject = data?.by_subject ?? [];
+  const byChapter = useMemo(
+    () =>
+      [...(data?.by_chapter ?? [])].sort(
+        (a, b) => (b.total_minutes ?? 0) - (a.total_minutes ?? 0),
+      ),
+    [data],
+  );
   const isEmpty =
     (summary.total_minutes ?? 0) === 0 &&
     students.every((s) => (s.total_minutes ?? 0) === 0);
@@ -235,7 +251,6 @@ function GradeStudyTracking() {
         </Card>
       ) : (
         <>
-          {/* Summary */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="p-5">
               <div className="flex items-start justify-between">
@@ -279,7 +294,6 @@ function GradeStudyTracking() {
             </Card>
           </div>
 
-          {/* By subject */}
           {bySubject.length > 0 && (
             <Card className="p-5">
               <h2 className="text-sm font-bold text-slate-800 mb-4">
@@ -303,7 +317,56 @@ function GradeStudyTracking() {
             </Card>
           )}
 
-          {/* Students table */}
+          {byChapter.length > 0 && (
+            <Card className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <BookOpen className="h-4 w-4 text-violet-600" />
+                <h2 className="text-sm font-bold text-slate-800">
+                  به تفکیک فصل
+                </h2>
+                <span className="text-[11px] text-slate-400 mr-auto">
+                  پرمطالعه‌ترین فصل‌ها در این بازه
+                </span>
+              </div>
+              <div className="space-y-2">
+                {byChapter.slice(0, 10).map((c) => {
+                  const max = byChapter[0]?.total_minutes || 1;
+                  const pct = Math.max(
+                    4,
+                    Math.round(((c.total_minutes ?? 0) / max) * 100),
+                  );
+                  return (
+                    <div
+                      key={String(c.chapter_id)}
+                      className="p-3 rounded-2xl border border-slate-100 bg-white"
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm font-semibold text-slate-800">
+                          {c.chapter_name}
+                          {c.subject_name && (
+                            <span className="text-slate-400 font-normal">
+                              {" "}
+                              · {c.subject_name}
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-xs text-slate-500 shrink-0">
+                          {toFa(c.total_minutes)} دقیقه
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-violet-500"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
           <Card className="p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-bold text-slate-800">
