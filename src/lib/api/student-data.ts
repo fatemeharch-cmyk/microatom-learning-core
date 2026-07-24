@@ -144,18 +144,39 @@ export function safeNumber(v: unknown): number | null {
 }
 
 // ---- dashboard-summary cache ------------------------------------------
+//
+// Caches ONLY successful responses. A failed fetch (studentGet returns null)
+// leaves the cache unset so the next caller re-attempts the request. This
+// prevents a single transient network/token error from freezing the whole
+// student session on empty defaults.
 
 let cachedDashboardSummary: any = null;
+let inflightDashboardSummary: Promise<any> | null = null;
 async function getDashboardSummary(): Promise<any> {
   if (cachedDashboardSummary) return cachedDashboardSummary;
-  const data = await studentGet<any>("dashboard-summary");
-  cachedDashboardSummary = data ?? {};
-  return cachedDashboardSummary;
+  if (inflightDashboardSummary) return inflightDashboardSummary;
+  inflightDashboardSummary = (async () => {
+    try {
+      const data = await studentGet<any>("dashboard-summary");
+      if (data && typeof data === "object") {
+        cachedDashboardSummary = data;
+        return cachedDashboardSummary;
+      }
+      // Failure / empty: return a transient empty object WITHOUT caching,
+      // so the next call retries.
+      return {};
+    } finally {
+      inflightDashboardSummary = null;
+    }
+  })();
+  return inflightDashboardSummary;
 }
 
 export function resetStudentDataCache() {
   cachedDashboardSummary = null;
   cachedProgress = null;
+  inflightDashboardSummary = null;
+  inflightProgress = null;
 }
 
 export async function getDashboardSummaryRaw(): Promise<any> {
@@ -190,10 +211,15 @@ export async function getCurrentStudent(): Promise<Student> {
 }
 
 // ---- student/progress cache (shared by getAtomBits + getSubjects) ------
+//
+// Same policy as dashboard-summary: only cache on a successful, non-null
+// response so a transient failure doesn't permanently pin an empty list.
 
 let cachedProgress: any[] | null = null;
+let inflightProgress: Promise<any[]> | null = null;
 async function getProgressRecords(): Promise<any[]> {
   if (cachedProgress) return cachedProgress;
+  if (inflightProgress) return inflightProgress;
   const studentId = readStudentId();
   if (studentId == null) {
     if (import.meta.env?.DEV) {
@@ -202,15 +228,25 @@ async function getProgressRecords(): Promise<any[]> {
     }
     return [];
   }
-  const data = await studentGet<any>("student/progress", {
-    student_id: String(studentId),
-  });
-  // Real schema: FLAT array. Guard against wrapped `{ items: [...] }` too.
-  const list = Array.isArray(data)
-    ? data
-    : toArray<any>((data as any)?.items ?? (data as any)?.records ?? []);
-  cachedProgress = list;
-  return list;
+  inflightProgress = (async () => {
+    try {
+      const data = await studentGet<any>("student/progress", {
+        student_id: String(studentId),
+      });
+      if (data == null) {
+        // Failure: don't cache — next call will retry.
+        return [];
+      }
+      const list = Array.isArray(data)
+        ? data
+        : toArray<any>((data as any)?.items ?? (data as any)?.records ?? []);
+      cachedProgress = list;
+      return list;
+    } finally {
+      inflightProgress = null;
+    }
+  })();
+  return inflightProgress;
 }
 
 // ---- getSubjects (derived from progress records) ----------------------
