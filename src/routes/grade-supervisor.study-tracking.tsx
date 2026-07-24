@@ -98,7 +98,7 @@ async function fetchGradeStudy(
     group_by: "day",
   }).toString();
   const res = await fetch(
-    `${GRADE_SUPERVISOR_BASE_URL}/study-logs?${qs}`,
+    `${GRADE_SUPERVISOR_BASE_URL}/study_logs?${qs}`,
     {
       headers: {
         "Content-Type": "application/json",
