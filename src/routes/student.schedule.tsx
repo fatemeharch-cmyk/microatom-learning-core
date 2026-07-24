@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarRange } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarRange, Timer } from "lucide-react";
+import { StudyTrackingPanel } from "@/components/student/study-tracking-panel";
 
 export const Route = createFileRoute("/student/schedule")({
   component: SchedulePage,
@@ -54,57 +56,76 @@ function SchedulePage() {
     <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <CalendarRange className="h-6 w-6 text-primary" /> برنامه هفتگی
+          <CalendarRange className="h-6 w-6 text-primary" /> مراقبت
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          برنامه مدرسه — پایه یازدهم تجربی
+          برنامه هفتگی مدرسه و ثبت ساعت مطالعه — پایه یازدهم تجربی
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">جدول هفته</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-separate border-spacing-2">
-            <thead>
-              <tr>
-                <th className="text-xs text-muted-foreground font-medium w-20"></th>
-                {days.map((d) => (
-                  <th key={d} className="text-sm font-semibold p-2">{d}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {periods.map((p) => (
-                <tr key={p}>
-                  <td className="text-xs text-muted-foreground text-center">زنگ {p}</td>
-                  {days.map((d) => {
-                    const cell = grid[`${d}-${p}`];
-                    if (!cell) {
-                      return (
-                        <td key={d} className="p-2">
-                          <div className="h-16 rounded-xl border border-dashed border-border" />
-                        </td>
-                      );
-                    }
-                    return (
-                      <td key={d} className="p-2">
-                        <div
-                          className={`h-16 rounded-xl border px-2 py-1.5 flex flex-col justify-center ${colors[cell.subject] || ""}`}
-                        >
-                          <p className="text-sm font-semibold leading-tight">{cell.subject}</p>
-                          <p className="text-[10px] opacity-80 truncate">{cell.teacher}</p>
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="weekly" dir="rtl" className="w-full">
+        <TabsList>
+          <TabsTrigger value="weekly" className="gap-1.5">
+            <CalendarRange className="h-4 w-4" />
+            برنامه هفتگی
+          </TabsTrigger>
+          <TabsTrigger value="study" className="gap-1.5">
+            <Timer className="h-4 w-4" />
+            ساعت مطالعه
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="weekly" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">جدول هفته</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full min-w-[640px] border-separate border-spacing-2">
+                <thead>
+                  <tr>
+                    <th className="text-xs text-muted-foreground font-medium w-20"></th>
+                    {days.map((d) => (
+                      <th key={d} className="text-sm font-semibold p-2">{d}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {periods.map((p) => (
+                    <tr key={p}>
+                      <td className="text-xs text-muted-foreground text-center">زنگ {p}</td>
+                      {days.map((d) => {
+                        const cell = grid[`${d}-${p}`];
+                        if (!cell) {
+                          return (
+                            <td key={d} className="p-2">
+                              <div className="h-16 rounded-xl border border-dashed border-border" />
+                            </td>
+                          );
+                        }
+                        return (
+                          <td key={d} className="p-2">
+                            <div
+                              className={`h-16 rounded-xl border px-2 py-1.5 flex flex-col justify-center ${colors[cell.subject] || ""}`}
+                            >
+                              <p className="text-sm font-semibold leading-tight">{cell.subject}</p>
+                              <p className="text-[10px] opacity-80 truncate">{cell.teacher}</p>
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="study" className="mt-4">
+          <StudyTrackingPanel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
