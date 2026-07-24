@@ -179,14 +179,18 @@ function GradeDashboard() {
     [roster],
   );
 
+  const checkupAll = useMemo(
+    () => allReports.filter((r) => r.report_type === "checkup"),
+    [allReports],
+  );
+
   const checkupReports = useMemo(
     () =>
-      allReports
-        .filter((r) => r.report_type === "checkup")
+      checkupAll
         .slice()
         .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
         .slice(0, 5),
-    [allReports],
+    [checkupAll],
   );
 
   const summary = [
