@@ -215,7 +215,7 @@ function GradeDashboard() {
     {
       key: "checkups",
       label: "چکاب‌های ثبت‌شده",
-      value: toFa(checkupReports.length),
+      value: toFa(checkupAll.length),
       sub: "بر اساس گزارش‌های واقعی",
       icon: Stethoscope,
       color: "from-teal-100 to-emerald-100",
