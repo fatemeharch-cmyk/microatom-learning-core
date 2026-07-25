@@ -285,6 +285,44 @@ function StudentsPage() {
     loadStudents();
   }, []);
 
+  // ---------------- Create class ----------------
+  const [createClassOpen, setCreateClassOpen] = useState(false);
+  const [ccName, setCcName] = useState("");
+  const [ccGrade, setCcGrade] = useState("یازدهم");
+  const [ccMajor, setCcMajor] = useState("تجربی");
+  const [ccYear, setCcYear] = useState("1404");
+  const [ccSubmitting, setCcSubmitting] = useState(false);
+  const [ccError, setCcError] = useState<string | null>(null);
+  const [ccSuccess, setCcSuccess] = useState<string | null>(null);
+
+  async function handleCreateClass() {
+    setCcError(null);
+    setCcSuccess(null);
+    const name = ccName.trim();
+    const grade_level = ccGrade.trim();
+    const major = ccMajor.trim();
+    const academic_year = ccYear.trim();
+    if (!name || !grade_level || !major || !academic_year) {
+      setCcError("لطفاً همه فیلدها را پر کنید.");
+      return;
+    }
+    setCcSubmitting(true);
+    try {
+      await xanoFetch("/classes/create", {
+        method: "POST",
+        body: JSON.stringify({ name, grade_level, major, academic_year }),
+      });
+      setCcSuccess("کلاس با موفقیت ایجاد شد.");
+      setCcName("");
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setCcError(msg ? `ایجاد کلاس با خطا مواجه شد: ${msg}` : "ایجاد کلاس با خطا مواجه شد.");
+    } finally {
+      setCcSubmitting(false);
+    }
+  }
+
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
     setFile(f);
