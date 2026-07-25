@@ -54,6 +54,10 @@ type StudyLog = {
   needs_review?: boolean | null;
   question_count?: number | null;
   correct_count?: number | null;
+  incorrect_count?: number | null;
+  unanswered_count?: number | null;
+  response_time_minutes?: number | null;
+  error_reason?: string | null;
 };
 
 type StudyLogsResponse = {
@@ -184,6 +188,10 @@ export function StudyTrackingPanel() {
   const [needsReview, setNeedsReview] = useState<boolean | null>(null);
   const [questionCount, setQuestionCount] = useState<string>("");
   const [correctCount, setCorrectCount] = useState<string>("");
+  const [incorrectCount, setIncorrectCount] = useState<string>("");
+  const [unansweredCount, setUnansweredCount] = useState<string>("");
+  const [responseTimeMinutes, setResponseTimeMinutes] = useState<string>("");
+  const [errorReason, setErrorReason] = useState<string | null>(null);
 
   const [summary, setSummary] = useState<StudyLogsResponse["summary"]>({});
   const [bySubject, setBySubject] = useState<
@@ -305,6 +313,15 @@ export function StudyTrackingPanel() {
             isTestActivity && questionCount ? Number(questionCount) : undefined,
           correct_count:
             isTestActivity && correctCount ? Number(correctCount) : undefined,
+          incorrect_count:
+            isTestActivity && incorrectCount ? Number(incorrectCount) : undefined,
+          unanswered_count:
+            isTestActivity && unansweredCount ? Number(unansweredCount) : undefined,
+          response_time_minutes:
+            isTestActivity && responseTimeMinutes
+              ? Number(responseTimeMinutes)
+              : undefined,
+          error_reason: isTestActivity && errorReason ? errorReason : undefined,
         }),
       });
       setNote("");
@@ -314,6 +331,10 @@ export function StudyTrackingPanel() {
       setNeedsReview(null);
       setQuestionCount("");
       setCorrectCount("");
+      setIncorrectCount("");
+      setUnansweredCount("");
+      setResponseTimeMinutes("");
+      setErrorReason(null);
       setTimerRunning(false);
       setTimerSeconds(0);
       await loadAll();
@@ -698,32 +719,116 @@ export function StudyTrackingPanel() {
               </div>
             </div>
 
-            {isTestActivity && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label>{fa ? "تعداد سؤال" : "Question count"}</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={questionCount}
-                    onChange={(e) => setQuestionCount(e.target.value)}
-                    className="h-9 text-right"
-                    dir="ltr"
-                  />
+            {isTestActivity && (() => {
+              const q = Number(questionCount);
+              const c = Number(correctCount);
+              const i = Number(incorrectCount);
+              const u = Number(unansweredCount);
+              const allFilled =
+                questionCount !== "" &&
+                correctCount !== "" &&
+                incorrectCount !== "" &&
+                unansweredCount !== "";
+              const mismatch = allFilled && c + i + u !== q;
+              const ERROR_REASONS: Array<{ slug: string; label: string }> = [
+                { slug: "scientific", label: fa ? "علمی" : "Scientific" },
+                { slug: "carelessness", label: fa ? "بی‌دقتی" : "Carelessness" },
+                { slug: "time_shortage", label: fa ? "کمبود زمان" : "Time shortage" },
+                { slug: "forgetfulness", label: fa ? "فراموشی" : "Forgetfulness" },
+              ];
+              return (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="space-y-1.5">
+                      <Label>{fa ? "تعداد سؤال" : "Questions"}</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={questionCount}
+                        onChange={(e) => setQuestionCount(e.target.value)}
+                        className="h-9 text-right"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{fa ? "درست" : "Correct"}</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={correctCount}
+                        onChange={(e) => setCorrectCount(e.target.value)}
+                        className="h-9 text-right"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{fa ? "غلط" : "Incorrect"}</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={incorrectCount}
+                        onChange={(e) => setIncorrectCount(e.target.value)}
+                        className="h-9 text-right"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{fa ? "نزده" : "Unanswered"}</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={unansweredCount}
+                        onChange={(e) => setUnansweredCount(e.target.value)}
+                        className="h-9 text-right"
+                        dir="ltr"
+                      />
+                    </div>
+                  </div>
+                  {mismatch && (
+                    <p className="text-[11px] text-muted-foreground">
+                      {fa
+                        ? "مجموع درست، غلط و نزده با تعداد سؤال برابر نیست"
+                        : "Correct + incorrect + unanswered doesn't match question count"}
+                    </p>
+                  )}
+                  <div className="space-y-1.5 max-w-xs">
+                    <Label>
+                      {fa ? "زمان پاسخ‌گویی (دقیقه)" : "Response time (min)"}
+                    </Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      step="0.5"
+                      value={responseTimeMinutes}
+                      onChange={(e) => setResponseTimeMinutes(e.target.value)}
+                      className="h-9 text-right"
+                      dir="ltr"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>{fa ? "علت خطا" : "Error reason"}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {ERROR_REASONS.map((opt) => (
+                        <button
+                          key={opt.slug}
+                          type="button"
+                          onClick={() =>
+                            setErrorReason(errorReason === opt.slug ? null : opt.slug)
+                          }
+                          className={`h-9 px-4 rounded-md text-sm font-semibold border transition ${
+                            errorReason === opt.slug
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-muted text-foreground border-transparent hover:bg-muted/70"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label>{fa ? "تعداد پاسخ صحیح" : "Correct answers"}</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={correctCount}
-                    onChange={(e) => setCorrectCount(e.target.value)}
-                    className="h-9 text-right"
-                    dir="ltr"
-                  />
-                </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {submitError && (
@@ -778,6 +883,23 @@ export function StudyTrackingPanel() {
                   feedbackParts.push(
                     `${fa ? "تمرکز" : "Focus"}: ${s.focus_rating}/5`,
                   );
+                }
+                if (s.question_count != null) {
+                  feedbackParts.push(
+                    `${fa ? "تست" : "Test"}: ${s.correct_count ?? "?"}/${s.question_count} ${fa ? "صحیح" : "correct"}`,
+                  );
+                }
+                if (s.error_reason) {
+                  const REASON_MAP_FA: Record<string, string> = {
+                    scientific: "علمی",
+                    carelessness: "بی‌دقتی",
+                    time_shortage: "کمبود زمان",
+                    forgetfulness: "فراموشی",
+                  };
+                  const label = fa
+                    ? REASON_MAP_FA[s.error_reason] ?? s.error_reason
+                    : s.error_reason;
+                  feedbackParts.push(`${fa ? "علت" : "Reason"}: ${label}`);
                 }
                 return (
                   <div
