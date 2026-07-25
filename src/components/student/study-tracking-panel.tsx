@@ -102,23 +102,37 @@ function formatMMSS(total: number): string {
 
 async function xanoStudent<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getAuthToken();
-  const res = await fetch(`${STUDENT_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-  });
-  const text = await res.text();
-  const data = text ? (JSON.parse(text) as unknown) : null;
+  const doFetch = () =>
+    fetch(`${STUDENT_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init?.headers ?? {}),
+      },
+    });
+
+  let res = await doFetch();
+  let text = await res.text();
+  let data: unknown = text ? (JSON.parse(text) as unknown) : null;
+
+  const msgOf = (d: unknown) =>
+    d && typeof d === "object" && "message" in d
+      ? String((d as { message: unknown }).message ?? "")
+      : "";
+  const isRateLimited = (status: number, m: string) =>
+    status === 429 || /rate limit|requests per/i.test(m);
+
+  if (!res.ok && isRateLimited(res.status, msgOf(data))) {
+    await new Promise((r) => setTimeout(r, 1500));
+    res = await doFetch();
+    text = await res.text();
+    data = text ? (JSON.parse(text) as unknown) : null;
+  }
+
   if (!res.ok) {
-    const msg =
-      data && typeof data === "object" && "message" in data
-        ? String((data as { message: unknown }).message ?? "")
-        : "";
-    throw new Error(msg || `status ${res.status}`);
+    throw new Error(msgOf(data) || `status ${res.status}`);
   }
   return data as T;
 }
@@ -230,10 +244,8 @@ export function StudyTrackingPanel() {
     setLoading(true);
     setError(null);
     try {
-      const [subs, res] = await Promise.all([
-        listSubjects().catch(() => [] as ContentSubject[]),
-        xanoStudent<StudyLogsResponse>("/study-logs"),
-      ]);
+      const subs = await listSubjects().catch(() => [] as ContentSubject[]);
+      const res = await xanoStudent<StudyLogsResponse>("/study-logs");
       setSubjects(subs);
       if (subs.length > 0 && !subjectId) setSubjectId(String(subs[0].id));
       setSummary(res?.summary ?? {});
