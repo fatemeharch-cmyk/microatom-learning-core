@@ -244,10 +244,8 @@ export function StudyTrackingPanel() {
     setLoading(true);
     setError(null);
     try {
-      const [subs, res] = await Promise.all([
-        listSubjects().catch(() => [] as ContentSubject[]),
-        xanoStudent<StudyLogsResponse>("/study-logs"),
-      ]);
+      const subs = await listSubjects().catch(() => [] as ContentSubject[]);
+      const res = await xanoStudent<StudyLogsResponse>("/study-logs");
       setSubjects(subs);
       if (subs.length > 0 && !subjectId) setSubjectId(String(subs[0].id));
       setSummary(res?.summary ?? {});
