@@ -54,6 +54,10 @@ type StudyLog = {
   needs_review?: boolean | null;
   question_count?: number | null;
   correct_count?: number | null;
+  incorrect_count?: number | null;
+  unanswered_count?: number | null;
+  response_time_minutes?: number | null;
+  error_reason?: string | null;
 };
 
 type StudyLogsResponse = {
