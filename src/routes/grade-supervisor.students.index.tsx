@@ -16,6 +16,7 @@ import {
   Eye,
   Pencil,
   RefreshCw,
+  Plus,
 } from "lucide-react";
 import { getAuthToken } from "@/lib/api/client";
 
@@ -283,6 +284,44 @@ function StudentsPage() {
   useEffect(() => {
     loadStudents();
   }, []);
+
+  // ---------------- Create class ----------------
+  const [createClassOpen, setCreateClassOpen] = useState(false);
+  const [ccName, setCcName] = useState("");
+  const [ccGrade, setCcGrade] = useState("یازدهم");
+  const [ccMajor, setCcMajor] = useState("تجربی");
+  const [ccYear, setCcYear] = useState("1404");
+  const [ccSubmitting, setCcSubmitting] = useState(false);
+  const [ccError, setCcError] = useState<string | null>(null);
+  const [ccSuccess, setCcSuccess] = useState<string | null>(null);
+
+  async function handleCreateClass() {
+    setCcError(null);
+    setCcSuccess(null);
+    const name = ccName.trim();
+    const grade_level = ccGrade.trim();
+    const major = ccMajor.trim();
+    const academic_year = ccYear.trim();
+    if (!name || !grade_level || !major || !academic_year) {
+      setCcError("لطفاً همه فیلدها را پر کنید.");
+      return;
+    }
+    setCcSubmitting(true);
+    try {
+      await xanoFetch("/classes/create", {
+        method: "POST",
+        body: JSON.stringify({ name, grade_level, major, academic_year }),
+      });
+      setCcSuccess("کلاس با موفقیت ایجاد شد.");
+      setCcName("");
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : "";
+      setCcError(msg ? `ایجاد کلاس با خطا مواجه شد: ${msg}` : "ایجاد کلاس با خطا مواجه شد.");
+    } finally {
+      setCcSubmitting(false);
+    }
+  }
+
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
@@ -603,8 +642,109 @@ function StudentsPage() {
         </p>
       </div>
 
+      {/* Create class section */}
+      <section
+        dir="rtl"
+        className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-5 space-y-4"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600 grid place-items-center">
+              <Plus className="h-4 w-4" />
+            </div>
+            <h2 className="text-base font-extrabold text-slate-800">
+              افزودن کلاس جدید
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setCreateClassOpen((v) => !v);
+              setCcError(null);
+              setCcSuccess(null);
+            }}
+            className="h-9 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-700 px-3 inline-flex items-center gap-1.5 hover:bg-white transition"
+          >
+            <Plus className="h-4 w-4" />
+            {createClassOpen ? "بستن" : "افزودن کلاس جدید"}
+          </button>
+        </div>
+
+        {createClassOpen && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-slate-500">نام کلاس</span>
+                <input
+                  type="text"
+                  value={ccName}
+                  onChange={(e) => setCcName(e.target.value)}
+                  placeholder="مثلاً: پویندگان ۱"
+                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-slate-500">پایه</span>
+                <input
+                  type="text"
+                  value={ccGrade}
+                  onChange={(e) => setCcGrade(e.target.value)}
+                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-slate-500">رشته</span>
+                <input
+                  type="text"
+                  value={ccMajor}
+                  onChange={(e) => setCcMajor(e.target.value)}
+                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-slate-500">سال تحصیلی</span>
+                <input
+                  type="text"
+                  value={ccYear}
+                  onChange={(e) => setCcYear(e.target.value)}
+                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
+                />
+              </label>
+            </div>
+
+            {ccError && (
+              <div className="text-xs text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl px-3 py-2">
+                {ccError}
+              </div>
+            )}
+            {ccSuccess && (
+              <div className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-2xl px-3 py-2">
+                {ccSuccess}
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleCreateClass}
+                disabled={ccSubmitting}
+                className="h-11 rounded-2xl bg-gradient-to-l from-emerald-500 to-teal-500 text-white text-sm font-bold px-5 inline-flex items-center gap-2 disabled:opacity-60"
+              >
+                {ccSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+                ایجاد کلاس
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* Import section */}
       <section
+
         dir="rtl"
         className="bg-white rounded-3xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] border border-slate-100 p-5 space-y-4"
       >
