@@ -288,9 +288,9 @@ function StudentsPage() {
   // ---------------- Create class ----------------
   const [createClassOpen, setCreateClassOpen] = useState(false);
   const [ccName, setCcName] = useState("");
-  const [ccGrade, setCcGrade] = useState("یازدهم");
-  const [ccMajor, setCcMajor] = useState("تجربی");
-  const [ccYear, setCcYear] = useState("1404");
+  const ccGrade = "یازدهم";
+  const ccMajor = "تجربی";
+  const ccYear = "1404";
   const [ccSubmitting, setCcSubmitting] = useState(false);
   const [ccError, setCcError] = useState<string | null>(null);
   const [ccSuccess, setCcSuccess] = useState<string | null>(null);
@@ -672,7 +672,7 @@ function StudentsPage() {
 
         {createClassOpen && (
           <div className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
               <label className="flex flex-col gap-1">
                 <span className="text-xs text-slate-500">نام کلاس</span>
                 <input
@@ -683,47 +683,6 @@ function StudentsPage() {
                   className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
                 />
               </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">پایه</span>
-                <input
-                  type="text"
-                  value={ccGrade}
-                  onChange={(e) => setCcGrade(e.target.value)}
-                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">رشته</span>
-                <input
-                  type="text"
-                  value={ccMajor}
-                  onChange={(e) => setCcMajor(e.target.value)}
-                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">سال تحصیلی</span>
-                <input
-                  type="text"
-                  value={ccYear}
-                  onChange={(e) => setCcYear(e.target.value)}
-                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
-                />
-              </label>
-            </div>
-
-            {ccError && (
-              <div className="text-xs text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl px-3 py-2">
-                {ccError}
-              </div>
-            )}
-            {ccSuccess && (
-              <div className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-2xl px-3 py-2">
-                {ccSuccess}
-              </div>
-            )}
-
-            <div className="flex justify-end">
               <button
                 type="button"
                 onClick={handleCreateClass}
@@ -738,6 +697,18 @@ function StudentsPage() {
                 ایجاد کلاس
               </button>
             </div>
+
+            {ccError && (
+              <div className="text-xs text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl px-3 py-2">
+                {ccError}
+              </div>
+            )}
+            {ccSuccess && (
+              <div className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-2xl px-3 py-2">
+                {ccSuccess}
+              </div>
+            )}
+
           </div>
         )}
       </section>
