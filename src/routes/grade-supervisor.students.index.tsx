@@ -288,9 +288,9 @@ function StudentsPage() {
   // ---------------- Create class ----------------
   const [createClassOpen, setCreateClassOpen] = useState(false);
   const [ccName, setCcName] = useState("");
-  const [ccGrade, setCcGrade] = useState("یازدهم");
-  const [ccMajor, setCcMajor] = useState("تجربی");
-  const [ccYear, setCcYear] = useState("1404");
+  const ccGrade = "یازدهم";
+  const ccMajor = "تجربی";
+  const ccYear = "1404";
   const [ccSubmitting, setCcSubmitting] = useState(false);
   const [ccError, setCcError] = useState<string | null>(null);
   const [ccSuccess, setCcSuccess] = useState<string | null>(null);
@@ -672,7 +672,7 @@ function StudentsPage() {
 
         {createClassOpen && (
           <div className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
               <label className="flex flex-col gap-1">
                 <span className="text-xs text-slate-500">نام کلاس</span>
                 <input
@@ -683,33 +683,19 @@ function StudentsPage() {
                   className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
                 />
               </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">پایه</span>
-                <input
-                  type="text"
-                  value={ccGrade}
-                  onChange={(e) => setCcGrade(e.target.value)}
-                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">رشته</span>
-                <input
-                  type="text"
-                  value={ccMajor}
-                  onChange={(e) => setCcMajor(e.target.value)}
-                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">سال تحصیلی</span>
-                <input
-                  type="text"
-                  value={ccYear}
-                  onChange={(e) => setCcYear(e.target.value)}
-                  className="h-11 rounded-2xl bg-slate-50 border border-slate-100 px-3 text-sm text-slate-700 focus:bg-white focus:outline-none"
-                />
-              </label>
+              <button
+                type="button"
+                onClick={handleCreateClass}
+                disabled={ccSubmitting}
+                className="h-11 rounded-2xl bg-gradient-to-l from-emerald-500 to-teal-500 text-white text-sm font-bold px-5 inline-flex items-center gap-2 disabled:opacity-60"
+              >
+                {ccSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+                ایجاد کلاس
+              </button>
             </div>
 
             {ccError && (
