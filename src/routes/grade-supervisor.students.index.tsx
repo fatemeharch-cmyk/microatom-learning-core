@@ -486,23 +486,40 @@ function StudentsPage() {
         };
       });
       const payload = { students };
-      const res = await xanoFetch<ImportResponse>("/students/import", {
+      const res = await xanoFetch<unknown>("/students/import", {
         method: "POST",
         body: JSON.stringify(payload),
       });
+      // Defensively normalize the response — Xano's shape is currently in flux.
+      const safeRes: Record<string, unknown> =
+        res && typeof res === "object" && !Array.isArray(res)
+          ? (res as Record<string, unknown>)
+          : {};
+      const safeSummary: Record<string, unknown> =
+        safeRes.summary && typeof safeRes.summary === "object" && !Array.isArray(safeRes.summary)
+          ? (safeRes.summary as Record<string, unknown>)
+          : {};
+      const numOr = (v: unknown, fb: number) => {
+        const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
+        return Number.isFinite(n) ? n : fb;
+      };
+      const rawErrors = Array.isArray(safeRes.errors) ? safeRes.errors : [];
+      const normalizedErrors = rawErrors
+        .filter((e) => e != null)
+        .map((e) => {
+          if (typeof e === "string") return { message: e };
+          if (typeof e === "object") return e as Record<string, unknown>;
+          return { message: String(e) };
+        });
       const result: ImportResponse = {
-        ...(res ?? {}),
+        message: typeof safeRes.message === "string" ? safeRes.message : undefined,
         summary: {
-          ...(res?.summary ?? {}),
-          created:
-            res?.summary?.created ??
-            res?.created ??
-            valid.length,
-          failed:
-            res?.summary?.failed ??
-            res?.failed ??
-            invalid.length,
+          created: numOr(safeSummary.created ?? safeRes.created, valid.length),
+          updated: numOr(safeSummary.updated ?? safeRes.updated, 0),
+          failed: numOr(safeSummary.failed ?? safeRes.failed, invalid.length),
+          skipped: numOr(safeSummary.skipped ?? safeRes.skipped, 0),
         },
+        errors: normalizedErrors as ImportResponse["errors"],
       };
       setImportResult(result);
       // Build downloadable credentials file from what we sent
@@ -531,6 +548,7 @@ function StudentsPage() {
       setImporting(false);
     }
   }
+
 
 
   const validCount = validated?.filter((r) => r.errors.length === 0).length ?? 0;
@@ -895,17 +913,37 @@ function StudentsPage() {
                   خطاهای ردیف‌ها
                 </p>
                 <ul className="space-y-1 text-xs text-rose-700 max-h-48 overflow-auto">
-                  {importResult.errors.map((e, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className="font-semibold shrink-0">
-                        {e.row != null
-                          ? `ردیف ${Number(e.row).toLocaleString("fa-IR")}`
-                          : "—"}
-                        {e.national_code ? ` • کد ملی ${e.national_code}` : ""}
-                      </span>
-                      <span>{e.message ?? e.error ?? e.reason ?? "خطای نامشخص"}</span>
-                    </li>
-                  ))}
+                  {importResult.errors.map((raw, i) => {
+                    const e = (raw && typeof raw === "object" ? raw : {}) as {
+                      row?: unknown;
+                      national_code?: unknown;
+                      message?: unknown;
+                      error?: unknown;
+                      reason?: unknown;
+                    };
+                    const rowNum =
+                      e.row != null && Number.isFinite(Number(e.row))
+                        ? Number(e.row)
+                        : null;
+                    const nc = e.national_code != null ? String(e.national_code) : "";
+                    const msg =
+                      (typeof e.message === "string" && e.message) ||
+                      (typeof e.error === "string" && e.error) ||
+                      (typeof e.reason === "string" && e.reason) ||
+                      (typeof raw === "string" ? raw : "خطای نامشخص");
+                    return (
+                      <li key={i} className="flex gap-2">
+                        <span className="font-semibold shrink-0">
+                          {rowNum != null
+                            ? `ردیف ${rowNum.toLocaleString("fa-IR")}`
+                            : "—"}
+                          {nc ? ` • کد ملی ${nc}` : ""}
+                        </span>
+                        <span>{msg}</span>
+                      </li>
+                    );
+                  })}
+
                 </ul>
               </div>
             )}
