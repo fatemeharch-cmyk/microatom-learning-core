@@ -709,21 +709,6 @@ function StudentsPage() {
               </div>
             )}
 
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={handleCreateClass}
-                disabled={ccSubmitting}
-                className="h-11 rounded-2xl bg-gradient-to-l from-emerald-500 to-teal-500 text-white text-sm font-bold px-5 inline-flex items-center gap-2 disabled:opacity-60"
-              >
-                {ccSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )}
-                ایجاد کلاس
-              </button>
-            </div>
           </div>
         )}
       </section>
