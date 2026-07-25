@@ -23,7 +23,16 @@ import { listSubjects, listChaptersBySubject } from "@/lib/services/content-serv
 import type { ContentSubject, ContentChapter } from "@/lib/services/content-service";
 
 // ---------- Types ----------
-type ActivityType = "study" | "review" | "homework" | "test";
+type ActivityType =
+  | "pre_study"
+  | "same_day_study"
+  | "homework"
+  | "exam_prep"
+  | "review"
+  | "test_practice"
+  | "troubleshooting"
+  | "summary_mindmap"
+  | "catch_up";
 
 type StudyLog = {
   id: string | number;
@@ -98,16 +107,26 @@ async function xanoStudent<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 const ACTIVITY_TYPES_FA: Array<{ value: ActivityType; label: string }> = [
-  { value: "study", label: "مطالعه" },
+  { value: "pre_study", label: "پیش‌مطالعه" },
+  { value: "same_day_study", label: "مطالعه درس همان روز" },
+  { value: "homework", label: "تکلیف مدرسه" },
+  { value: "exam_prep", label: "آمادگی آزمون" },
   { value: "review", label: "مرور" },
-  { value: "homework", label: "تکلیف" },
-  { value: "test", label: "آزمونک" },
+  { value: "test_practice", label: "تست‌زنی" },
+  { value: "troubleshooting", label: "رفع اشکال" },
+  { value: "summary_mindmap", label: "خلاصه‌نویسی یا مایندمپ" },
+  { value: "catch_up", label: "جبران عقب‌ماندگی" },
 ];
 const ACTIVITY_TYPES_EN: Array<{ value: ActivityType; label: string }> = [
-  { value: "study", label: "Study" },
-  { value: "review", label: "Review" },
+  { value: "pre_study", label: "Pre-study" },
+  { value: "same_day_study", label: "Same-day study" },
   { value: "homework", label: "Homework" },
-  { value: "test", label: "Quiz" },
+  { value: "exam_prep", label: "Exam prep" },
+  { value: "review", label: "Review" },
+  { value: "test_practice", label: "Test practice" },
+  { value: "troubleshooting", label: "Troubleshooting" },
+  { value: "summary_mindmap", label: "Summary / mind map" },
+  { value: "catch_up", label: "Catch-up" },
 ];
 
 function activityLabel(fa: boolean, value: string): string {
@@ -130,7 +149,7 @@ export function StudyTrackingPanel() {
   const [chaptersLoading, setChaptersLoading] = useState(false);
 
   const [duration, setDuration] = useState<number>(30);
-  const [activityType, setActivityType] = useState<ActivityType>("study");
+  const [activityType, setActivityType] = useState<ActivityType>("same_day_study");
   const [date, setDate] = useState<string>(todayISO());
   const [note, setNote] = useState<string>("");
   const [dateObj, setDateObj] = useState<DateObject | null>(
