@@ -313,6 +313,15 @@ export function StudyTrackingPanel() {
             isTestActivity && questionCount ? Number(questionCount) : undefined,
           correct_count:
             isTestActivity && correctCount ? Number(correctCount) : undefined,
+          incorrect_count:
+            isTestActivity && incorrectCount ? Number(incorrectCount) : undefined,
+          unanswered_count:
+            isTestActivity && unansweredCount ? Number(unansweredCount) : undefined,
+          response_time_minutes:
+            isTestActivity && responseTimeMinutes
+              ? Number(responseTimeMinutes)
+              : undefined,
+          error_reason: isTestActivity && errorReason ? errorReason : undefined,
         }),
       });
       setNote("");
@@ -322,6 +331,10 @@ export function StudyTrackingPanel() {
       setNeedsReview(null);
       setQuestionCount("");
       setCorrectCount("");
+      setIncorrectCount("");
+      setUnansweredCount("");
+      setResponseTimeMinutes("");
+      setErrorReason(null);
       setTimerRunning(false);
       setTimerSeconds(0);
       await loadAll();
