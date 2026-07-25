@@ -884,6 +884,23 @@ export function StudyTrackingPanel() {
                     `${fa ? "تمرکز" : "Focus"}: ${s.focus_rating}/5`,
                   );
                 }
+                if (s.question_count != null) {
+                  feedbackParts.push(
+                    `${fa ? "تست" : "Test"}: ${s.correct_count ?? "?"}/${s.question_count} ${fa ? "صحیح" : "correct"}`,
+                  );
+                }
+                if (s.error_reason) {
+                  const REASON_MAP_FA: Record<string, string> = {
+                    scientific: "علمی",
+                    carelessness: "بی‌دقتی",
+                    time_shortage: "کمبود زمان",
+                    forgetfulness: "فراموشی",
+                  };
+                  const label = fa
+                    ? REASON_MAP_FA[s.error_reason] ?? s.error_reason
+                    : s.error_reason;
+                  feedbackParts.push(`${fa ? "علت" : "Reason"}: ${label}`);
+                }
                 return (
                   <div
                     key={String(s.id)}
