@@ -188,6 +188,10 @@ export function StudyTrackingPanel() {
   const [needsReview, setNeedsReview] = useState<boolean | null>(null);
   const [questionCount, setQuestionCount] = useState<string>("");
   const [correctCount, setCorrectCount] = useState<string>("");
+  const [incorrectCount, setIncorrectCount] = useState<string>("");
+  const [unansweredCount, setUnansweredCount] = useState<string>("");
+  const [responseTimeMinutes, setResponseTimeMinutes] = useState<string>("");
+  const [errorReason, setErrorReason] = useState<string | null>(null);
 
   const [summary, setSummary] = useState<StudyLogsResponse["summary"]>({});
   const [bySubject, setBySubject] = useState<
