@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 import {
   Sparkles,
   Upload,
+  FileSpreadsheet,
   FileText,
   ImagePlus,
   X,
@@ -80,6 +82,24 @@ function AiAssistantPage() {
     e.target.value = "";
     if (!file) return;
     setCsvText(await file.text());
+  };
+
+  const onExcelFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const sheetName = wb.SheetNames[0];
+      if (!sheetName) throw new Error("empty");
+      const csv = XLSX.utils.sheet_to_csv(wb.Sheets[sheetName], { blankrows: false });
+      if (!csv.trim()) throw new Error("empty");
+      setCsvText(csv.trim());
+      setError("");
+    } catch {
+      setError("فایل اکسل قابل خواندن نبود. لطفاً یک فایل xlsx/xls معتبر انتخاب کنید.");
+    }
   };
 
   const onPdfFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,8 +187,8 @@ function AiAssistantPage() {
               <h2 className="text-sm font-bold text-slate-800">نمرات دانش‌آموزان</h2>
             </div>
             <p className="text-xs text-slate-500 mr-9 mb-3 leading-6">
-              جدول نمرات را از اکسل کپی و اینجا پیست کنید، یا فایل CSV/متنی بارگذاری کنید. فرمت هر
-              سطر: <b>نام، درس، نمره۱، نمره۲، ...</b>
+              جدول نمرات را از اکسل کپی و اینجا پیست کنید، یا فایل اکسل (xlsx/xls) یا CSV/متنی
+              بارگذاری کنید. فرمت هر سطر: <b>نام، درس، نمره۱، نمره۲، ...</b>
             </p>
             <Textarea
               value={csvText}
@@ -178,6 +198,11 @@ function AiAssistantPage() {
               dir="ltr"
             />
             <div className="flex flex-wrap gap-2 mr-9 mt-3">
+              <label className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition">
+                <FileSpreadsheet className="h-3.5 w-3.5" />
+                آپلود فایل اکسل
+                <input type="file" accept=".xlsx,.xls" onChange={onExcelFile} className="hidden" />
+              </label>
               <label className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition">
                 <Upload className="h-3.5 w-3.5" />
                 آپلود فایل CSV/متنی
