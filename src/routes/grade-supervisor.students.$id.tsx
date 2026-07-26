@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { getAuthToken } from "@/lib/api/client";
+import { StudentExamAnalytics } from "@/components/analytics/student-exam-analytics";
+
 
 const GRADE_SUPERVISOR_BASE_URL =
   "https://x8ki-letl-twmt.n7.xano.io/api:grade-supervisor";
@@ -271,16 +273,27 @@ function ProfileBody({ data }: { data: ProfileResponse }) {
         <StudySection study={study} />
       </Card>
 
-      {/* Exams */}
+      {/* Exams — full analytics with graceful fallback to the simple summary */}
       <Card className="p-5">
         <div className="flex items-center gap-2 mb-4">
           <span className="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 grid place-items-center">
             <GraduationCap className="h-4 w-4" />
           </span>
-          <h3 className="text-sm font-bold text-slate-800">نتایج آزمون‌ها</h3>
+          <h3 className="text-sm font-bold text-slate-800">تحلیل آزمون‌ها</h3>
         </div>
-        <ExamsSection exams={exams} />
+        {studentId ? (
+          <StudentExamAnalytics
+            studentId={studentId}
+            gradeLevel={student.grade_level || "یازدهم"}
+            major={student.major || "تجربی"}
+            className={student.class_name}
+            fallback={<ExamsSection exams={exams} />}
+          />
+        ) : (
+          <ExamsSection exams={exams} />
+        )}
       </Card>
+
 
       {/* Learning health */}
       <Card className="p-5">
