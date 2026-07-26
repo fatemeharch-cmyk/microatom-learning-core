@@ -2,10 +2,10 @@
  * AI grade-analysis assistant — server-side only.
  *
  * Takes grades pasted/uploaded by a grade supervisor (plus an optional exam
- * PDF and photos of answer sheets) and asks Claude to produce a structured,
- * per-student analysis: weak/strong subjects, trend, class comparison, and a
- * concrete study plan. The Anthropic API key never reaches the browser — the
- * call happens inside this `createServerFn` handler.
+ * PDF and photos of answer sheets) and asks an OpenAI model to produce a
+ * structured, per-student analysis: weak/strong subjects, trend, class
+ * comparison, and a concrete study plan. The OpenAI API key never reaches
+ * the browser — the call happens inside this `createServerFn` handler.
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -54,8 +54,8 @@ export type GradeAnalysisResult = {
   students: StudentAnalysis[];
 };
 
-const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
-const DEFAULT_MODEL = "claude-sonnet-4-5";
+const OPENAI_API_URL = "https://api.openai.com/v1/responses";
+const DEFAULT_MODEL = "gpt-4o-mini";
 
 function str(v: unknown, fallback = ""): string {
   return typeof v === "string" && v.trim() ? v.trim() : fallback;
@@ -138,14 +138,14 @@ function normalize(raw: unknown): GradeAnalysisResult {
 export const analyzeStudentGrades = createServerFn({ method: "POST" })
   .inputValidator(inputSchema)
   .handler(async ({ data }): Promise<GradeAnalysisResult> => {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error(
-        "سرویس تحلیل هوشمند پیکربندی نشده است. متغیر محیطی ANTHROPIC_API_KEY باید در سرور تنظیم شود.",
+        "سرویس تحلیل هوشمند پیکربندی نشده است. متغیر محیطی OPENAI_API_KEY باید در سرور تنظیم شود.",
       );
     }
 
-    const model = process.env.ANTHROPIC_GRADE_ANALYSIS_MODEL || DEFAULT_MODEL;
+    const model = process.env.OPENAI_GRADE_ANALYSIS_MODEL || DEFAULT_MODEL;
 
     const introText = `شما دستیار تحلیل آموزشی برای مسئول پایه هستید.
 مقیاس نمرات از ۰ تا ${data.maxScore} است. هر نمره کمتر از ${data.attentionThreshold} به‌عنوان نقطه ضعف در نظر گرفته شود.
@@ -173,34 +173,35 @@ ${data.csvText}
   ]
 }`;
 
-    const content: Array<Record<string, unknown>> = [{ type: "text", text: introText }];
+    const content: Array<Record<string, unknown>> = [{ type: "input_text", text: introText }];
     if (data.examPdf) {
       content.push({
-        type: "document",
-        source: { type: "base64", media_type: data.examPdf.mediaType, data: data.examPdf.base64 },
+        type: "input_file",
+        filename: data.examPdf.name || "exam.pdf",
+        file_data: `data:${data.examPdf.mediaType};base64,${data.examPdf.base64}`,
       });
     }
     for (const img of data.images ?? []) {
       content.push({
-        type: "image",
-        source: { type: "base64", media_type: img.mediaType, data: img.base64 },
+        type: "input_image",
+        image_url: `data:${img.mediaType};base64,${img.base64}`,
       });
     }
 
     let res: Response;
     try {
-      res = await fetch(ANTHROPIC_API_URL, {
+      res = await fetch(OPENAI_API_URL, {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
+          authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model,
-          max_tokens: 16000,
-          system: "خروجی را فقط به‌صورت JSON معتبر برگردان، بدون هیچ متن یا توضیح اضافه.",
-          messages: [{ role: "user", content }],
+          max_output_tokens: 16000,
+          instructions: "خروجی را فقط به‌صورت JSON معتبر برگردان، بدون هیچ متن یا توضیح اضافه.",
+          input: [{ role: "user", content }],
+          text: { format: { type: "json_object" } },
         }),
       });
     } catch {
@@ -218,8 +219,11 @@ ${data.csvText}
       throw new Error(`تحلیل با خطا مواجه شد (${res.status}). ${detail}`.trim());
     }
 
-    const body = (await res.json()) as { content?: Array<{ type: string; text?: string }> };
-    const textBlock = (body.content ?? []).find((b) => b.type === "text" && b.text);
+    const body = (await res.json()) as {
+      output?: Array<{ type: string; content?: Array<{ type: string; text?: string }> }>;
+    };
+    const message = (body.output ?? []).find((o) => o.type === "message");
+    const textBlock = (message?.content ?? []).find((c) => c.type === "output_text" && c.text);
     if (!textBlock?.text) {
       throw new Error("پاسخ سرویس هوش مصنوعی قابل خواندن نبود. دوباره تلاش کنید.");
     }
