@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import {
   Sparkles,
-  Upload,
   FileSpreadsheet,
   FileText,
   ImagePlus,
@@ -11,10 +12,12 @@ import {
   Loader2,
   ArrowRight,
   Search,
+  CheckCircle2,
+  RotateCcw,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toFa } from "@/components/analytics/analytics-shared";
@@ -30,19 +33,11 @@ export const Route = createFileRoute("/grade-supervisor/ai-assistant")({
 
 type Attachment = { name: string; mediaType: string; base64: string };
 type ImageAttachment = Attachment & { id: string; dataUrl: string };
+type ExcelSummary = { fileName: string; rowCount: number; studentCount: number };
 type Step = "intake" | "loading" | "dashboard";
 
-const SAMPLE_CSV = [
-  "علی رضایی,ریاضی,14,16,18",
-  "علی رضایی,فیزیک,12,10,9",
-  "علی رضایی,شیمی,15,15,14",
-  "سارا احمدی,ریاضی,18,19,19",
-  "سارا احمدی,فیزیک,17,18,18",
-  "سارا احمدی,شیمی,16,17,18",
-  "محمد کریمی,ریاضی,9,8,7",
-  "محمد کریمی,فیزیک,10,9,8",
-  "محمد کریمی,شیمی,11,10,9",
-].join("\n");
+const MAX_PDF_BYTES = 8 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -51,6 +46,15 @@ function readFileAsDataUrl(file: File): Promise<string> {
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
+}
+
+function summarizeCsv(csv: string) {
+  const lines = csv
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const names = new Set(lines.map((l) => l.split(",")[0]?.trim()).filter(Boolean));
+  return { rowCount: lines.length, studentCount: names.size };
 }
 
 function statusTone(s: StudentAnalysis["status"]) {
@@ -65,9 +69,35 @@ function trendTone(t: string) {
   return "text-slate-500";
 }
 
+// Plain hex colors on purpose: the printable report is rasterized with
+// html2canvas, which can't parse Tailwind v4's oklch()-based utility colors.
+function statusHex(s: StudentAnalysis["status"]) {
+  if (s === "خوب") return { background: "#d1fae5", color: "#047857" };
+  if (s === "نیازمند توجه") return { background: "#ffe4e6", color: "#be123c" };
+  return { background: "#fef3c7", color: "#b45309" };
+}
+
+function ReportTile({
+  label,
+  value,
+  color = "#292524",
+}: {
+  label: string;
+  value: string;
+  color?: string;
+}) {
+  return (
+    <div style={{ flex: 1, background: "#f8fafc", borderRadius: 12, padding: "12px 14px" }}>
+      <div style={{ fontSize: 11, color: "#78716c" }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color, marginTop: 4 }}>{value}</div>
+    </div>
+  );
+}
+
 function AiAssistantPage() {
   const [step, setStep] = useState<Step>("intake");
   const [csvText, setCsvText] = useState("");
+  const [excelSummary, setExcelSummary] = useState<ExcelSummary | null>(null);
   const [maxScore, setMaxScore] = useState(20);
   const [attentionThreshold, setAttentionThreshold] = useState(12);
   const [examPdf, setExamPdf] = useState<Attachment | null>(null);
@@ -76,13 +106,9 @@ function AiAssistantPage() {
   const [result, setResult] = useState<GradeAnalysisResult | null>(null);
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
-  const onCsvFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    setCsvText(await file.text());
-  };
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const onExcelFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,28 +119,40 @@ function AiAssistantPage() {
       const wb = XLSX.read(buf, { type: "array" });
       const sheetName = wb.SheetNames[0];
       if (!sheetName) throw new Error("empty");
-      const csv = XLSX.utils.sheet_to_csv(wb.Sheets[sheetName], { blankrows: false });
-      if (!csv.trim()) throw new Error("empty");
-      setCsvText(csv.trim());
+      const csv = XLSX.utils.sheet_to_csv(wb.Sheets[sheetName], { blankrows: false }).trim();
+      if (!csv) throw new Error("empty");
+      setCsvText(csv);
+      setExcelSummary({ fileName: file.name, ...summarizeCsv(csv) });
       setError("");
     } catch {
       setError("فایل اکسل قابل خواندن نبود. لطفاً یک فایل xlsx/xls معتبر انتخاب کنید.");
     }
   };
 
+  const clearExcel = () => {
+    setCsvText("");
+    setExcelSummary(null);
+  };
+
   const onPdfFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    if (file.size > MAX_PDF_BYTES) {
+      setError("حجم فایل PDF نباید بیشتر از ۸ مگابایت باشد.");
+      return;
+    }
     const dataUrl = await readFileAsDataUrl(file);
     setExamPdf({ name: file.name, mediaType: "application/pdf", base64: dataUrl.split(",")[1] });
+    setError("");
   };
 
   const onImageFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     e.target.value = "";
     const room = 5 - images.length;
-    const picked = files.slice(0, room);
+    const tooBig = files.some((f) => f.size > MAX_IMAGE_BYTES);
+    const picked = files.filter((f) => f.size <= MAX_IMAGE_BYTES).slice(0, room);
     const next: ImageAttachment[] = [];
     for (const file of picked) {
       const dataUrl = await readFileAsDataUrl(file);
@@ -127,6 +165,7 @@ function AiAssistantPage() {
       });
     }
     setImages((prev) => [...prev, ...next]);
+    setError(tooBig ? "برخی عکس‌ها بیشتر از ۵ مگابایت بودند و اضافه نشدند." : "");
   };
 
   const runAnalysis = async () => {
@@ -154,6 +193,36 @@ function AiAssistantPage() {
     }
   };
 
+  const downloadReportPdf = async () => {
+    if (!reportRef.current) return;
+    setExportingPdf(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, { scale: 2, backgroundColor: "#ffffff" });
+      const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgData = canvas.toDataURL("image/jpeg", 0.92);
+
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      pdf.save("گزارش-تحلیل-دانش‌آموزان.pdf");
+    } catch {
+      setError("خروجی PDF ساخته نشد. دوباره تلاش کنید.");
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   const filteredStudents = useMemo(() => {
     const students = result?.students ?? [];
     const q = search.trim();
@@ -171,8 +240,8 @@ function AiAssistantPage() {
         <div>
           <h1 className="text-lg font-extrabold text-slate-800">دستیار تحلیل هوشمند دانش‌آموزان</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            نمرات را وارد کن تا هوش مصنوعی نقاط ضعف/قوت هر دانش‌آموز و یک برنامه مطالعاتی پیشنهاد
-            بدهد.
+            فایل نمرات را بارگذاری کن تا هوش مصنوعی نقاط ضعف/قوت هر دانش‌آموز و یک برنامه مطالعاتی
+            پیشنهاد بدهد.
           </p>
         </div>
       </div>
@@ -184,112 +253,105 @@ function AiAssistantPage() {
               <span className="h-7 w-7 rounded-lg bg-violet-50 text-violet-600 grid place-items-center text-xs font-bold">
                 ۱
               </span>
-              <h2 className="text-sm font-bold text-slate-800">نمرات دانش‌آموزان</h2>
+              <h2 className="text-sm font-bold text-slate-800">فایل نمرات دانش‌آموزان</h2>
             </div>
             <p className="text-xs text-slate-500 mr-9 mb-3 leading-6">
-              جدول نمرات را از اکسل کپی و اینجا پیست کنید، یا فایل اکسل (xlsx/xls) یا CSV/متنی
-              بارگذاری کنید. فرمت هر سطر: <b>نام، درس، نمره۱، نمره۲، ...</b>
+              فایل اکسل نمرات را بارگذاری کنید. ستون اول نام دانش‌آموز، ستون دوم درس و ستون‌های بعدی
+              نمرات آزمون‌ها هستند.
             </p>
-            <Textarea
-              value={csvText}
-              onChange={(e) => setCsvText(e.target.value)}
-              placeholder={"مثال:\nعلی رضایی,ریاضی,14,16,18\nعلی رضایی,فیزیک,12,10,9"}
-              className="mr-9 w-[calc(100%-2.25rem)] min-h-[150px] font-mono text-xs"
-              dir="ltr"
-            />
-            <div className="flex flex-wrap gap-2 mr-9 mt-3">
-              <label className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition">
-                <FileSpreadsheet className="h-3.5 w-3.5" />
-                آپلود فایل اکسل
+
+            {excelSummary ? (
+              <div className="mr-9 flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-emerald-800 truncate">
+                    {excelSummary.fileName}
+                  </p>
+                  <p className="text-[11px] text-emerald-700 mt-0.5">
+                    {toFa(excelSummary.studentCount)} دانش‌آموز · {toFa(excelSummary.rowCount)} ردیف
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl text-xs bg-white"
+                  onClick={clearExcel}
+                >
+                  <RotateCcw className="h-3.5 w-3.5 ml-1" />
+                  تغییر فایل
+                </Button>
+              </div>
+            ) : (
+              <label className="mr-9 flex flex-col items-center justify-center gap-2 h-32 rounded-2xl border-2 border-dashed border-slate-200 text-slate-400 cursor-pointer hover:bg-slate-50 hover:border-violet-200 hover:text-violet-500 transition">
+                <FileSpreadsheet className="h-6 w-6" />
+                <span className="text-xs font-semibold">آپلود فایل اکسل (xlsx/xls)</span>
                 <input type="file" accept=".xlsx,.xls" onChange={onExcelFile} className="hidden" />
               </label>
-              <label className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition">
-                <Upload className="h-3.5 w-3.5" />
-                آپلود فایل CSV/متنی
-                <input type="file" accept=".csv,.txt" onChange={onCsvFile} className="hidden" />
-              </label>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl text-xs"
-                onClick={() => setCsvText(SAMPLE_CSV)}
-              >
-                پر کردن با نمونه
-              </Button>
-            </div>
+            )}
           </div>
 
           <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] p-6">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-3">
               <span className="h-7 w-7 rounded-lg bg-indigo-50 text-indigo-600 grid place-items-center text-xs font-bold">
                 ۲
               </span>
               <h2 className="text-sm font-bold text-slate-800">
-                فایل سوال و پاسخ امتحان{" "}
-                <span className="font-normal text-slate-400">(اختیاری، PDF)</span>
+                پیوست‌های تکمیلی <span className="font-normal text-slate-400">(اختیاری)</span>
               </h2>
             </div>
-            <div className="mr-9 mt-2 flex items-center gap-2 flex-wrap">
-              <label className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition">
-                <FileText className="h-3.5 w-3.5" />
-                انتخاب فایل PDF
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={onPdfFile}
-                  className="hidden"
-                />
-              </label>
-              {examPdf && (
-                <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-1.5 text-xs">
-                  <span className="text-slate-600">{examPdf.name}</span>
-                  <button
-                    onClick={() => setExamPdf(null)}
-                    className="text-rose-500 font-bold cursor-pointer"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
 
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.08)] p-6">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600 grid place-items-center text-xs font-bold">
-                ۳
-              </span>
-              <h2 className="text-sm font-bold text-slate-800">
-                تصاویر برگه‌های امتحان{" "}
-                <span className="font-normal text-slate-400">(اختیاری، حداکثر ۵ عکس)</span>
-              </h2>
-            </div>
-            <div className="mr-9 mt-2 flex items-center gap-2 flex-wrap">
-              <label className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition">
-                <ImagePlus className="h-3.5 w-3.5" />
-                انتخاب عکس‌ها
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={onImageFiles}
-                  className="hidden"
-                />
-              </label>
-              {images.map((img) => (
-                <div
-                  key={img.id}
-                  className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200"
-                >
-                  <img src={img.dataUrl} alt={img.name} className="w-full h-full object-cover" />
-                  <button
-                    onClick={() => setImages((prev) => prev.filter((i) => i.id !== img.id))}
-                    className="absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-black/60 text-white grid place-items-center cursor-pointer"
+            <div className="mr-9 space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <label className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition">
+                  <FileText className="h-3.5 w-3.5" />
+                  فایل سوال و پاسخ امتحان (PDF)
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={onPdfFile}
+                    className="hidden"
+                  />
+                </label>
+                {examPdf && (
+                  <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-1.5 text-xs">
+                    <span className="text-slate-600">{examPdf.name}</span>
+                    <button
+                      onClick={() => setExamPdf(null)}
+                      className="text-rose-500 font-bold cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <label className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-2 cursor-pointer hover:bg-slate-100 transition">
+                  <ImagePlus className="h-3.5 w-3.5" />
+                  تصاویر برگه‌های امتحان (حداکثر ۵ عکس)
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={onImageFiles}
+                    className="hidden"
+                  />
+                </label>
+                {images.map((img) => (
+                  <div
+                    key={img.id}
+                    className="relative w-11 h-11 rounded-lg overflow-hidden border border-slate-200"
                   >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
+                    <img src={img.dataUrl} alt={img.name} className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => setImages((prev) => prev.filter((i) => i.id !== img.id))}
+                      className="absolute top-0.5 left-0.5 w-[16px] h-[16px] rounded-full bg-black/60 text-white grid place-items-center cursor-pointer"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -355,16 +417,36 @@ function AiAssistantPage() {
               <ArrowRight className="h-3.5 w-3.5 ml-1" />
               بازگشت و ویرایش داده
             </Button>
-            <div className="relative">
-              <Search className="h-3.5 w-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="جست‌وجوی دانش‌آموز..."
-                className="w-56 pr-9 h-9 text-xs"
-              />
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="h-3.5 w-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="جست‌وجوی دانش‌آموز..."
+                  className="w-48 pr-9 h-9 text-xs"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl text-xs"
+                onClick={downloadReportPdf}
+                disabled={exportingPdf}
+              >
+                {exportingPdf ? (
+                  <Loader2 className="h-3.5 w-3.5 ml-1 animate-spin" />
+                ) : (
+                  <Download className="h-3.5 w-3.5 ml-1" />
+                )}
+                دانلود گزارش PDF
+              </Button>
             </div>
           </div>
+
+          {error && (
+            <div className="bg-rose-50 text-rose-700 rounded-2xl px-4 py-3 text-sm">{error}</div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="bg-white rounded-2xl border border-slate-100 p-4">
@@ -504,6 +586,136 @@ function AiAssistantPage() {
           )}
         </SheetContent>
       </Sheet>
+
+      {result && (
+        <div
+          ref={reportRef}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: "-10000px",
+            width: "780px",
+            background: "#ffffff",
+            padding: "40px",
+            direction: "rtl",
+            fontFamily: "Vazirmatn, sans-serif",
+            color: "#292524",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 24,
+              borderBottom: "2px solid #ede9fe",
+              paddingBottom: 16,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 800 }}>گزارش تحلیل هوشمند دانش‌آموزان</div>
+              <div style={{ fontSize: 12, color: "#78716c", marginTop: 4 }}>
+                تاریخ تولید: {new Date().toLocaleDateString("fa-IR")}
+              </div>
+            </div>
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 14,
+                background: "linear-gradient(135deg,#8b5cf6,#6366f1)",
+              }}
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginBottom: 28 }}>
+            <ReportTile label="میانگین کلاس" value={toFa(result.classSummary.averageScore)} />
+            <ReportTile
+              label="نیازمند توجه"
+              value={`${toFa(result.classSummary.studentsNeedingAttention)} نفر`}
+              color="#e11d48"
+            />
+            <ReportTile
+              label="پرتکرارترین درس مشکل‌دار"
+              value={result.classSummary.topIssueSubject}
+            />
+          </div>
+
+          {result.students.map((student, i) => (
+            <div
+              key={i}
+              style={{
+                marginBottom: 22,
+                paddingBottom: 22,
+                borderBottom: i < result.students.length - 1 ? "1px solid #e7e5e4" : "none",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <div style={{ fontSize: 15, fontWeight: 800 }}>{student.name}</div>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "3px 10px",
+                    borderRadius: 999,
+                    ...statusHex(student.status),
+                  }}
+                >
+                  {student.status}
+                </span>
+                <span style={{ fontSize: 12, color: "#57534e" }}>
+                  میانگین: {toFa(student.overallAverage)}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#44403c",
+                  background: "#f5f3ff",
+                  borderRadius: 10,
+                  padding: "8px 12px",
+                  marginBottom: 10,
+                  lineHeight: 1.8,
+                }}
+              >
+                {student.classComparison}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+                {student.subjects.map((subj, si) => (
+                  <div
+                    key={si}
+                    style={{
+                      fontSize: 11.5,
+                      background: "#f5f5f4",
+                      borderRadius: 8,
+                      padding: "6px 10px",
+                    }}
+                  >
+                    <b>{subj.subject}</b>: {subj.scores.join(" ← ")} ({subj.trend})
+                    {subj.issue ? ` — ${subj.issue}` : ""}
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 11.5, lineHeight: 1.9 }}>
+                <div>
+                  <b style={{ color: "#b45309" }}>توصیه کلی: </b>
+                  {student.recGeneral}
+                </div>
+                <div style={{ marginTop: 4 }}>
+                  <b style={{ color: "#4338ca" }}>برنامه مطالعاتی: </b>
+                  <span style={{ whiteSpace: "pre-wrap" }}>{student.recStudyPlan}</span>
+                </div>
+                {student.recReferral && (
+                  <div style={{ marginTop: 4 }}>
+                    <b style={{ color: "#be123c" }}>ارجاع به دبیر: </b>
+                    {student.recReferral}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
