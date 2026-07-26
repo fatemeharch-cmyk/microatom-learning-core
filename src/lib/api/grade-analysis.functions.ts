@@ -147,6 +147,18 @@ export const analyzeStudentGrades = createServerFn({ method: "POST" })
 
     const model = process.env.OPENAI_GRADE_ANALYSIS_MODEL || DEFAULT_MODEL;
 
+    const attachmentNotes: string[] = [];
+    if (data.examPdf) {
+      attachmentNotes.push(
+        'یک فایل PDF شامل سوالات و پاسخ‌نامه امتحان پیوست شده است. آن را واقعاً بخوان و از محتوایش استفاده کن: مشخص کن دانش‌آموز دقیقاً در کدام سوال‌ها/مبحث‌ها اشتباه کرده یا ضعیف بوده (نه فقط بر اساس نمره خام)، و این جزئیات را در فیلد "issue" هر درس و در "recStudyPlan" بازتاب بده.',
+      );
+    }
+    if (data.images?.length) {
+      attachmentNotes.push(
+        "تصاویری از برگه‌های پاسخ امتحان دانش‌آموزان پیوست شده است. آن‌ها را ببین و خطاهای واقعی نوشته‌شده در برگه (مثل نوع اشتباه محاسباتی یا مفهومی) را در تحلیل و راهکارها لحاظ کن.",
+      );
+    }
+
     const introText = `شما دستیار تحلیل آموزشی برای مسئول پایه هستید.
 مقیاس نمرات از ۰ تا ${data.maxScore} است. هر نمره کمتر از ${data.attentionThreshold} به‌عنوان نقطه ضعف در نظر گرفته شود.
 
@@ -154,7 +166,7 @@ export const analyzeStudentGrades = createServerFn({ method: "POST" })
 ${data.csvText}
 
 برای هر دانش‌آموز تحلیل کن: روند نمرات هر درس در طول زمان، درس‌های ضعیف و قوی، مقایسه با میانگین کلاس، و راهکار عملی شامل توصیه کلی، یک برنامه مطالعاتی هفتگی مشخص و قابل اجرا، و در صورت افت شدید در یک درس، پیشنهاد ارجاع به دبیر مربوطه.
-
+${attachmentNotes.length ? `\n${attachmentNotes.join("\n")}\n` : ""}
 خروجی را فقط و فقط به‌صورت یک JSON معتبر با این ساختار دقیق برگردان (بدون توضیح اضافه، بدون markdown fence):
 {
   "classSummary": {"averageScore": number, "studentsNeedingAttention": number, "topIssueSubject": string},
