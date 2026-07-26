@@ -32,12 +32,16 @@ export const Route = createFileRoute("/grade-supervisor/ai-assistant")({
 });
 
 type Attachment = { name: string; mediaType: string; base64: string };
-type ImageAttachment = Attachment & { id: string; dataUrl: string };
+type ImageAttachment = Attachment & { id: string; dataUrl: string; sizeBytes: number };
 type ExcelSummary = { fileName: string; rowCount: number; studentCount: number };
 type Step = "intake" | "loading" | "dashboard";
 
-const MAX_PDF_BYTES = 8 * 1024 * 1024;
+// OpenAI accepts up to 32MB of combined file content per request; stay well
+// under that so a rejection surfaces as a clear message instead of a
+// confusing "Failed to fetch" from an intermediate proxy's own body-size cap.
+const MAX_PDF_BYTES = 20 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_TOTAL_ATTACHMENT_BYTES = 28 * 1024 * 1024;
 
 function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -101,6 +105,7 @@ function AiAssistantPage() {
   const [maxScore, setMaxScore] = useState(20);
   const [attentionThreshold, setAttentionThreshold] = useState(12);
   const [examPdf, setExamPdf] = useState<Attachment | null>(null);
+  const [examPdfSizeBytes, setExamPdfSizeBytes] = useState(0);
   const [images, setImages] = useState<ImageAttachment[]>([]);
   const [error, setError] = useState("");
   const [result, setResult] = useState<GradeAnalysisResult | null>(null);
@@ -139,12 +144,18 @@ function AiAssistantPage() {
     e.target.value = "";
     if (!file) return;
     if (file.size > MAX_PDF_BYTES) {
-      setError("حجم فایل PDF نباید بیشتر از ۸ مگابایت باشد.");
+      setError("حجم فایل PDF نباید بیشتر از ۲۰ مگابایت باشد.");
       return;
     }
     const dataUrl = await readFileAsDataUrl(file);
     setExamPdf({ name: file.name, mediaType: "application/pdf", base64: dataUrl.split(",")[1] });
+    setExamPdfSizeBytes(file.size);
     setError("");
+  };
+
+  const clearPdf = () => {
+    setExamPdf(null);
+    setExamPdfSizeBytes(0);
   };
 
   const onImageFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,6 +173,7 @@ function AiAssistantPage() {
         mediaType: file.type || "image/jpeg",
         base64: dataUrl.split(",")[1],
         dataUrl,
+        sizeBytes: file.size,
       });
     }
     setImages((prev) => [...prev, ...next]);
@@ -170,6 +182,14 @@ function AiAssistantPage() {
 
   const runAnalysis = async () => {
     if (!csvText.trim()) return;
+    const totalAttachmentBytes =
+      examPdfSizeBytes + images.reduce((sum, img) => sum + img.sizeBytes, 0);
+    if (totalAttachmentBytes > MAX_TOTAL_ATTACHMENT_BYTES) {
+      setError(
+        "مجموع حجم پیوست‌ها (PDF + عکس‌ها) بیش از حد مجاز است. تعداد یا حجم فایل‌ها را کم کنید.",
+      );
+      return;
+    }
     setStep("loading");
     setError("");
     try {
@@ -180,7 +200,7 @@ function AiAssistantPage() {
           attentionThreshold,
           examPdf: examPdf ?? undefined,
           images: images.length
-            ? images.map(({ id: _id, dataUrl: _dataUrl, ...a }) => a)
+            ? images.map(({ id: _id, dataUrl: _dataUrl, sizeBytes: _sizeBytes, ...a }) => a)
             : undefined,
         },
       });
@@ -315,10 +335,7 @@ function AiAssistantPage() {
                 {examPdf && (
                   <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-1.5 text-xs">
                     <span className="text-slate-600">{examPdf.name}</span>
-                    <button
-                      onClick={() => setExamPdf(null)}
-                      className="text-rose-500 font-bold cursor-pointer"
-                    >
+                    <button onClick={clearPdf} className="text-rose-500 font-bold cursor-pointer">
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
