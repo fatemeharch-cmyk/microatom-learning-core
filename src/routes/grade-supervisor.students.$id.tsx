@@ -216,12 +216,12 @@ function StudentProfilePage() {
         </Card>
       )}
 
-      {state.status === "ok" && <ProfileBody data={state.data} />}
+      {state.status === "ok" && <ProfileBody data={state.data} studentId={id} />}
     </div>
   );
 }
 
-function ProfileBody({ data }: { data: ProfileResponse }) {
+function ProfileBody({ data, studentId }: { data: ProfileResponse; studentId: string }) {
   const student = data.student ?? {};
   const study = data.study_summary ?? {};
   const exams = data.exam_summary ?? {};
